@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Himapp.Admin.Contracts</RootNamespace>
+  </PropertyGroup>
+</Project>

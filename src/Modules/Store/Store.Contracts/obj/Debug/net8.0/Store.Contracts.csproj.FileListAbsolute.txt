@@ -1,0 +1,11 @@
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\bin\Debug\net8.0\Store.Contracts.deps.json
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\bin\Debug\net8.0\Store.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\bin\Debug\net8.0\Store.Contracts.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net8.0\Store.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net8.0\Store.Contracts.AssemblyInfoInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net8.0\Store.Contracts.AssemblyInfo.cs
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net8.0\Store.Contracts.csproj.CoreCompileInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net8.0\Store.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net8.0\refint\Store.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net8.0\Store.Contracts.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net8.0\ref\Store.Contracts.dll

@@ -1,0 +1,11 @@
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\bin\Debug\net8.0\Safety.Contracts.deps.json
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\bin\Debug\net8.0\Safety.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\bin\Debug\net8.0\Safety.Contracts.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net8.0\Safety.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net8.0\Safety.Contracts.AssemblyInfoInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net8.0\Safety.Contracts.AssemblyInfo.cs
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net8.0\Safety.Contracts.csproj.CoreCompileInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net8.0\Safety.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net8.0\refint\Safety.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net8.0\Safety.Contracts.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net8.0\ref\Safety.Contracts.dll

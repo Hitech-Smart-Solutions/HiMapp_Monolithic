@@ -1,0 +1,11 @@
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\bin\Debug\net10.0\Admin.Contracts.deps.json
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\bin\Debug\net10.0\Admin.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\bin\Debug\net10.0\Admin.Contracts.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\obj\Debug\net10.0\Admin.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\obj\Debug\net10.0\Admin.Contracts.AssemblyInfoInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\obj\Debug\net10.0\Admin.Contracts.AssemblyInfo.cs
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\obj\Debug\net10.0\Admin.Contracts.csproj.CoreCompileInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\obj\Debug\net10.0\Admin.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\obj\Debug\net10.0\refint\Admin.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\obj\Debug\net10.0\Admin.Contracts.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Contracts\obj\Debug\net10.0\ref\Admin.Contracts.dll

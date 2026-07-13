@@ -1,0 +1,6 @@
+@HiMapp_Monolithic_HostAddress = http://localhost:5249
+
+GET {{HiMapp_Monolithic_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

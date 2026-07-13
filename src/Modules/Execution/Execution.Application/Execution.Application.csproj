@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <ProjectReference Include="..\Execution.Contracts\Execution.Contracts.csproj" />
+    <ProjectReference Include="..\Execution.Domain\Execution.Domain.csproj" />
+    <ProjectReference Include="..\..\Admin\Admin.Contracts\Admin.Contracts.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <RootNamespace>Himapp.Execution.Application</RootNamespace>
+  </PropertyGroup>
+</Project>

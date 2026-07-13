@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <ProjectReference Include="..\Safety.Contracts\Safety.Contracts.csproj" />
+    <ProjectReference Include="..\Safety.Domain\Safety.Domain.csproj" />
+    <ProjectReference Include="..\..\Admin\Admin.Contracts\Admin.Contracts.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <RootNamespace>Himapp.Safety.Application</RootNamespace>
+  </PropertyGroup>
+</Project>

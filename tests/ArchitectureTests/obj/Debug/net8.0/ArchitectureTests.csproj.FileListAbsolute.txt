@@ -1,0 +1,14 @@
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\bin\Debug\net8.0\ArchitectureTests.exe
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\bin\Debug\net8.0\ArchitectureTests.deps.json
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\bin\Debug\net8.0\ArchitectureTests.runtimeconfig.json
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\bin\Debug\net8.0\ArchitectureTests.dll
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\bin\Debug\net8.0\ArchitectureTests.pdb
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net8.0\ArchitectureTests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net8.0\ArchitectureTests.AssemblyInfoInputs.cache
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net8.0\ArchitectureTests.AssemblyInfo.cs
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net8.0\ArchitectureTests.csproj.CoreCompileInputs.cache
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net8.0\ArchitectureTests.dll
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net8.0\refint\ArchitectureTests.dll
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net8.0\ArchitectureTests.pdb
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net8.0\ArchitectureTests.genruntimeconfig.cache
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net8.0\ref\ArchitectureTests.dll

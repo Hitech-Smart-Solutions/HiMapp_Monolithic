@@ -1,0 +1,15 @@
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\bin\Debug\net8.0\Workflow.deps.json
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\bin\Debug\net8.0\Workflow.dll
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\bin\Debug\net8.0\Workflow.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\bin\Debug\net8.0\SharedKernel.dll
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\bin\Debug\net8.0\SharedKernel.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net8.0\Workflow.csproj.AssemblyReference.cache
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net8.0\Workflow.GeneratedMSBuildEditorConfig.editorconfig
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net8.0\Workflow.AssemblyInfoInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net8.0\Workflow.AssemblyInfo.cs
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net8.0\Workflow.csproj.CoreCompileInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net8.0\Workflow.csproj.Up2Date
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net8.0\Workflow.dll
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net8.0\refint\Workflow.dll
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net8.0\Workflow.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net8.0\ref\Workflow.dll

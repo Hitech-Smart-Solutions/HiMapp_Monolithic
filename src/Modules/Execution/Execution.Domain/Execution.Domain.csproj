@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\SharedKernel\SharedKernel.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <RootNamespace>Himapp.Execution.Domain</RootNamespace>
+  </PropertyGroup>
+</Project>

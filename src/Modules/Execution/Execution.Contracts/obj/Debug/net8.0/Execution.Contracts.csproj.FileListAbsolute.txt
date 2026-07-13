@@ -1,0 +1,11 @@
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\bin\Debug\net8.0\Execution.Contracts.deps.json
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\bin\Debug\net8.0\Execution.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\bin\Debug\net8.0\Execution.Contracts.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\obj\Debug\net8.0\Execution.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\obj\Debug\net8.0\Execution.Contracts.AssemblyInfoInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\obj\Debug\net8.0\Execution.Contracts.AssemblyInfo.cs
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\obj\Debug\net8.0\Execution.Contracts.csproj.CoreCompileInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\obj\Debug\net8.0\Execution.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\obj\Debug\net8.0\refint\Execution.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\obj\Debug\net8.0\Execution.Contracts.pdb
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Contracts\obj\Debug\net8.0\ref\Execution.Contracts.dll

@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "x/fgUpcPVvs=",
+  "success": true,
+  "projectFilePath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\Notifications\\Notifications.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.0\\microsoft.entityframeworkcore.8.0.0.nupkg.sha512",
+    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.0\\microsoft.entityframeworkcore.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.0\\microsoft.entityframeworkcore.analyzers.8.0.0.nupkg.sha512",
+    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.0\\microsoft.entityframeworkcore.relational.8.0.0.nupkg.sha512",
+    "C:\\Users\\parth.jani\\.nuget\\packages\\npgsql\\10.0.0\\npgsql.10.0.0.nupkg.sha512",
+    "C:\\Users\\parth.jani\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.0\\npgsql.entityframeworkcore.postgresql.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

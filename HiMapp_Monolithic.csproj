@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Himapp.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\**\*.cs" />
+    <Compile Remove="tests\**\*.cs" />
+    <EmbeddedResource Remove="src\**\*" />
+    <EmbeddedResource Remove="tests\**\*" />
+    <None Remove="src\**\*" />
+    <None Remove="tests\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="src\Shared\SharedKernel\SharedKernel.csproj" />
+    <ProjectReference Include="src\Shared\Notifications\Notifications.csproj" />
+    <ProjectReference Include="src\Shared\Workflow\Workflow.csproj" />
+    <ProjectReference Include="src\Shared\Files\Files.csproj" />
+    <ProjectReference Include="src\Shared\Integrations.D365\Integrations.D365.csproj" />
+    <ProjectReference Include="src\Modules\Admin\Admin.Application\Admin.Application.csproj" />
+    <ProjectReference Include="src\Modules\Safety\Safety.Application\Safety.Application.csproj" />
+    <ProjectReference Include="src\Modules\Execution\Execution.Application\Execution.Application.csproj" />
+    <ProjectReference Include="src\Modules\PM\PM.Application\PM.Application.csproj" />
+    <ProjectReference Include="src\Modules\Store\Store.Application\Store.Application.csproj" />
+  </ItemGroup>
+
+</Project>
