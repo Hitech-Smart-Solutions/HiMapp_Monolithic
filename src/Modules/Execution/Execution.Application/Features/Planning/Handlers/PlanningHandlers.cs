@@ -1,0 +1,94 @@
+using Himapp.Execution.Application.Features.Planning.Models;
+using Himapp.Execution.Application.Features.Planning.Commands;
+using Himapp.Execution.Application.Features.Planning.Queries;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace Himapp.Execution.Application.Features.Planning.Handlers;
+
+internal sealed class GetAllPlanningsQueryHandler : IRequestHandler<GetAllPlanningsQuery, IReadOnlyCollection<PlanningModel>>
+{
+    private readonly DbContext _db;
+    public GetAllPlanningsQueryHandler(DbContext db) => _db = db;
+    public Task<IReadOnlyCollection<PlanningModel>> Handle(GetAllPlanningsQuery request, CancellationToken cancellationToken) =>
+        _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+           .AsNoTracking()
+           .Select(p => new PlanningModel(p.Id, p.UniqueId, p.ProjectId, p.PlanType, p.StartDate, p.EndDate, p.Remarks, p.Status, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate))
+           .ToArrayAsync(cancellationToken)
+           .ContinueWith(t => (IReadOnlyCollection<PlanningModel>)t.Result, cancellationToken);
+}
+
+internal sealed class GetPlanningByIdQueryHandler : IRequestHandler<GetPlanningByIdQuery, PlanningModel?>
+{
+    private readonly DbContext _db;
+    public GetPlanningByIdQueryHandler(DbContext db) => _db = db;
+    public async Task<PlanningModel?> Handle(GetPlanningByIdQuery request, CancellationToken cancellationToken)
+    {
+        var p = await _db.Set<Himapp.Execution.Domain.Entities.Planning>().AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        if (p is null) return null;
+        return new PlanningModel(p.Id, p.UniqueId, p.ProjectId, p.PlanType, p.StartDate, p.EndDate, p.Remarks, p.Status, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate);
+    }
+}
+
+internal sealed class CreatePlanningCommandHandler : IRequestHandler<CreatePlanningCommand, PlanningModel>
+{
+    private readonly DbContext _db;
+    public CreatePlanningCommandHandler(DbContext db) => _db = db;
+    public async Task<PlanningModel> Handle(CreatePlanningCommand request, CancellationToken cancellationToken)
+    {
+        var r = request.Request;
+        var entity = new Himapp.Execution.Domain.Entities.Planning
+        {
+            UniqueId = Guid.NewGuid(),
+            ProjectId = r.ProjectId,
+            PlanType = r.PlanType,
+            StartDate = r.StartDate,
+            EndDate = r.EndDate,
+            Remarks = r.Remarks,
+            Status = "DRAFT",
+            IsActive = true,
+            CreatedBy = null,
+            CreatedDate = DateTimeOffset.UtcNow,
+            LastModifiedBy = null,
+            LastModifiedDate = DateTimeOffset.UtcNow
+        };
+        _db.Set<Himapp.Execution.Domain.Entities.Planning>().Add(entity);
+        await _db.SaveChangesAsync(cancellationToken);
+        return new PlanningModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.PlanType, entity.StartDate, entity.EndDate, entity.Remarks, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+    }
+}
+
+internal sealed class UpdatePlanningCommandHandler : IRequestHandler<UpdatePlanningCommand, PlanningModel?>
+{
+    private readonly DbContext _db;
+    public UpdatePlanningCommandHandler(DbContext db) => _db = db;
+    public async Task<PlanningModel?> Handle(UpdatePlanningCommand request, CancellationToken cancellationToken)
+    {
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Planning>().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        if (entity is null) return null;
+        //entity.PlanType = request.Request.PlanType;
+        //entity.StartDate = request.Request.StartDate;
+        //entity.EndDate = request.Request.EndDate;
+        entity.Remarks = request.Request.Remarks ?? entity.Remarks;
+        entity.Status = request.Request.Status;
+        entity.IsActive = request.Request.IsActive;
+        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        await _db.SaveChangesAsync(cancellationToken);
+        return new PlanningModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.PlanType, entity.StartDate, entity.EndDate, entity.Remarks, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+    }
+}
+
+internal sealed class DeletePlanningCommandHandler : IRequestHandler<DeletePlanningCommand, bool>
+{
+    private readonly DbContext _db;
+    public DeletePlanningCommandHandler(DbContext db) => _db = db;
+    public async Task<bool> Handle(DeletePlanningCommand request, CancellationToken cancellationToken)
+    {
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Planning>().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        if (entity is null) return false;
+        entity.IsActive = false;
+        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        await _db.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+}

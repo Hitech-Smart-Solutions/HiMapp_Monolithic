@@ -13,3 +13,4 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Domain\obj\Debug\ne
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Domain\obj\Debug\net10.0\refint\Safety.Domain.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Domain\obj\Debug\net10.0\Safety.Domain.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Domain\obj\Debug\net10.0\ref\Safety.Domain.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Domain\obj\Debug\net10.0\Safety.Domain.sourcelink.json

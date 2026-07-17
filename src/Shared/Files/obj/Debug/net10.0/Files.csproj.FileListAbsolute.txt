@@ -13,3 +13,4 @@ C:\Parth Working\HiMapp_Monolithic\src\Shared\Files\obj\Debug\net10.0\Files.dll
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Files\obj\Debug\net10.0\refint\Files.dll
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Files\obj\Debug\net10.0\Files.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Files\obj\Debug\net10.0\ref\Files.dll
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Files\obj\Debug\net10.0\Files.sourcelink.json

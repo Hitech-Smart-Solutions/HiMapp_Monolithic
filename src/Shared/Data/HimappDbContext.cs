@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Himapp.Notifications.Models;
 using Himapp.Workflow.Models;
 using Himapp.Audit.Models;
+using Himapp.Execution.Domain.Entities;
 
 namespace Himapp.Data;
 
@@ -17,6 +18,22 @@ public sealed class HimappDbContext : DbContext
     public DbSet<WorkflowApprovalHistory> WorkflowApprovalHistories => Set<WorkflowApprovalHistory>();
 
     public DbSet<AuditEvent> AuditEvents => Set<AuditEvent>();
+
+    // Execution module entities (added to support Execution APIs)
+    public DbSet<Activity> Activities => Set<Activity>();
+    public DbSet<ProjectActivity> ProjectActivities => Set<ProjectActivity>();
+    public DbSet<Area> Areas => Set<Area>();
+    // UOM and RateMaster / Planning / Manpower / DailyProgress tables
+    public DbSet<RateMaster> RateMasters => Set<RateMaster>();
+    public DbSet<Planning> Plannings => Set<Planning>();
+    public DbSet<PlanningDetails> PlanningDetails => Set<PlanningDetails>();
+    public DbSet<Manpower> Manpowers => Set<Manpower>();
+    public DbSet<ManpowerDetails> ManpowerDetails => Set<ManpowerDetails>();
+    public DbSet<DailyProgress> DailyProgresses => Set<DailyProgress>();
+    public DbSet<DailyProgressDetail> DailyProgressDetails => Set<DailyProgressDetail>();
+    public DbSet<DailyProgressPhoto> DailyProgressPhotos => Set<DailyProgressPhoto>();
+    public DbSet<DailyLabor> DailyLabors => Set<DailyLabor>();
+    public DbSet<DailyLaborDetail> DailyLaborDetails => Set<DailyLaborDetail>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

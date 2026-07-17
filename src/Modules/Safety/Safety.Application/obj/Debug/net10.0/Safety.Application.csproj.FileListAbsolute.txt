@@ -19,3 +19,4 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Deb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\refint\Safety.Application.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\ref\Safety.Application.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.sourcelink.json

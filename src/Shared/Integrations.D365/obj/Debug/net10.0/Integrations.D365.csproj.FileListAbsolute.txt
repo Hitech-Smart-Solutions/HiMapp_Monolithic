@@ -13,3 +13,4 @@ C:\Parth Working\HiMapp_Monolithic\src\Shared\Integrations.D365\obj\Debug\net10.
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Integrations.D365\obj\Debug\net10.0\refint\Integrations.D365.dll
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Integrations.D365\obj\Debug\net10.0\Integrations.D365.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Integrations.D365\obj\Debug\net10.0\ref\Integrations.D365.dll
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Integrations.D365\obj\Debug\net10.0\Integrations.D365.sourcelink.json

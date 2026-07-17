@@ -19,3 +19,4 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\o
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\refint\Execution.Application.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\ref\Execution.Application.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.sourcelink.json

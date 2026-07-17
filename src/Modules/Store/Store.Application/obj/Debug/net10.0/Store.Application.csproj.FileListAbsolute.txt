@@ -19,3 +19,4 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Application\obj\Debug
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Application\obj\Debug\net10.0\refint\Store.Application.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Application\obj\Debug\net10.0\Store.Application.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Application\obj\Debug\net10.0\ref\Store.Application.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Application\obj\Debug\net10.0\Store.Application.sourcelink.json

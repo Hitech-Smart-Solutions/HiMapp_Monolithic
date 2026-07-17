@@ -13,3 +13,4 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\De
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\refint\Execution.Domain.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\Execution.Domain.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\ref\Execution.Domain.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\Execution.Domain.sourcelink.json
