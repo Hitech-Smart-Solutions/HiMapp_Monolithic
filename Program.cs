@@ -1,5 +1,6 @@
 using Himapp.Admin.Application;
 using Himapp.Execution.Application;
+using Microsoft.EntityFrameworkCore;
 using Himapp.Files;
 using Himapp.Integrations.D365;
 using Himapp.Notifications;
@@ -31,6 +32,10 @@ builder.Services
 
 // Modules
 builder.Services
+    // Register EF DbContext used by modules
+    .AddDbContext<DbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
+
     .AddAdminModule()
     .AddSafetyModule()
     .AddExecutionModule()
