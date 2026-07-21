@@ -87,10 +87,6 @@ builder.Services
     .AddPlantMachineryModule()
     .AddStoreModule();
 
-// Configure OutboxDbContext with the same connection string (shared outbox schema)
-builder.Services.AddDbContext<Himapp.SharedKernel.Outbox.OutboxDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
-
 // Register shared kernel services (IClock, ICurrentUser, Outbox service, hosted dispatcher)
 builder.Services.AddSharedKernel();
 
