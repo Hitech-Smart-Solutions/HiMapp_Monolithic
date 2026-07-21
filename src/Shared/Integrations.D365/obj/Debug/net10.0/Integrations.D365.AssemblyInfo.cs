@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Integrations.D365")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d72abc90801b56ec58693a9073a03b2ab9c81e4f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+597a6b70d5af7db2c8074392b8ba83da18e9c478")]
 [assembly: System.Reflection.AssemblyProductAttribute("Integrations.D365")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Integrations.D365")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

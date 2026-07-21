@@ -12,9 +12,18 @@ using Himapp.Safety.Infrastructure;
 using Himapp.Store.Application;
 using Himapp.Store.Infrastructure;
 using Himapp.Workflow;
+using Himapp.SharedKernel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Himapp.SharedKernel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add shared logging configuration (console + debug). For production, replace with Serilog + OpenTelemetry.
+builder.Logging.ClearProviders();
+builder.Logging.AddSharedLogging(builder.Configuration);
 
 #region 🔹 Services
 
@@ -23,6 +32,28 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddHealthChecks();
 builder.Services.AddSignalR();
+
+// Authentication (JWT) - read values from configuration: Jwt:Issuer, Jwt:Audience, Jwt:Key
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(options =>
+    {
+        var jwt = builder.Configuration.GetSection("Jwt");
+        var key = jwt.GetValue<string>("Key");
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwt.GetValue<string>("Issuer"),
+            ValidAudience = jwt.GetValue<string>("Audience"),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key ?? "replace-with-secure-key"))
+        };
+    });
 
 // Swagger (VERY IMPORTANT)
 builder.Services.AddEndpointsApiExplorer();
@@ -49,19 +80,38 @@ builder.Services
     .AddDbContext<StoreDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
 
+    // Register shared kernel services (Outbox, logging helpers, etc.) will be added from SharedKernel.DependencyInjection
     .AddAdminModule()
     .AddSafetyModule()
     .AddExecutionModule()
     .AddPlantMachineryModule()
     .AddStoreModule();
 
+// Configure OutboxDbContext with the same connection string (shared outbox schema)
+builder.Services.AddDbContext<Himapp.SharedKernel.Outbox.OutboxDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+// Register shared kernel services (IClock, ICurrentUser, Outbox service, hosted dispatcher)
+builder.Services.AddSharedKernel();
+
 #endregion
 
 var app = builder.Build();
 
+// Add a logging scope for application-wide enrichment (module/application name)
+var _startupLogger = app.Services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().CreateLogger("Himapp.Startup");
+app.Use(async (context, next) =>
+{
+    using (_startupLogger.BeginScope(new System.Collections.Generic.Dictionary<string, object> { ["Application"] = "HIMAPP" }))
+    {
+        await next();
+    }
+});
+
 #region 🔹 Middleware
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Swagger UI
