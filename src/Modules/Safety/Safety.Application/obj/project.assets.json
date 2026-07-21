@@ -89,6 +89,38 @@
           }
         }
       },
+      "Npgsql/8.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/Npgsql.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Npgsql.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Npgsql.EntityFrameworkCore.PostgreSQL/8.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "8.0.0",
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.0",
+          "Microsoft.EntityFrameworkCore.Relational": "8.0.0",
+          "Npgsql": "8.0.0"
+        },
+        "compile": {
+          "lib/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Admin.Contracts/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
@@ -120,6 +152,21 @@
         },
         "runtime": {
           "bin/placeholder/Safety.Domain.dll": {}
+        }
+      },
+      "Safety.Infrastructure/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "8.0.0",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.0",
+          "Safety.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Safety.Infrastructure.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Safety.Infrastructure.dll": {}
         }
       },
       "SharedKernel/1.0.0": {
@@ -230,6 +277,44 @@
         "microsoft.entityframeworkcore.relational.nuspec"
       ]
     },
+    "Npgsql/8.0.0": {
+      "sha512": "Qiz74U+O7Mv4knrsXgKVYGJjgwoziK+aMFZqz7PtKR3vyGIhZA0tnW6HoUnL3X+YqtmVuhmoKkN8LDWEHMxPbw==",
+      "type": "package",
+      "path": "npgsql/8.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net6.0/Npgsql.dll",
+        "lib/net6.0/Npgsql.xml",
+        "lib/net7.0/Npgsql.dll",
+        "lib/net7.0/Npgsql.xml",
+        "lib/net8.0/Npgsql.dll",
+        "lib/net8.0/Npgsql.xml",
+        "lib/netstandard2.0/Npgsql.dll",
+        "lib/netstandard2.0/Npgsql.xml",
+        "lib/netstandard2.1/Npgsql.dll",
+        "lib/netstandard2.1/Npgsql.xml",
+        "npgsql.8.0.0.nupkg.sha512",
+        "npgsql.nuspec",
+        "postgresql.png"
+      ]
+    },
+    "Npgsql.EntityFrameworkCore.PostgreSQL/8.0.0": {
+      "sha512": "GDXiMS9peEdjSCU/rfgyHruio7q6tYuywGaktqEi6UPQ6ILechp3fVVX+dHXkIXt4nklCBzYVWkzFrSL9ubKUA==",
+      "type": "package",
+      "path": "npgsql.entityframeworkcore.postgresql/8.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll",
+        "lib/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.xml",
+        "npgsql.entityframeworkcore.postgresql.8.0.0.nupkg.sha512",
+        "npgsql.entityframeworkcore.postgresql.nuspec",
+        "postgresql.png"
+      ]
+    },
     "Admin.Contracts/1.0.0": {
       "type": "project",
       "path": "../../Admin/Admin.Contracts/Admin.Contracts.csproj",
@@ -245,6 +330,11 @@
       "path": "../Safety.Domain/Safety.Domain.csproj",
       "msbuildProject": "../Safety.Domain/Safety.Domain.csproj"
     },
+    "Safety.Infrastructure/1.0.0": {
+      "type": "project",
+      "path": "../Safety.Infrastructure/Safety.Infrastructure.csproj",
+      "msbuildProject": "../Safety.Infrastructure/Safety.Infrastructure.csproj"
+    },
     "SharedKernel/1.0.0": {
       "type": "project",
       "path": "../../../Shared/SharedKernel/SharedKernel.csproj",
@@ -256,7 +346,8 @@
       "Admin.Contracts >= 1.0.0",
       "MediatR >= 12.4.1",
       "Safety.Contracts >= 1.0.0",
-      "Safety.Domain >= 1.0.0"
+      "Safety.Domain >= 1.0.0",
+      "Safety.Infrastructure >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -300,6 +391,9 @@
             },
             "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj": {
               "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj"
+            },
+            "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj": {
+              "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj"
             }
           }
         }
@@ -762,5 +856,17 @@
         }
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'Npgsql' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-x9vc-6hfv-hg8c",
+      "libraryId": "Npgsql",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }

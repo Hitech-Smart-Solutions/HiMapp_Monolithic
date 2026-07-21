@@ -20,3 +20,5 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Application\obj\Debug\net10
 C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Application\obj\Debug\net10.0\PM.Application.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Application\obj\Debug\net10.0\ref\PM.Application.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Application\obj\Debug\net10.0\PM.Application.sourcelink.json
+C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Application\bin\Debug\net10.0\PM.Infrastructure.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Application\bin\Debug\net10.0\PM.Infrastructure.pdb

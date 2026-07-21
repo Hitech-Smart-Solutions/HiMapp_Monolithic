@@ -1,12 +1,16 @@
 using Himapp.Admin.Application;
+using Himapp.Admin.Infrastructure;
 using Himapp.Execution.Application;
 using Himapp.Execution.Infrastructure;
 using Himapp.Files;
 using Himapp.Integrations.D365;
 using Himapp.Notifications;
 using Himapp.PM.Application;
+using Himapp.PM.Infrastructure;
 using Himapp.Safety.Application;
+using Himapp.Safety.Infrastructure;
 using Himapp.Store.Application;
+using Himapp.Store.Infrastructure;
 using Himapp.Workflow;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,8 +37,16 @@ builder.Services
 
 // Modules
 builder.Services
-    // Register EF DbContext used by modules
+    // Register EF DbContexts used by modules
     .AddDbContext<ExecutionDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
+    .AddDbContext<AdminDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
+    .AddDbContext<PMDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
+    .AddDbContext<SafetyDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
+    .AddDbContext<StoreDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
 
     .AddAdminModule()

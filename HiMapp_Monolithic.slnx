@@ -8,18 +8,22 @@
   <Project Path="src\Modules\Admin\Admin.Contracts\Admin.Contracts.csproj" />
   <Project Path="src\Modules\Admin\Admin.Domain\Admin.Domain.csproj" />
   <Project Path="src/Modules/Execution/Execution.Infrastructure/Execution.Infrastructure.csproj" />
+  <Project Path="src\Modules\Admin\Admin.Infrastructure\Admin.Infrastructure.csproj" />
   <Project Path="src\Modules\Admin\Admin.Application\Admin.Application.csproj" />
   <Project Path="src\Modules\Safety\Safety.Contracts\Safety.Contracts.csproj" />
   <Project Path="src\Modules\Safety\Safety.Domain\Safety.Domain.csproj" />
+  <Project Path="src\Modules\Safety\Safety.Infrastructure\Safety.Infrastructure.csproj" />
   <Project Path="src\Modules\Safety\Safety.Application\Safety.Application.csproj" />
   <Project Path="src\Modules\Execution\Execution.Contracts\Execution.Contracts.csproj" />
   <Project Path="src\Modules\Execution\Execution.Domain\Execution.Domain.csproj" />
   <Project Path="src\Modules\Execution\Execution.Application\Execution.Application.csproj" />
   <Project Path="src\Modules\PM\PM.Contracts\PM.Contracts.csproj" />
   <Project Path="src\Modules\PM\PM.Domain\PM.Domain.csproj" />
+  <Project Path="src\Modules\PM\PM.Infrastructure\PM.Infrastructure.csproj" />
   <Project Path="src\Modules\PM\PM.Application\PM.Application.csproj" />
   <Project Path="src\Modules\Store\Store.Contracts\Store.Contracts.csproj" />
   <Project Path="src\Modules\Store\Store.Domain\Store.Domain.csproj" />
+  <Project Path="src\Modules\Store\Store.Infrastructure\Store.Infrastructure.csproj" />
   <Project Path="src\Modules\Store\Store.Application\Store.Application.csproj" />
   <Project Path="tests\ArchitectureTests\ArchitectureTests.csproj" />
 </Solution>

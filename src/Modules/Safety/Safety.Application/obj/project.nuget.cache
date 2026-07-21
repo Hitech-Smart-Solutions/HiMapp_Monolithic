@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "kJPkI6tUK+U=",
+  "dgSpecHash": "lEHFCKa8FkY=",
   "success": true,
   "projectFilePath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
   "expectedPackageFiles": [
@@ -9,7 +9,22 @@
     "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.0\\microsoft.entityframeworkcore.8.0.0.nupkg.sha512",
     "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.0\\microsoft.entityframeworkcore.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.0\\microsoft.entityframeworkcore.analyzers.8.0.0.nupkg.sha512",
-    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.0\\microsoft.entityframeworkcore.relational.8.0.0.nupkg.sha512"
+    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.0\\microsoft.entityframeworkcore.relational.8.0.0.nupkg.sha512",
+    "C:\\Users\\parth.jani\\.nuget\\packages\\npgsql\\8.0.0\\npgsql.8.0.0.nupkg.sha512",
+    "C:\\Users\\parth.jani\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.0\\npgsql.entityframeworkcore.postgresql.8.0.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'Npgsql' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-x9vc-6hfv-hg8c",
+      "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
+      "libraryId": "Npgsql",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }

@@ -5,6 +5,7 @@
     <ProjectReference Include="..\Store.Contracts\Store.Contracts.csproj" />
     <ProjectReference Include="..\Store.Domain\Store.Domain.csproj" />
     <ProjectReference Include="..\..\PM\PM.Contracts\PM.Contracts.csproj" />
+    <ProjectReference Include="..\Store.Infrastructure\Store.Infrastructure.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <RootNamespace>Himapp.Store.Application</RootNamespace>

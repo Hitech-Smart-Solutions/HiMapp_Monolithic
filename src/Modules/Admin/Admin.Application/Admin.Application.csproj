@@ -5,6 +5,7 @@
     <ProjectReference Include="..\Admin.Contracts\Admin.Contracts.csproj" />
     <ProjectReference Include="..\Admin.Domain\Admin.Domain.csproj" />
     <ProjectReference Include="..\..\..\Shared\Files\Files.csproj" />
+    <ProjectReference Include="..\Admin.Infrastructure\Admin.Infrastructure.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <RootNamespace>Himapp.Admin.Application</RootNamespace>

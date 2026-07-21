@@ -20,3 +20,5 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Application\obj\Debug
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Application\bin\Debug\net10.0\Files.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Application\bin\Debug\net10.0\Files.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Application\obj\Debug\net10.0\Admin.Application.sourcelink.json
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Application\bin\Debug\net10.0\Admin.Infrastructure.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Application\bin\Debug\net10.0\Admin.Infrastructure.pdb

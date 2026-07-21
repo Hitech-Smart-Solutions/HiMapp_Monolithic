@@ -5,6 +5,7 @@
     <ProjectReference Include="..\Safety.Contracts\Safety.Contracts.csproj" />
     <ProjectReference Include="..\Safety.Domain\Safety.Domain.csproj" />
     <ProjectReference Include="..\..\Admin\Admin.Contracts\Admin.Contracts.csproj" />
+    <ProjectReference Include="..\Safety.Infrastructure\Safety.Infrastructure.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <RootNamespace>Himapp.Safety.Application</RootNamespace>
