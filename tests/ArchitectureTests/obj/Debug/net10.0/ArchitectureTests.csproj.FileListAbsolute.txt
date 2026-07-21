@@ -12,3 +12,4 @@ C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net10.0\ref
 C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net10.0\ArchitectureTests.pdb
 C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net10.0\ArchitectureTests.genruntimeconfig.cache
 C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net10.0\ref\ArchitectureTests.dll
+C:\Parth Working\HiMapp_Monolithic\tests\ArchitectureTests\obj\Debug\net10.0\ArchitectureTests.sourcelink.json

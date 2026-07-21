@@ -1,6 +1,6 @@
 using Himapp.Admin.Application;
 using Himapp.Execution.Application;
-using Microsoft.EntityFrameworkCore;
+using Himapp.Execution.Infrastructure;
 using Himapp.Files;
 using Himapp.Integrations.D365;
 using Himapp.Notifications;
@@ -8,6 +8,7 @@ using Himapp.PM.Application;
 using Himapp.Safety.Application;
 using Himapp.Store.Application;
 using Himapp.Workflow;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +34,7 @@ builder.Services
 // Modules
 builder.Services
     // Register EF DbContext used by modules
-    .AddDbContext<DbContext>(options =>
+    .AddDbContext<ExecutionDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
 
     .AddAdminModule()

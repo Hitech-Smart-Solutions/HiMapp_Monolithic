@@ -10,3 +10,4 @@ C:\Parth Working\HiMapp_Monolithic\src\Shared\SharedKernel\obj\Debug\net10.0\ref
 C:\Parth Working\HiMapp_Monolithic\src\Shared\SharedKernel\obj\Debug\net10.0\SharedKernel.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Shared\SharedKernel\obj\Debug\net10.0\ref\SharedKernel.dll
 C:\Parth Working\HiMapp_Monolithic\src\Shared\SharedKernel\obj\Debug\net10.0\SharedKernel.csproj.AssemblyReference.cache
+C:\Parth Working\HiMapp_Monolithic\src\Shared\SharedKernel\obj\Debug\net10.0\SharedKernel.sourcelink.json

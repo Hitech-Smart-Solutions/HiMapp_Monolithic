@@ -8,9 +8,9 @@
     ".NETCoreApp,Version=v10.0": {
       "Execution.Application/1.0.0": {
         "dependencies": {
-          "Admin.Contracts": "1.0.0",
           "Execution.Contracts": "1.0.0",
           "Execution.Domain": "1.0.0",
+          "Execution.Infrastructure": "1.0.0",
           "MediatR": "12.4.1"
         },
         "runtime": {
@@ -66,11 +66,25 @@
           }
         }
       },
-      "Admin.Contracts/1.0.0": {
+      "Npgsql/8.0.0": {
         "runtime": {
-          "Admin.Contracts.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+          "lib/net8.0/Npgsql.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.0.0"
+          }
+        }
+      },
+      "Npgsql.EntityFrameworkCore.PostgreSQL/8.0.0": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "8.0.0",
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.0",
+          "Microsoft.EntityFrameworkCore.Relational": "8.0.0",
+          "Npgsql": "8.0.0"
+        },
+        "runtime": {
+          "lib/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.0.0"
           }
         }
       },
@@ -88,6 +102,19 @@
         },
         "runtime": {
           "Execution.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Execution.Infrastructure/1.0.0": {
+        "dependencies": {
+          "Execution.Domain": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "8.0.0",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.0"
+        },
+        "runtime": {
+          "Execution.Infrastructure.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
@@ -148,10 +175,19 @@
       "path": "microsoft.entityframeworkcore.relational/8.0.0",
       "hashPath": "microsoft.entityframeworkcore.relational.8.0.0.nupkg.sha512"
     },
-    "Admin.Contracts/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
+    "Npgsql/8.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Qiz74U+O7Mv4knrsXgKVYGJjgwoziK+aMFZqz7PtKR3vyGIhZA0tnW6HoUnL3X+YqtmVuhmoKkN8LDWEHMxPbw==",
+      "path": "npgsql/8.0.0",
+      "hashPath": "npgsql.8.0.0.nupkg.sha512"
+    },
+    "Npgsql.EntityFrameworkCore.PostgreSQL/8.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GDXiMS9peEdjSCU/rfgyHruio7q6tYuywGaktqEi6UPQ6ILechp3fVVX+dHXkIXt4nklCBzYVWkzFrSL9ubKUA==",
+      "path": "npgsql.entityframeworkcore.postgresql/8.0.0",
+      "hashPath": "npgsql.entityframeworkcore.postgresql.8.0.0.nupkg.sha512"
     },
     "Execution.Contracts/1.0.0": {
       "type": "project",
@@ -159,6 +195,11 @@
       "sha512": ""
     },
     "Execution.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Execution.Infrastructure/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

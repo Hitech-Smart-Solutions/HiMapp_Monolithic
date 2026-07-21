@@ -1,41 +1,102 @@
 using Himapp.Execution.Application.Features.ProjectActivities.Models;
 using Himapp.Execution.Application.Features.ProjectActivities.Commands;
 using Himapp.Execution.Application.Features.ProjectActivities.Queries;
+using Himapp.Execution.Domain.Entities;
+using Himapp.Execution.Infrastructure;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Himapp.Execution.Application.Features.ProjectActivities.Handlers;
 
 internal sealed class CreateProjectActivityCommandHandler : IRequestHandler<CreateProjectActivityCommand, ProjectActivityModel>
 {
-    private readonly Features.ProjectActivities.IProjectActivityRepository _repo;
-    public CreateProjectActivityCommandHandler(Features.ProjectActivities.IProjectActivityRepository repo) => _repo = repo;
-    public Task<ProjectActivityModel> Handle(CreateProjectActivityCommand request, CancellationToken cancellationToken) => _repo.AddAsync(request.Request, cancellationToken);
+    private readonly ExecutionDbContext _db;
+    public CreateProjectActivityCommandHandler(ExecutionDbContext db) => _db = db;
+
+    public async Task<ProjectActivityModel> Handle(CreateProjectActivityCommand request, CancellationToken cancellationToken)
+    {
+        var r = request.Request;
+        var entity = new ProjectActivity
+        {
+            UniqueId = Guid.NewGuid(),
+            ProjectId = r.ProjectId,
+            ActivityId = r.ActivityId,
+            IsActive = true,
+            CreatedBy = null,
+            CreatedDate = DateTimeOffset.UtcNow,
+            LastModifiedBy = null,
+            LastModifiedDate = DateTimeOffset.UtcNow
+        };
+
+        _db.ProjectActivities.Add(entity);
+        await _db.SaveChangesAsync(cancellationToken);
+
+        return new ProjectActivityModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ActivityId, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+    }
 }
 
 internal sealed class UpdateProjectActivityCommandHandler : IRequestHandler<UpdateProjectActivityCommand, ProjectActivityModel?>
 {
-    private readonly Features.ProjectActivities.IProjectActivityRepository _repo;
-    public UpdateProjectActivityCommandHandler(Features.ProjectActivities.IProjectActivityRepository repo) => _repo = repo;
-    public Task<ProjectActivityModel?> Handle(UpdateProjectActivityCommand request, CancellationToken cancellationToken) => _repo.UpdateAsync(request.Id, request.Request, cancellationToken);
+    private readonly ExecutionDbContext _db;
+    public UpdateProjectActivityCommandHandler(ExecutionDbContext db) => _db = db;
+
+    public async Task<ProjectActivityModel?> Handle(UpdateProjectActivityCommand request, CancellationToken cancellationToken)
+    {
+        var entity = await _db.ProjectActivities.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        if (entity is null) return null;
+
+        entity.ProjectId = request.Request.ProjectId;
+        entity.ActivityId = request.Request.ActivityId;
+        entity.IsActive = request.Request.IsActive;
+        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+
+        await _db.SaveChangesAsync(cancellationToken);
+
+        return new ProjectActivityModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ActivityId, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+    }
 }
 
 internal sealed class DeleteProjectActivityCommandHandler : IRequestHandler<DeleteProjectActivityCommand, bool>
 {
-    private readonly Features.ProjectActivities.IProjectActivityRepository _repo;
-    public DeleteProjectActivityCommandHandler(Features.ProjectActivities.IProjectActivityRepository repo) => _repo = repo;
-    public Task<bool> Handle(DeleteProjectActivityCommand request, CancellationToken cancellationToken) => _repo.DeleteAsync(request.Id, cancellationToken);
+    private readonly ExecutionDbContext _db;
+    public DeleteProjectActivityCommandHandler(ExecutionDbContext db) => _db = db;
+
+    public async Task<bool> Handle(DeleteProjectActivityCommand request, CancellationToken cancellationToken)
+    {
+        var entity = await _db.ProjectActivities.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        if (entity is null) return false;
+
+        entity.IsActive = false;
+        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        await _db.SaveChangesAsync(cancellationToken);
+        return true;
+    }
 }
 
 internal sealed class GetAllProjectActivitiesQueryHandler : IRequestHandler<GetAllProjectActivitiesQuery, IReadOnlyCollection<ProjectActivityModel>>
 {
-    private readonly Features.ProjectActivities.IProjectActivityRepository _repo;
-    public GetAllProjectActivitiesQueryHandler(Features.ProjectActivities.IProjectActivityRepository repo) => _repo = repo;
-    public Task<IReadOnlyCollection<ProjectActivityModel>> Handle(GetAllProjectActivitiesQuery request, CancellationToken cancellationToken) => _repo.GetAllAsync(cancellationToken);
+    private readonly ExecutionDbContext _db;
+    public GetAllProjectActivitiesQueryHandler(ExecutionDbContext db) => _db = db;
+
+    public async Task<IReadOnlyCollection<ProjectActivityModel>> Handle(GetAllProjectActivitiesQuery request, CancellationToken cancellationToken)
+    {
+        return await _db.ProjectActivities
+            .AsNoTracking()
+            .Select(p => new ProjectActivityModel(p.Id, p.UniqueId, p.ProjectId, p.ActivityId, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate))
+            .ToArrayAsync(cancellationToken);
+    }
 }
 
 internal sealed class GetProjectActivityByIdQueryHandler : IRequestHandler<GetProjectActivityByIdQuery, ProjectActivityModel?>
 {
-    private readonly Features.ProjectActivities.IProjectActivityRepository _repo;
-    public GetProjectActivityByIdQueryHandler(Features.ProjectActivities.IProjectActivityRepository repo) => _repo = repo;
-    public Task<ProjectActivityModel?> Handle(GetProjectActivityByIdQuery request, CancellationToken cancellationToken) => _repo.GetByIdAsync(request.Id, cancellationToken);
+    private readonly ExecutionDbContext _db;
+    public GetProjectActivityByIdQueryHandler(ExecutionDbContext db) => _db = db;
+
+    public async Task<ProjectActivityModel?> Handle(GetProjectActivityByIdQuery request, CancellationToken cancellationToken)
+    {
+        var p = await _db.ProjectActivities.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        if (p is null) return null;
+        return new ProjectActivityModel(p.Id, p.UniqueId, p.ProjectId, p.ActivityId, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate);
+    }
 }
+

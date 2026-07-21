@@ -1,13 +1,11 @@
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Application.deps.json
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Application.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Application.pdb
-C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Admin.Contracts.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Contracts.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Domain.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\SharedKernel.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Contracts.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Domain.pdb
-C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Admin.Contracts.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\SharedKernel.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.csproj.AssemblyReference.cache
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.GeneratedMSBuildEditorConfig.editorconfig
@@ -20,3 +18,5 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\o
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\ref\Execution.Application.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.sourcelink.json
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Infrastructure.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Infrastructure.pdb

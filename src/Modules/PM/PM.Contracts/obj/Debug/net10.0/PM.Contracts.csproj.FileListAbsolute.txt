@@ -9,3 +9,4 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Contracts\obj\Debug\net10.0
 C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Contracts\obj\Debug\net10.0\refint\PM.Contracts.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Contracts\obj\Debug\net10.0\PM.Contracts.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Contracts\obj\Debug\net10.0\ref\PM.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Contracts\obj\Debug\net10.0\PM.Contracts.sourcelink.json

@@ -7,6 +7,7 @@
   <Project Path="src\Shared\Integrations.D365\Integrations.D365.csproj" />
   <Project Path="src\Modules\Admin\Admin.Contracts\Admin.Contracts.csproj" />
   <Project Path="src\Modules\Admin\Admin.Domain\Admin.Domain.csproj" />
+  <Project Path="src/Modules/Execution/Execution.Infrastructure/Execution.Infrastructure.csproj" />
   <Project Path="src\Modules\Admin\Admin.Application\Admin.Application.csproj" />
   <Project Path="src\Modules\Safety\Safety.Contracts\Safety.Contracts.csproj" />
   <Project Path="src\Modules\Safety\Safety.Domain\Safety.Domain.csproj" />

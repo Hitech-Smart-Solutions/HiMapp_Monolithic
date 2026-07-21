@@ -9,3 +9,4 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\refint\Safety.Contracts.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\Safety.Contracts.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\ref\Safety.Contracts.dll
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\Safety.Contracts.sourcelink.json
