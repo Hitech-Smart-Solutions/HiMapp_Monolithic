@@ -8,9 +8,9 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\De
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\Execution.Domain.AssemblyInfoInputs.cache
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\Execution.Domain.AssemblyInfo.cs
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\Execution.Domain.csproj.CoreCompileInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\Execution.Domain.sourcelink.json
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\Executio.7ADFB360.Up2Date
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\Execution.Domain.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\refint\Execution.Domain.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\Execution.Domain.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\ref\Execution.Domain.dll
-C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Domain\obj\Debug\net10.0\Execution.Domain.sourcelink.json

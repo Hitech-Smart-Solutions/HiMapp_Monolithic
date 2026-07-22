@@ -16,40 +16,21 @@ internal sealed class CreateActivityCommandHandler : IRequestHandler<CreateActiv
     {
         var entity = new Activity
         {
-            UniqueId = Guid.NewGuid(),
-            CompanyId = 0,
-            Name = request.ActivityCode,
-            DefaultUom = "SQM",
+            UniqueID = Guid.NewGuid(),
+            CompanyID = request.CompanyID,
+            ActivityName = request.ActivityName,
+            UOMID = request.UOMID,
             IsActive = true,
-            CreatedBy = null,
+            CreatedBy = request.CreateBy,
             CreatedDate = DateTimeOffset.UtcNow,
-            LastModifiedBy = null,
+            LastModifiedBy = request.LastModifiedBy,
             LastModifiedDate = DateTimeOffset.UtcNow
         };
 
         _db.Activities.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        if (request.ProjectId > 0)
-        {
-            var pa = new ProjectActivity
-            {
-                UniqueId = Guid.NewGuid(),
-                ProjectId = request.ProjectId,
-                ActivityId = entity.Id,
-                Enabled = true,
-                IsActive = true,
-                CreatedBy = null,
-                CreatedDate = DateTimeOffset.UtcNow,
-                LastModifiedBy = null,
-                LastModifiedDate = DateTimeOffset.UtcNow
-            };
-
-            _db.ProjectActivities.Add(pa);
-            await _db.SaveChangesAsync(cancellationToken);
-        }
-
-        return new ActivityDto(entity.Id, request.ProjectId, request.ActivityCode, request.Description, request.ProgressPercent, request.WorkDate);
+        return new ActivityDto(entity.ID, request.CompanyID, request.ActivityName, request.UOMID, request.CreateBy, request.LastModifiedBy);
     }
 }
 
@@ -60,45 +41,18 @@ internal sealed class UpdateActivityCommandHandler : IRequestHandler<UpdateActiv
 
     public async Task<ActivityDto?> Handle(UpdateActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Activities.FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken);
+        var entity = await _db.Activities.FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
         if (entity is null) return null;
 
-        entity.Name = request.ActivityCode;
-        entity.DefaultUom = "SQM";
+        entity.ActivityName = request.ActivityName;
+        entity.UOMID = request.UOMID;
         entity.IsActive = true;
+        entity.LastModifiedBy = request.LastModifiedBy;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        if (request.ProjectId > 0)
-        {
-            var pa = await _db.ProjectActivities.FirstOrDefaultAsync(x => x.ActivityId == entity.Id, cancellationToken);
-            if (pa is null)
-            {
-                pa = new ProjectActivity
-                {
-                    UniqueId = Guid.NewGuid(),
-                    ProjectId = request.ProjectId,
-                    ActivityId = entity.Id,
-                    Enabled = true,
-                    IsActive = true,
-                    CreatedBy = null,
-                    CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = null,
-                    LastModifiedDate = DateTimeOffset.UtcNow
-                };
-                _db.ProjectActivities.Add(pa);
-            }
-            else
-            {
-                pa.ProjectId = request.ProjectId;
-                pa.LastModifiedDate = DateTimeOffset.UtcNow;
-            }
-
-            await _db.SaveChangesAsync(cancellationToken);
-        }
-
-        return new ActivityDto(request.Id, request.ProjectId, request.ActivityCode, request.Description, request.ProgressPercent, request.WorkDate);
+        return new ActivityDto(entity.ID, entity.CompanyID, entity.ActivityName, entity.UOMID, entity.CreatedBy, entity.LastModifiedBy);
     }
 }
 
@@ -109,7 +63,7 @@ internal sealed class DeleteActivityCommandHandler : IRequestHandler<DeleteActiv
 
     public async Task<bool> Handle(DeleteActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Activities.FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken);
+        var entity = await _db.Activities.FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
         if (entity is null) return false;
 
         var pas = _db.ProjectActivities.Where(x => x.ActivityId == request.Id);
@@ -131,16 +85,15 @@ internal sealed class GetAllActivitiesQueryHandler : IRequestHandler<GetAllActiv
         var projectActivities = _db.ProjectActivities.AsNoTracking();
 
         var items = await (from a in activities
-                           join pa in projectActivities on a.Id equals pa.ActivityId into pas
-                           from pa in pas.DefaultIfEmpty()
-                           orderby a.Id
+
+                           orderby a.ID
                            select new ActivityDto(
-                               a.Id,
-                               pa == null ? 0 : pa.ProjectId,
-                               a.Name,
-                               a.Name,
-                               0m,
-                               default))
+                               a.ID,
+                               a.CompanyID,
+                               a.ActivityName,
+                               a.UOMID,
+                               a.CreatedBy,
+                               a.LastModifiedBy))
                           .ToArrayAsync(cancellationToken);
 
         return items;
@@ -158,16 +111,14 @@ internal sealed class GetActivityByIdQueryHandler : IRequestHandler<GetActivityB
         var projectActivities = _db.ProjectActivities.AsNoTracking();
 
         var dto = await (from a in activities
-                         join pa in projectActivities on a.Id equals pa.ActivityId into pas
-                         from pa in pas.DefaultIfEmpty()
-                         where a.Id == request.Id
+                         where a.ID == request.Id
                          select new ActivityDto(
-                             a.Id,
-                             pa == null ? 0 : pa.ProjectId,
-                             a.Name,
-                             a.Name,
-                             0m,
-                             default))
+                             a.ID,
+                               a.CompanyID,
+                               a.ActivityName,
+                               a.UOMID,
+                               a.CreatedBy,
+                               a.LastModifiedBy))
                         .FirstOrDefaultAsync(cancellationToken);
 
         return dto;

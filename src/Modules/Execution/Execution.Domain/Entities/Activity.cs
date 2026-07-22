@@ -3,18 +3,19 @@ namespace Himapp.Execution.Domain.Entities;
 // EF entity for schema table "Activity"
 public sealed class Activity
 {
-    public long Id { get; set; }
-    public Guid UniqueId { get; set; }
+    public int ID { get; set; }
+    public Guid UniqueID { get; set; }
 
-    public long CompanyId { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string DefaultUom { get; set; } = string.Empty;
+    public int CompanyID { get; set; }
+    public string ActivityName { get; set; } = string.Empty;
+
+    public int UOMID;
 
     public bool IsActive { get; set; }
 
-    public long? CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
-    public long? LastModifiedBy { get; set; }
+    public int LastModifiedBy { get; set; }
     public DateTimeOffset LastModifiedDate { get; set; }
 }
 

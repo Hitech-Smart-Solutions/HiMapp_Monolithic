@@ -5,8 +5,8 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\Safety.Contracts.AssemblyInfoInputs.cache
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\Safety.Contracts.AssemblyInfo.cs
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\Safety.Contracts.csproj.CoreCompileInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\Safety.Contracts.sourcelink.json
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\Safety.Contracts.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\refint\Safety.Contracts.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\Safety.Contracts.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\ref\Safety.Contracts.dll
-C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Contracts\obj\Debug\net10.0\Safety.Contracts.sourcelink.json

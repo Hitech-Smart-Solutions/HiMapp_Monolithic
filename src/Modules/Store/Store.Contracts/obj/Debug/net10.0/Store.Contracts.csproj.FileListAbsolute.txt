@@ -5,8 +5,8 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\n
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.AssemblyInfoInputs.cache
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.AssemblyInfo.cs
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.csproj.CoreCompileInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.sourcelink.json
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\refint\Store.Contracts.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\ref\Store.Contracts.dll
-C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.sourcelink.json

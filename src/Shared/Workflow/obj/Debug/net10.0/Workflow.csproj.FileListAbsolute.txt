@@ -8,9 +8,9 @@ C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflo
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.AssemblyInfoInputs.cache
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.AssemblyInfo.cs
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.csproj.CoreCompileInputs.cache
+C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.sourcelink.json
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.csproj.Up2Date
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.dll
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\refint\Workflow.dll
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\ref\Workflow.dll
-C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.sourcelink.json
