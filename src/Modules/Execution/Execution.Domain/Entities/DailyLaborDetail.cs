@@ -1,27 +1,27 @@
+using System.Text.Json.Serialization;
+
 namespace Himapp.Execution.Domain.Entities;
 
 // EF entity for schema table "DailyLaborDetails"
-public sealed class DailyLaborDetail
+public class DailyLaborDetail
 {
-    public long Id { get; set; }
-    public Guid UniqueId { get; set; }
-
-    public long DailyLaborId { get; set; }
-    public long ContractorId { get; set; }
-    public long ActivityId { get; set; }
-
-    public int SkilledCount { get; set; }
-    public int UnskilledCount { get; set; }
-    public int MatCount { get; set; }
-
-    // computed stored column in DB
-    public int TotalCount { get; set; }
-
-    public bool IsActive { get; set; }
-
-    public long? CreatedBy { get; set; }
+    public Guid UniqueID { get; set; }
+    public int ID { get; set; }
+    public int DailyLabourID { get; set; }
+    public int? ContractorID { get; set; }
+    public bool IsActive { get; set; } = true;
+    public int CreatedBy { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
-    public long? LastModifiedBy { get; set; }
+    public int LastModifiedBy { get; set; }
     public DateTimeOffset LastModifiedDate { get; set; }
+    public int? CategoryID { get; set; }
+    public int? Skilled { get; set; }
+    public int? UnSkilled { get; set; }
+    public string? Remarks { get; set; }
+    public int? Mat { get; set; }
+    public string? ContractorName { get; set; }
+    public int? ProductivityID { get; set; }
+    [JsonIgnore]
+    public virtual DailyLabor? DailyLabor { get; set; }
 }
 

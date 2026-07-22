@@ -15,9 +15,24 @@ internal sealed class GetAllDailyLaborsQueryHandler : IRequestHandler<GetAllDail
 
     public async Task<IReadOnlyCollection<DailyLaborModel>> Handle(GetAllDailyLaborsQuery request, CancellationToken cancellationToken)
     {
+        // Return header-only projection for performance (details omitted)
         return await _db.DailyLabors
             .AsNoTracking()
-            .Select(d => new DailyLaborModel(d.Id, d.UniqueId, d.ProjectId, d.ReportDate, d.Remarks, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate))
+            .Where(d => d.IsActive)
+            .Select(d => new DailyLaborModel(
+                d.ID,
+                d.UniqueID,
+                d.CompanyID,
+                d.ProjectID,
+                d.DLRDate,
+                d.Remarks,
+                d.StateID,
+                d.IsActive,
+                d.CreatedBy,
+                d.CreatedDate,
+                d.LastModifiedBy,
+                d.LastModifiedDate,
+                Array.Empty<DailyLaborDetailModel>()))
             .ToArrayAsync(cancellationToken);
     }
 }
@@ -29,9 +44,40 @@ internal sealed class GetDailyLaborByIdQueryHandler : IRequestHandler<GetDailyLa
 
     public async Task<DailyLaborModel?> Handle(GetDailyLaborByIdQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.DailyLabors.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-        if (d is null) return null;
-        return new DailyLaborModel(d.Id, d.UniqueId, d.ProjectId, d.ReportDate, d.Remarks, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate);
+        var entity = await _db.DailyLabors
+            .AsNoTracking()
+            .Include(d => d.DailyLaborDetail)
+            .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+
+        if (entity is null) return null;
+
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(
+            dd.ID,
+            dd.UniqueID,
+            dd.ContractorID,
+            dd.CategoryID,
+            dd.Skilled,
+            dd.UnSkilled,
+            dd.Remarks,
+            dd.Mat,
+            dd.ContractorName,
+            dd.ProductivityID)).ToArray()
+            ?? Array.Empty<DailyLaborDetailModel>();
+
+        return new DailyLaborModel(
+            entity.ID,
+            entity.UniqueID,
+            entity.CompanyID,
+            entity.ProjectID,
+            entity.DLRDate,
+            entity.Remarks,
+            entity.StateID,
+            entity.IsActive,
+            entity.CreatedBy,
+            entity.CreatedDate,
+            entity.LastModifiedBy,
+            entity.LastModifiedDate,
+            details);
     }
 }
 
@@ -43,45 +89,117 @@ internal sealed class CreateDailyLaborCommandHandler : IRequestHandler<CreateDai
     public async Task<DailyLaborModel> Handle(CreateDailyLaborCommand request, CancellationToken cancellationToken)
     {
         var r = request.Request;
+
         var entity = new Himapp.Execution.Domain.Entities.DailyLabor
         {
-            UniqueId = Guid.NewGuid(),
-            ProjectId = r.ProjectId,
-            ReportDate = r.ReportDate,
+            UniqueID = Guid.NewGuid(),
+            ProjectID = r.ProjectId,
+            DLRDate = r.ReportDate,
             Remarks = r.Remarks,
-            Status = "DRAFT",
+            StateID = (short?)r.Status,
             IsActive = true,
-            CreatedBy = null,
-            CreatedDate = DateTimeOffset.UtcNow,
-            LastModifiedBy = null,
-            LastModifiedDate = DateTimeOffset.UtcNow
+            CreatedBy = 0,
+            CreatedDate = DateTime.UtcNow,
+            LastModifiedBy = 0,
+            LastModifiedDate = DateTime.UtcNow
         };
+
+        if (r.Details?.Any() == true)
+        {
+            foreach (var d in r.Details)
+            {
+                var detail = new Himapp.Execution.Domain.Entities.DailyLaborDetail
+                {
+                    UniqueID = Guid.NewGuid(),
+                    ContractorID = d.ContractorId,
+                    CategoryID = d.CategoryId,
+                    Skilled = d.Skilled,
+                    UnSkilled = d.UnSkilled,
+                    Remarks = d.Remarks,
+                    Mat = d.Mat,
+                    ContractorName = d.ContractorName,
+                    ProductivityID = d.ProductivityId,
+                    IsActive = true,
+                    CreatedBy = 0,
+                    CreatedDate = DateTimeOffset.UtcNow,
+                    LastModifiedBy = 0,
+                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    DailyLabor = entity
+                };
+
+                entity.DailyLaborDetail?.Add(detail);
+            }
+        }
 
         _db.DailyLabors.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DailyLaborModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ReportDate, entity.Remarks, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ProductivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
+
+        return new DailyLaborModel(entity.ID, entity.UniqueID, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 }
 
-internal sealed class UpdateDailyLaborCommandHandler : IRequestHandler<UpdateDailyLaborCommand, DailyLaborModel>
+internal sealed class UpdateDailyLaborCommandHandler : IRequestHandler<UpdateDailyLaborCommand, DailyLaborModel?>
 {
     private readonly ExecutionDbContext _db;
     public UpdateDailyLaborCommandHandler(ExecutionDbContext db) => _db = db;
 
-    public async Task<DailyLaborModel> Handle(UpdateDailyLaborCommand request, CancellationToken cancellationToken)
+    public async Task<DailyLaborModel?> Handle(UpdateDailyLaborCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.DailyLabors.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-        if (entity is null) return null!;
+        var entity = await _db.DailyLabors
+            .Include(d => d.DailyLaborDetail)
+            .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
 
-        entity.Remarks = request.Request.Remarks ?? entity.Remarks;
-        entity.Status = request.Request.Status;
-        entity.IsActive = request.Request.IsActive;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        if (entity is null) return null;
+
+        var r = request.Request;
+
+        entity.ProjectID = r.ProjectId;
+        entity.DLRDate = r.ReportDate;
+        entity.Remarks = r.Remarks;
+        entity.StateID = (short?)r.Status;
+        entity.LastModifiedDate = DateTime.UtcNow;
+
+        // Remove existing details (physically) and add new ones
+        if (entity.DailyLaborDetail != null && entity.DailyLaborDetail.Any())
+        {
+            _db.DailyLaborDetails.RemoveRange(entity.DailyLaborDetail);
+            entity.DailyLaborDetail.Clear();
+        }
+
+        if (r.Details?.Any() == true)
+        {
+            foreach (var d in r.Details)
+            {
+                var detail = new Himapp.Execution.Domain.Entities.DailyLaborDetail
+                {
+                    UniqueID = Guid.NewGuid(),
+                    ContractorID = d.ContractorId,
+                    CategoryID = d.CategoryId,
+                    Skilled = d.Skilled,
+                    UnSkilled = d.UnSkilled,
+                    Remarks = d.Remarks,
+                    Mat = d.Mat,
+                    ContractorName = d.ContractorName,
+                    ProductivityID = d.ProductivityId,
+                    IsActive = true,
+                    CreatedBy = 0,
+                    CreatedDate = DateTimeOffset.UtcNow,
+                    LastModifiedBy = 0,
+                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    DailyLabor = entity
+                };
+
+                entity.DailyLaborDetail?.Add(detail);
+            }
+        }
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DailyLaborModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ReportDate, entity.Remarks, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ProductivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
+
+        return new DailyLaborModel(entity.ID, entity.UniqueID, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 }
 
@@ -92,11 +210,22 @@ internal sealed class DeleteDailyLaborCommandHandler : IRequestHandler<DeleteDai
 
     public async Task<bool> Handle(DeleteDailyLaborCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.DailyLabors.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var entity = await _db.DailyLabors.Include(d => d.DailyLaborDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;
 
+        // Soft delete header and child details
         entity.IsActive = false;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
+
+        if (entity.DailyLaborDetail != null)
+        {
+            foreach (var dd in entity.DailyLaborDetail)
+            {
+                dd.IsActive = false;
+                dd.LastModifiedDate = DateTimeOffset.UtcNow;
+            }
+        }
+
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }

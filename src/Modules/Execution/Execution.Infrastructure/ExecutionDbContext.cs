@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Himapp.Execution.Domain.Entities;
+using System.Reflection;
 
 namespace Himapp.Execution.Infrastructure;
 
@@ -27,6 +28,8 @@ public sealed class ExecutionDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        // Additional configuration can be provided via IEntityTypeConfiguration implementations in domain project
+        // Load IEntityTypeConfiguration implementations from the domain assembly so fluent configurations
+        // placed in Execution.Domain are applied automatically.
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(DailyLabor).Assembly);
     }
 }

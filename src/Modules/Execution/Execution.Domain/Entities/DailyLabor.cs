@@ -2,22 +2,28 @@ namespace Himapp.Execution.Domain.Entities;
 
 // EF entity for schema table "DailyLabor"
 // EF entity for schema table "DailyLabor"
-public sealed class DailyLabor
+public class DailyLabor
 {
-    public long Id { get; set; }
-    public Guid UniqueId { get; set; }
-
-    public long ProjectId { get; set; }
-    public DateOnly ReportDate { get; set; }
-
+    public DailyLabor()
+    {
+        DailyLaborDetail = new HashSet<DailyLaborDetail>();
+    }
+    public Guid UniqueID { get; set; }
+    public int ID { get; set; }
+    public string? DLRCode { get; set; }
+    public DateTimeOffset DLRDate { get; set; }
+    public string? ConstraintsAndReasons { get; set; }
+    public string? ProposedActionPlan { get; set; }
     public string? Remarks { get; set; }
-    public string Status { get; set; } = "DRAFT";
-
-    public bool IsActive { get; set; }
-
-    public long? CreatedBy { get; set; }
-    public DateTimeOffset CreatedDate { get; set; }
-    public long? LastModifiedBy { get; set; }
-    public DateTimeOffset LastModifiedDate { get; set; }
+    public int? CompanyID { get; set; }
+    public int? ProjectID { get; set; }
+    public short? StateID { get; set; }
+    public bool IsActive { get; set; } = true;
+    public int CreatedBy { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public int LastModifiedBy { get; set; }
+    public DateTime LastModifiedDate { get; set; }
+    public bool? RemoveMenPower { get; set; }
+    public virtual ICollection<DailyLaborDetail>? DailyLaborDetail { get; set; }
 }
 

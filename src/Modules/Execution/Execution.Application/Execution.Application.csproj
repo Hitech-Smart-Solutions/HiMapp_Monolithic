@@ -6,6 +6,9 @@
 		<ProjectReference Include="..\Execution.Domain\Execution.Domain.csproj" />
 		<ProjectReference Include="..\Execution.Infrastructure\Execution.Infrastructure.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Features\DailyLabor\Validators\" />
+	</ItemGroup>
 	<PropertyGroup>
 		<RootNamespace>Himapp.Execution.Application</RootNamespace>
 	</PropertyGroup>
