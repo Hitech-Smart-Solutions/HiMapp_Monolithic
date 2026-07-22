@@ -17,7 +17,7 @@ internal sealed class GetAllDailyLaborsQueryHandler : IRequestHandler<GetAllDail
     {
         return await _db.DailyLabors
             .AsNoTracking()
-            .Select(d => new DailyLaborModel(d.ID, d.UniqueID, d.ProjectID, d.SlipDate, d.Remarks, d.StateID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate))
+            .Select(d => new DailyLaborModel(d.Id, d.UniqueId, d.ProjectId, d.ReportDate, d.Remarks, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate))
             .ToArrayAsync(cancellationToken);
     }
 }
@@ -29,9 +29,9 @@ internal sealed class GetDailyLaborByIdQueryHandler : IRequestHandler<GetDailyLa
 
     public async Task<DailyLaborModel?> Handle(GetDailyLaborByIdQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.DailyLabors.AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+        var d = await _db.DailyLabors.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
         if (d is null) return null;
-        return new DailyLaborModel(d.ID, d.UniqueID, d.ProjectID, d.SlipDate, d.Remarks, d.StateID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate);
+        return new DailyLaborModel(d.Id, d.UniqueId, d.ProjectId, d.ReportDate, d.Remarks, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate);
     }
 }
 
@@ -43,24 +43,24 @@ internal sealed class CreateDailyLaborCommandHandler : IRequestHandler<CreateDai
     public async Task<DailyLaborModel> Handle(CreateDailyLaborCommand request, CancellationToken cancellationToken)
     {
         var r = request.Request;
-        var entity = new Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip
+        var entity = new Himapp.Execution.Domain.Entities.DailyLabor
         {
-            UniqueID = Guid.NewGuid(),
-            ProjectID = r.ProjectID,
-            SlipDate = r.SlipDate,
+            UniqueId = Guid.NewGuid(),
+            ProjectId = r.ProjectId,
+            ReportDate = r.ReportDate,
             Remarks = r.Remarks,
-            StateID = 1,
+            Status = "DRAFT",
             IsActive = true,
-            CreatedBy = 1,
-            CreatedDate = DateTime.UtcNow,
-            LastModifiedBy = 1,
-            LastModifiedDate = DateTime.UtcNow
+            CreatedBy = null,
+            CreatedDate = DateTimeOffset.UtcNow,
+            LastModifiedBy = null,
+            LastModifiedDate = DateTimeOffset.UtcNow
         };
 
         _db.DailyLabors.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DailyLaborModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        return new DailyLaborModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ReportDate, entity.Remarks, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
 }
 
@@ -71,17 +71,17 @@ internal sealed class UpdateDailyLaborCommandHandler : IRequestHandler<UpdateDai
 
     public async Task<DailyLaborModel> Handle(UpdateDailyLaborCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.DailyLabors.FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+        var entity = await _db.DailyLabors.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
         if (entity is null) return null!;
 
         entity.Remarks = request.Request.Remarks ?? entity.Remarks;
-        entity.StateID = request.Request.StateID;
+        entity.Status = request.Request.Status;
         entity.IsActive = request.Request.IsActive;
-        entity.LastModifiedDate = DateTime.UtcNow;
+        entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DailyLaborModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        return new DailyLaborModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ReportDate, entity.Remarks, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
 }
 
@@ -92,11 +92,11 @@ internal sealed class DeleteDailyLaborCommandHandler : IRequestHandler<DeleteDai
 
     public async Task<bool> Handle(DeleteDailyLaborCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.DailyLabors.FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+        var entity = await _db.DailyLabors.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
         if (entity is null) return false;
 
         entity.IsActive = false;
-        entity.LastModifiedDate = DateTime.UtcNow;
+        entity.LastModifiedDate = DateTimeOffset.UtcNow;
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }

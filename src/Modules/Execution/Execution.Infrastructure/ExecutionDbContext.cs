@@ -18,8 +18,8 @@ public sealed class ExecutionDbContext : DbContext
     public DbSet<PlanningDetail> PlanningDetails { get; set; } = null!;
     public DbSet<DailyProgress> DailyProgresses { get; set; } = null!;
     public DbSet<DailyProgressDetail> DailyProgressDetails { get; set; } = null!;
-    public DbSet<DailyDepartmentalLabourSlip> DailyLabors { get; set; } = null!;
-    public DbSet<DailyDepartmentalLabourSlipDetails> DailyLaborDetails { get; set; } = null!;
+    public DbSet<DailyLabor> DailyLabors { get; set; } = null!;
+    public DbSet<DailyLaborDetail> DailyLaborDetails { get; set; } = null!;
     public DbSet<Manpower> Manpowers { get; set; } = null!;
     public DbSet<ManpowerDetail> ManpowerDetails { get; set; } = null!;
     public DbSet<Area> Areas { get; set; } = null!;
