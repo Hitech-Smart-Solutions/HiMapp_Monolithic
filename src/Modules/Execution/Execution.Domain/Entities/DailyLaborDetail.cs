@@ -1,27 +1,43 @@
 namespace Himapp.Execution.Domain.Entities;
 
 // EF entity for schema table "DailyLaborDetails"
-public sealed class DailyLaborDetail
+public class DailyDepartmentalLabourSlipDetails
 {
-    public long Id { get; set; }
-    public Guid UniqueId { get; set; }
+    public DailyDepartmentalLabourSlipDetails()
+    {
+        DailyDepartmentalLabourAllocationDetails = new HashSet<DailyDepartmentalLabourAllocationDetails>();
+    }
 
-    public long DailyLaborId { get; set; }
-    public long ContractorId { get; set; }
-    public long ActivityId { get; set; }
+    public int ID { get; set; }
+    public Guid UniqueID { get; set; }
 
-    public int SkilledCount { get; set; }
-    public int UnskilledCount { get; set; }
-    public int MatCount { get; set; }
+    public int? DDLSlipID { get; set; }
+    public int? LabourCategoryTypeID { get; set; }
+    public int? NumOfLabour { get; set; }
 
-    // computed stored column in DB
-    public int TotalCount { get; set; }
+    public DateTime FromTime { get; set; }
+    public DateTime TOTime { get; set; }
+    public decimal? LunchHour { get; set; }
+    public decimal? WorkingHours { get; set; }
 
-    public bool IsActive { get; set; }
+    public int? WorkLocationID { get; set; }
+    public int? ActivityCategoryID { get; set; }
+    public string? ActivityDetails { get; set; }
+    public int? UOMID { get; set; }
+    public decimal? Quantity { get; set; }
+    public int? DebitPartyID { get; set; }
+    public string? Remarks { get; set; }
 
-    public long? CreatedBy { get; set; }
-    public DateTimeOffset CreatedDate { get; set; }
-    public long? LastModifiedBy { get; set; }
-    public DateTimeOffset LastModifiedDate { get; set; }
+    public short? StateID { get; set; }
+    public bool IsActive { get; set; } = true;
+    public int CreatedBy { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public int LastModifiedBy { get; set; }
+    public DateTime LastModifiedDate { get; set; }
+
+    public bool? IsLumSumWork { get; set; } = false;
+
+    public virtual DailyDepartmentalLabourSlip? DailyDepartmentalLabourSlip { get; set; }
+    public virtual ICollection<DailyDepartmentalLabourAllocationDetails> DailyDepartmentalLabourAllocationDetails { get; set; }
 }
 

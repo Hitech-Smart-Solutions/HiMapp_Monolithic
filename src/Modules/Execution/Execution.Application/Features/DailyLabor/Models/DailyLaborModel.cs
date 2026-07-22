@@ -3,16 +3,16 @@ namespace Himapp.Execution.Application.Features.DailyLabor.Models;
 public sealed record DailyLaborModel(
     long Id,
     System.Guid UniqueId,
-    long ProjectId,
-    System.DateOnly ReportDate,
+    int? ProjectId,
+    System.DateTime? ReportDate,
     string? Remarks,
-    string Status,
+    short? Status,
     bool IsActive,
-    long? CreatedBy,
-    System.DateTimeOffset CreatedDate,
-    long? LastModifiedBy,
-    System.DateTimeOffset LastModifiedDate
+    int? CreatedBy,
+    System.DateTime CreatedDate,
+    int? LastModifiedBy,
+    System.DateTime LastModifiedDate
 );
 
-public sealed record CreateDailyLaborRequest(long ProjectId, System.DateOnly ReportDate, string? Remarks);
-public sealed record UpdateDailyLaborRequest(string? Remarks, string Status, bool IsActive);
+public sealed record CreateDailyLaborRequest(int ProjectID, System.DateTime? SlipDate, string? Remarks);
+public sealed record UpdateDailyLaborRequest(string? Remarks, short? StateID, bool IsActive);

@@ -18,8 +18,8 @@ public sealed class DailyLaborsController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new Himapp.Execution.Application.Features.DailyLabor.Queries.GetAllDailyLaborsQuery(), cancellationToken));
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken) =>
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken) =>
         OkOrNotFound(await _mediator.Send(new Himapp.Execution.Application.Features.DailyLabor.Queries.GetDailyLaborByIdQuery(id), cancellationToken));
 
     [HttpPost]
@@ -29,15 +29,15 @@ public sealed class DailyLaborsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> Update(long id, [FromBody] UpdateDailyLaborRequest request, CancellationToken cancellationToken)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateDailyLaborRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new Himapp.Execution.Application.Features.DailyLabor.Commands.UpdateDailyLaborCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _mediator.Send(new Himapp.Execution.Application.Features.DailyLabor.Commands.DeleteDailyLaborCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();
