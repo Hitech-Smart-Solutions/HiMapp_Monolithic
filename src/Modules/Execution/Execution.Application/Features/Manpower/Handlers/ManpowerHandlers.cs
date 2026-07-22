@@ -17,7 +17,20 @@ internal sealed class GetAllManpowersQueryHandler : IRequestHandler<GetAllManpow
     {
         return await _db.Manpowers
             .AsNoTracking()
-            .Select(m => new ManpowerModel(m.Id, m.UniqueId, m.ProjectId, m.EntryDate, m.Shift, m.Remarks, m.Status, m.IsActive, m.CreatedBy, m.CreatedDate, m.LastModifiedBy, m.LastModifiedDate))
+            .Select(m => new ManpowerModel(
+                m.ID,
+                m.UniqueID,
+                m.ProjectID,
+                m.SectionID,
+                m.EntryDate,
+                m.Remarks,
+                m.StateID,
+                m.IsActive,
+                m.CreatedBy,
+                m.CreatedDate,
+                m.LastModifiedBy,
+                m.LastModifiedDate,
+                Array.Empty<ManpowerDetailModel>()))
             .ToArrayAsync(cancellationToken);
     }
 }
@@ -29,9 +42,23 @@ internal sealed class GetManpowerByIdQueryHandler : IRequestHandler<GetManpowerB
 
     public async Task<ManpowerModel?> Handle(GetManpowerByIdQuery request, CancellationToken cancellationToken)
     {
-        var m = await _db.Manpowers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var m = await _db.Manpowers
+            .AsNoTracking()
+            .Include(x => x.ManpowerDetail)
+            .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (m is null) return null;
-        return new ManpowerModel(m.Id, m.UniqueId, m.ProjectId, m.EntryDate, m.Shift, m.Remarks, m.Status, m.IsActive, m.CreatedBy, m.CreatedDate, m.LastModifiedBy, m.LastModifiedDate);
+
+        var details = m.ManpowerDetail?.Select(d => new ManpowerDetailModel(
+            d.ID,
+            d.UniqueID,
+            d.ContractorID,
+            d.ActivityID,
+            d.SkilledCount,
+            d.UnskilledCount,
+            d.OtherCount,
+            d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
+
+        return new ManpowerModel(m.ID, m.UniqueID, m.ProjectID, m.SectionID, m.EntryDate, m.Remarks, m.StateID, m.IsActive, m.CreatedBy, m.CreatedDate, m.LastModifiedBy, m.LastModifiedDate, details);
     }
 }
 
@@ -42,25 +69,54 @@ internal sealed class CreateManpowerCommandHandler : IRequestHandler<CreateManpo
 
     public async Task<ManpowerModel> Handle(CreateManpowerCommand request, CancellationToken cancellationToken)
     {
+        var r = request.Request;
+
         var entity = new Himapp.Execution.Domain.Entities.Manpower
         {
-            UniqueId = Guid.NewGuid(),
-            ProjectId = request.Request.ProjectId,
-            EntryDate = request.Request.EntryDate,
-            Shift = request.Request.Shift,
-            Remarks = request.Request.Remarks,
-            Status = "DRAFT",
+            UniqueID = Guid.NewGuid(),
+            ProjectID = r.ProjectId,
+            SectionID = r.SectionId,
+            EntryDate = r.EntryDate,
+            Remarks = r.Remarks,
+            StateID = 3,
             IsActive = true,
-            CreatedBy = null,
+            CreatedBy = 0,
             CreatedDate = DateTimeOffset.UtcNow,
-            LastModifiedBy = null,
+            LastModifiedBy = 0,
             LastModifiedDate = DateTimeOffset.UtcNow
         };
+
+        if (r.Details?.Any() == true)
+        {
+            foreach (var d in r.Details)
+            {
+                var detail = new ManpowerDetail
+                {
+                    UniqueID = Guid.NewGuid(),
+                    ContractorID = d.ContractorId,
+                    ActivityID = d.ActivityId,
+                    SkilledCount = d.SkilledCount,
+                    UnskilledCount = d.UnskilledCount,
+                    OtherCount = d.OtherCount,
+                    TotalCount = d.SkilledCount + d.UnskilledCount + d.OtherCount,
+                    IsActive = true,
+                    CreatedBy = 0,
+                    CreatedDate = DateTimeOffset.UtcNow,
+                    LastModifiedBy = 0,
+                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    Manpower = entity
+                };
+
+                entity.ManpowerDetail?.Add(detail);
+            }
+        }
 
         _db.Manpowers.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new ManpowerModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.EntryDate, entity.Shift, entity.Remarks, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, d.ActivityID, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.TotalCount)).ToArray() ?? Array.Empty<Himapp.Execution.Application.Features.Manpower.Models.ManpowerDetailModel>();
+
+        return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 }
 
@@ -71,17 +127,53 @@ internal sealed class UpdateManpowerCommandHandler : IRequestHandler<UpdateManpo
 
     public async Task<ManpowerModel?> Handle(UpdateManpowerCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Manpowers.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var entity = await _db.Manpowers.Include(x => x.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return null;
+        var r = request.Request;
 
-        entity.Remarks = request.Request.Remarks ?? entity.Remarks;
-        entity.Status = request.Request.Status;
-        entity.IsActive = request.Request.IsActive;
+        entity.SectionID = r.SectionId;
+        entity.EntryDate = r.EntryDate;
+        entity.Remarks = r.Remarks;
+        entity.StateID = r.StateId;
+        entity.IsActive = r.IsActive;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
+
+        if (entity.ManpowerDetail != null && entity.ManpowerDetail.Any())
+        {
+            _db.ManpowerDetails.RemoveRange(entity.ManpowerDetail);
+            entity.ManpowerDetail.Clear();
+        }
+
+        if (r.Details?.Any() == true)
+        {
+            foreach (var d in r.Details)
+            {
+                var detail = new ManpowerDetail
+                {
+                    UniqueID = Guid.NewGuid(),
+                    ContractorID = d.ContractorId,
+                    ActivityID = d.ActivityId,
+                    SkilledCount = d.SkilledCount,
+                    UnskilledCount = d.UnskilledCount,
+                    OtherCount = d.OtherCount,
+                    TotalCount = d.SkilledCount + d.UnskilledCount + d.OtherCount,
+                    IsActive = true,
+                    CreatedBy = 0,
+                    CreatedDate = DateTimeOffset.UtcNow,
+                    LastModifiedBy = 0,
+                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    Manpower = entity
+                };
+
+                entity.ManpowerDetail?.Add(detail);
+            }
+        }
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new ManpowerModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.EntryDate, entity.Shift, entity.Remarks, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, d.ActivityID, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.TotalCount)).ToArray() ?? Array.Empty<Himapp.Execution.Application.Features.Manpower.Models.ManpowerDetailModel>();
+
+        return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 }
 
@@ -92,11 +184,21 @@ internal sealed class DeleteManpowerCommandHandler : IRequestHandler<DeleteManpo
 
     public async Task<bool> Handle(DeleteManpowerCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Manpowers.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var entity = await _db.Manpowers.Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;
 
         entity.IsActive = false;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
+
+        if (entity.ManpowerDetail != null)
+        {
+            foreach (var dd in entity.ManpowerDetail)
+            {
+                dd.IsActive = false;
+                dd.LastModifiedDate = DateTimeOffset.UtcNow;
+            }
+        }
+
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }
