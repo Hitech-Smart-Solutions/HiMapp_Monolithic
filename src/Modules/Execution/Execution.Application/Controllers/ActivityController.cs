@@ -11,11 +11,11 @@ namespace Himapp.Execution.Application.Controllers;
 [ApiController]
 [Authorize]
 [Route("v1/execution/activities")]
-public sealed class ExecutionController : ControllerBase
+public sealed class ActivityController : ControllerBase
 {
     private readonly IMediator _mediator;
 
-    public ExecutionController(IMediator mediator) => _mediator = mediator;
+    public ActivityController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
