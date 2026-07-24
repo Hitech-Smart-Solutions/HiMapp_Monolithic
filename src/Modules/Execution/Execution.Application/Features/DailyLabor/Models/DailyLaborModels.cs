@@ -1,3 +1,5 @@
+using Himapp.Workflow.Models;
+
 namespace Himapp.Execution.Application.Features.DailyLabor.Models;
 
 public sealed class DailyLaborDetailModel
@@ -28,7 +30,7 @@ public sealed class DailyLaborDetailModel
     }
 }
 
-public sealed class DailyLaborModel
+public sealed class DailyLaborModel : IRequiresApproval
 {
     public int Id { get; init; }
     public Guid UniqueId { get; init; }
@@ -44,6 +46,10 @@ public sealed class DailyLaborModel
     public DateTime LastModifiedDate { get; init; }
 
     public IReadOnlyCollection<DailyLaborDetailModel> Details { get; init; }
+
+    // IRequiresApproval implementation
+    public string EntityName => "DailyLabor";
+    public long EntityId => Id;
 
     public DailyLaborModel(int id, Guid uniqueId, int? companyId, int? projectId, DateTimeOffset reportDate, string? remarks, short? status, bool isActive, int createdBy, DateTime createdDate, int lastModifiedBy, DateTime lastModifiedDate, IReadOnlyCollection<DailyLaborDetailModel> details)
     {

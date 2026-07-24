@@ -12,6 +12,7 @@ using Himapp.Safety.Infrastructure;
 using Himapp.Store.Application;
 using Himapp.Store.Infrastructure;
 using Himapp.Workflow;
+using Himapp.Workflow.Controllers;
 using Himapp.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,7 +30,8 @@ builder.Logging.AddSharedLogging(builder.Configuration);
 
 // Core services
 builder.Services.AddAuthorization();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddApplicationPart(typeof(Himapp.Workflow.DependencyInjection).Assembly);
 builder.Services.AddHealthChecks();
 builder.Services.AddSignalR();
 

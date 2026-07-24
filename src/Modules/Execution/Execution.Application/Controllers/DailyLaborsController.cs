@@ -1,4 +1,5 @@
 using Himapp.Execution.Application.Features.DailyLabor.Models;
+using Himapp.Workflow.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
 [Authorize]
+[RequiresApproval]
 [Route("v1/execution/daily-labors")]
 public sealed class DailyLaborsController : ControllerBase
 {

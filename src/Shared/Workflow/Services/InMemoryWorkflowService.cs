@@ -22,7 +22,10 @@ public sealed class InMemoryWorkflowService : IWorkflowService
             EntityId = entityId
         };
 
-        instance.MoveTo("Submitted", new ApprovalHistory(id, 0, "Start", actorUserId, null, _clock.UtcNow));
+        var config = GetConfiguration(entityName);
+        var submittedState = config.SubmittedState;
+
+        instance.MoveTo(submittedState, new ApprovalHistory(id, 0, WorkflowActions.Submit, actorUserId, null, _clock.UtcNow));
         _instances[id] = instance;
         return Task.FromResult(instance);
     }
@@ -34,18 +37,56 @@ public sealed class InMemoryWorkflowService : IWorkflowService
             throw new InvalidOperationException($"Workflow {workflowId} was not found.");
         }
 
+        var config = GetConfiguration(instance.EntityName);
+
         var nextState = trigger switch
         {
-            "ApproveL1" => "L1Approved",
-            "ApproveL2" => "Approved",
-            "Reject" => "Rejected",
-            "Cancel" => "Cancelled",
-            "Dispute" => "Disputed",
-            "Resolve" => "Resolved",
+            WorkflowActions.Approve => ResolveNextApprovalState(instance, config),
+            WorkflowActions.Reject => config.RejectedState,
+            WorkflowActions.Cancel => WorkflowStates.Cancelled,
+            WorkflowActions.Dispute => WorkflowStates.Disputed,
+            WorkflowActions.Resolve => WorkflowStates.Resolved,
             _ => trigger
         };
 
-        instance.MoveTo(nextState, new ApprovalHistory(workflowId, instance.History.Count + 1, trigger, actorUserId, comment, _clock.UtcNow));
+        var level = instance.History.Count + 1;
+        instance.MoveTo(nextState, new ApprovalHistory(workflowId, level, trigger, actorUserId, comment, _clock.UtcNow));
         return Task.FromResult(instance);
+    }
+
+    public Task<WorkflowInstance?> GetByIdAsync(long workflowId, CancellationToken cancellationToken = default)
+    {
+        _instances.TryGetValue(workflowId, out var instance);
+        return Task.FromResult(instance);
+    }
+
+    public Task<WorkflowInstance?> GetByEntityAsync(string entityName, long entityId, CancellationToken cancellationToken = default)
+    {
+        var instance = _instances.Values.FirstOrDefault(x =>
+            x.EntityName.Equals(entityName, StringComparison.OrdinalIgnoreCase) && x.EntityId == entityId);
+        return Task.FromResult(instance);
+    }
+
+    public Task<IReadOnlyCollection<WorkflowInstance>> GetPendingAsync(CancellationToken cancellationToken = default)
+    {
+        var pending = _instances.Values
+            .Where(x => x.CurrentState == WorkflowStates.PendingApproval)
+            .ToArray() as IReadOnlyCollection<WorkflowInstance>;
+        return Task.FromResult(pending ?? Array.Empty<WorkflowInstance>());
+    }
+
+    public WorkflowConfiguration GetConfiguration(string entityName)
+        => DefaultWorkflowConfigurations.GetFor(entityName);
+
+    private static string ResolveNextApprovalState(WorkflowInstance instance, WorkflowConfiguration config)
+    {
+        // Determine which level the current approval is at
+        var approvedCount = instance.History.Count(h => h.Action == WorkflowActions.Approve);
+        var totalLevels = config.Levels.Count;
+
+        if (approvedCount >= totalLevels)
+            return config.ApprovedState;
+
+        return config.SubmittedState; // still pending next level
     }
 }

@@ -1,49 +1,27 @@
-# Task: Add Infrastructure Projects (with DbContext) for All Modules
+# Approval Workflow Implementation Plan
 
-## Steps
+## Phase 1: Workflow Module - Models
+- [x] Create `src/Shared/Workflow/Models/IRequiresApproval.cs` - Marker interface
+- [x] Create `src/Shared/Workflow/Models/WorkflowConfiguration.cs` - Config for approval levels
+- [x] Create `src/Shared/Workflow/Models/WorkflowConstants.cs` - State/action constants
+- [x] Create `src/Shared/Workflow/Models/WorkflowActionRequest.cs` - Approval action DTO
 
-### ✅ Step 1: Create PM.Domain Equipment Entity
-- [x] Create `PM.Domain/Equipment/Equipment.cs` entity class
+## Phase 2: Workflow Module - Filter
+- [x] Create `src/Shared/Workflow/Filters/RequiresApprovalAttribute.cs` - Action filter attribute
 
-### ✅ Step 2: Create Admin.Infrastructure Project
-- [x] Create `Admin.Infrastructure/Admin.Infrastructure.csproj`
-- [x] Create `Admin.Infrastructure/AdminDbContext.cs`
-- [x] Create `Admin.Infrastructure/DependencyInjection.cs`
-- [x] Create `Admin.Infrastructure/ServiceCollectionExtensions.cs`
-- [x] Create `Admin.Infrastructure/Admin.Infrastructure.slnx`
+## Phase 3: Workflow Module - Controller & Enhanced Service
+- [x] Create `src/Shared/Workflow/Controllers/WorkflowController.cs` - Shared approval endpoints
+- [x] Update `src/Shared/Workflow/Services/IWorkflowService.cs` - Add query methods
+- [x] Update `src/Shared/Workflow/Services/InMemoryWorkflowService.cs` - Enhanced implementation
+- [x] Update `src/Shared/Workflow/DependencyInjection.cs` - Register filter
 
-### ✅ Step 3: Create PM.Infrastructure Project
-- [x] Create `PM.Infrastructure/PM.Infrastructure.csproj`
-- [x] Create `PM.Infrastructure/PMDbContext.cs`
-- [x] Create `PM.Infrastructure/DependencyInjection.cs`
-- [x] Create `PM.Infrastructure/ServiceCollectionExtensions.cs`
-- [x] Create `PM.Infrastructure/PM.Infrastructure.slnx`
+## Phase 4: Execution Module Integration
+- [x] Update `Execution.Application.csproj` - Add Workflow reference
+- [x] Update `DailyLaborModels.cs` - Implement IRequiresApproval
+- [x] Update `DailyProgressModel.cs` - Implement IRequiresApproval
+- [x] Update `DailyLaborsController.cs` - Add [RequiresApproval]
+- [x] Update `DailyProgressController.cs` - Add [RequiresApproval]
 
-### ✅ Step 4: Create Safety.Infrastructure Project
-- [x] Create `Safety.Infrastructure/Safety.Infrastructure.csproj`
-- [x] Create `Safety.Infrastructure/SafetyDbContext.cs`
-- [x] Create `Safety.Infrastructure/DependencyInjection.cs`
-- [x] Create `Safety.Infrastructure/ServiceCollectionExtensions.cs`
-- [x] Create `Safety.Infrastructure/Safety.Infrastructure.slnx`
-
-### ✅ Step 5: Create Store.Infrastructure Project
-- [x] Create `Store.Infrastructure/Store.Infrastructure.csproj`
-- [x] Create `Store.Infrastructure/StoreDbContext.cs`
-- [x] Create `Store.Infrastructure/DependencyInjection.cs`
-- [x] Create `Store.Infrastructure/ServiceCollectionExtensions.cs`
-- [x] Create `Store.Infrastructure/Store.Infrastructure.slnx`
-
-### ✅ Step 6: Update Application .csproj files to reference Infrastructure
-- [x] Update `Admin.Application.csproj` - add reference to `Admin.Infrastructure`
-- [x] Update `PM.Application.csproj` - add reference to `PM.Infrastructure`
-- [x] Update `Safety.Application.csproj` - add reference to `Safety.Infrastructure`
-- [x] Update `Store.Application.csproj` - add reference to `Store.Infrastructure`
-
-### ✅ Step 7: Update Program.cs
-- [x] Add `using` statements for new Infrastructure namespaces
-- [x] Register `AdminDbContext`, `PMDbContext`, `SafetyDbContext`, `StoreDbContext`
-- [x] Update solution file (HiMapp_Monolithic.slnx) with new projects
-
-### ⬜ Step 8: Build and verify
-- [ ] Build the solution to verify everything compiles
+## Phase 5: API Host
+- [x] Update `Program.cs` - Register Workflow controllers assembly
 
