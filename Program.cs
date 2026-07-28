@@ -14,6 +14,7 @@ using Himapp.Store.Infrastructure;
 using Himapp.Workflow;
 using Himapp.Workflow.Controllers;
 using Himapp.SharedKernel;
+using Himapp.Audit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -31,7 +32,8 @@ builder.Logging.AddSharedLogging(builder.Configuration);
 // Core services
 builder.Services.AddAuthorization();
 builder.Services.AddControllers()
-    .AddApplicationPart(typeof(Himapp.Workflow.DependencyInjection).Assembly);
+    .AddApplicationPart(typeof(Himapp.Workflow.DependencyInjection).Assembly)
+    .AddAuditActionFilter(); // 🔥 Registers the global auto-log action filter for ALL controllers
 builder.Services.AddHealthChecks();
 builder.Services.AddSignalR();
 
@@ -66,7 +68,8 @@ builder.Services
     .AddHimappNotifications()
     .AddHimappWorkflow()
     .AddHimappFiles()
-    .AddD365Integration();
+    .AddD365Integration()
+    .AddAuditLogging(builder.Configuration); // 🔥 Registers audit services (DbContext, Channel, Background consumer)
 
 // Modules
 builder.Services
@@ -136,7 +139,7 @@ app.MapGet("/api/architecture", () => Results.Ok(new
     Name = "HIMAPP 2.0",
     Style = "Modular monolith with clean vertical slices",
     Modules = new[] { "Admin", "Safety", "Execution", "Plant & Machinery", "Store" },
-    SharedServices = new[] { "Notifications", "Workflow", "Files", "D365 Integration", "Shared Kernel" }
+    SharedServices = new[] { "Notifications", "Workflow", "Files", "D365 Integration", "Shared Kernel", "Audit" }
 }));
 
 #endregion
