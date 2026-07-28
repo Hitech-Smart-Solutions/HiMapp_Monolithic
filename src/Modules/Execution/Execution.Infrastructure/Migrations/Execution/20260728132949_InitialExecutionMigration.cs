@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Himapp.Execution.Infrastructure.Migrations
+namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     /// <inheritdoc />
     public partial class InitialExecutionMigration : Migration
@@ -12,8 +12,12 @@ namespace Himapp.Execution.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "execution");
+
             migrationBuilder.CreateTable(
                 name: "Activities",
+                schema: "execution",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "integer", nullable: false)
@@ -34,6 +38,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "DailyDepartmentalLabourSlips",
+                schema: "execution",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "integer", nullable: false)
@@ -74,6 +79,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "DailyLabor",
+                schema: "execution",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "integer", nullable: false)
@@ -101,6 +107,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "DailyProgressDetails",
+                schema: "execution",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "integer", nullable: false)
@@ -128,6 +135,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "DailyProgresses",
+                schema: "execution",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -154,6 +162,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Manpowers",
+                schema: "execution",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "integer", nullable: false)
@@ -177,6 +186,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "PlanningDetails",
+                schema: "execution",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -201,6 +211,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Plannings",
+                schema: "execution",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -225,6 +236,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "ProjectActivities",
+                schema: "execution",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -246,6 +258,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RateMasters",
+                schema: "execution",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -269,6 +282,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "SiteDailyProgresses",
+                schema: "execution",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -295,6 +309,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "DailyDepartmentalLabourSlipDetails",
+                schema: "execution",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "integer", nullable: false)
@@ -329,12 +344,14 @@ namespace Himapp.Execution.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_DailyDepartmentalLabourSlipDetails_DailyDepartmentalLabourS~",
                         column: x => x.DailyDepartmentalLabourSlipID,
+                        principalSchema: "execution",
                         principalTable: "DailyDepartmentalLabourSlips",
                         principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
                 name: "DailyLaborDetails",
+                schema: "execution",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "integer", nullable: false)
@@ -361,6 +378,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_DailyLaborDetails_DailyLabor_DailyLabourID",
                         column: x => x.DailyLabourID,
+                        principalSchema: "execution",
                         principalTable: "DailyLabor",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
@@ -368,6 +386,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "ManpowerDetails",
+                schema: "execution",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "integer", nullable: false)
@@ -392,6 +411,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_ManpowerDetails_Manpowers_ManpowerID",
                         column: x => x.ManpowerID,
+                        principalSchema: "execution",
                         principalTable: "Manpowers",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
@@ -399,16 +419,19 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_DailyDepartmentalLabourSlipDetails_DailyDepartmentalLabourS~",
+                schema: "execution",
                 table: "DailyDepartmentalLabourSlipDetails",
                 column: "DailyDepartmentalLabourSlipID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DailyLaborDetails_DailyLabourID",
+                schema: "execution",
                 table: "DailyLaborDetails",
                 column: "DailyLabourID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ManpowerDetails_ManpowerID",
+                schema: "execution",
                 table: "ManpowerDetails",
                 column: "ManpowerID");
         }
@@ -417,46 +440,60 @@ namespace Himapp.Execution.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Activities");
+                name: "Activities",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "DailyDepartmentalLabourSlipDetails");
+                name: "DailyDepartmentalLabourSlipDetails",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "DailyLaborDetails");
+                name: "DailyLaborDetails",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "DailyProgressDetails");
+                name: "DailyProgressDetails",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "DailyProgresses");
+                name: "DailyProgresses",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "ManpowerDetails");
+                name: "ManpowerDetails",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "PlanningDetails");
+                name: "PlanningDetails",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "Plannings");
+                name: "Plannings",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "ProjectActivities");
+                name: "ProjectActivities",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "RateMasters");
+                name: "RateMasters",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "SiteDailyProgresses");
+                name: "SiteDailyProgresses",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "DailyDepartmentalLabourSlips");
+                name: "DailyDepartmentalLabourSlips",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "DailyLabor");
+                name: "DailyLabor",
+                schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "Manpowers");
+                name: "Manpowers",
+                schema: "execution");
         }
     }
 }

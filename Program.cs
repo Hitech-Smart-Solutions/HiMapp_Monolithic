@@ -75,15 +75,15 @@ builder.Services
 builder.Services
     // Register EF DbContexts used by modules
     .AddDbContext<ExecutionDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
     .AddDbContext<AdminDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
     .AddDbContext<PMDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
     .AddDbContext<SafetyDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
     .AddDbContext<StoreDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("Default")))
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
 
     // Register shared kernel services (Outbox, logging helpers, etc.) will be added from SharedKernel.DependencyInjection
     .AddAdminModule()

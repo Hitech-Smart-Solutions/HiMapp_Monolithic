@@ -27,6 +27,7 @@ public sealed class ExecutionDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("execution"); // your schema name
         base.OnModelCreating(modelBuilder);
         // Load IEntityTypeConfiguration implementations from the domain assembly so fluent configurations
         // placed in Execution.Domain are applied automatically.

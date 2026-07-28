@@ -3,20 +3,24 @@ using System;
 using Himapp.Execution.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Himapp.Execution.Infrastructure.Migrations
+namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     [DbContext(typeof(ExecutionDbContext))]
-    partial class ExecutionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260728132949_InitialExecutionMigration")]
+    partial class InitialExecutionMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("execution")
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -57,7 +61,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Activities");
+                    b.ToTable("Activities", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip", b =>
@@ -154,7 +158,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("DailyDepartmentalLabourSlips");
+                    b.ToTable("DailyDepartmentalLabourSlips", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails", b =>
@@ -238,7 +242,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasIndex("DailyDepartmentalLabourSlipID");
 
-                    b.ToTable("DailyDepartmentalLabourSlipDetails");
+                    b.ToTable("DailyDepartmentalLabourSlipDetails", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyLabor", b =>
@@ -298,7 +302,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("DailyLabor", (string)null);
+                    b.ToTable("DailyLabor", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyLaborDetail", b =>
@@ -359,7 +363,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasIndex("DailyLabourID");
 
-                    b.ToTable("DailyLaborDetails", (string)null);
+                    b.ToTable("DailyLaborDetails", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgress", b =>
@@ -415,7 +419,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DailyProgresses");
+                    b.ToTable("DailyProgresses", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressDetail", b =>
@@ -474,7 +478,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("DailyProgressDetails");
+                    b.ToTable("DailyProgressDetails", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.Manpower", b =>
@@ -520,7 +524,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Manpowers");
+                    b.ToTable("Manpowers", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.ManpowerDetail", b =>
@@ -574,7 +578,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasIndex("ManpowerID");
 
-                    b.ToTable("ManpowerDetails");
+                    b.ToTable("ManpowerDetails", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.Planning", b =>
@@ -625,7 +629,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Plannings");
+                    b.ToTable("Plannings", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.PlanningDetail", b =>
@@ -675,7 +679,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PlanningDetails");
+                    b.ToTable("PlanningDetails", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.ProjectActivity", b =>
@@ -715,7 +719,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectActivities");
+                    b.ToTable("ProjectActivities", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.RateMaster", b =>
@@ -762,7 +766,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RateMasters");
+                    b.ToTable("RateMasters", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgress", b =>
@@ -817,7 +821,7 @@ namespace Himapp.Execution.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SiteDailyProgresses");
+                    b.ToTable("SiteDailyProgresses", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails", b =>
