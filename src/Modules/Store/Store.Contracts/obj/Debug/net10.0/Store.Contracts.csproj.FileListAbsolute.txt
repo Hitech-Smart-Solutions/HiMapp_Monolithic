@@ -10,3 +10,15 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\n
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\refint\Store.Contracts.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\ref\Store.Contracts.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\bin\Debug\net10.0\Store.Contracts.deps.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\bin\Debug\net10.0\Store.Contracts.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\bin\Debug\net10.0\Store.Contracts.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.AssemblyInfoInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.AssemblyInfo.cs
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.csproj.CoreCompileInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.sourcelink.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\refint\Store.Contracts.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\Store.Contracts.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Store\Store.Contracts\obj\Debug\net10.0\ref\Store.Contracts.dll

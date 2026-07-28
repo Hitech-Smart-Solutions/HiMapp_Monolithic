@@ -14,3 +14,19 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM
 C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\refint\PM.Domain.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM.Domain.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\ref\PM.Domain.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\bin\Debug\net10.0\PM.Domain.deps.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\bin\Debug\net10.0\PM.Domain.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\bin\Debug\net10.0\PM.Domain.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\bin\Debug\net10.0\SharedKernel.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\bin\Debug\net10.0\SharedKernel.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM.Domain.csproj.AssemblyReference.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM.Domain.AssemblyInfoInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM.Domain.AssemblyInfo.cs
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM.Domain.csproj.CoreCompileInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM.Domain.sourcelink.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM.Domain.csproj.Up2Date
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM.Domain.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\refint\PM.Domain.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\PM.Domain.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\PM\PM.Domain\obj\Debug\net10.0\ref\PM.Domain.dll

@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj": {}
+    "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj": {}
   },
   "projects": {
-    "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj": {
+    "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj",
+        "projectUniqueName": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj",
         "projectName": "Admin.Contracts",
-        "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj",
-        "packagesPath": "C:\\Users\\parth.jani\\.nuget\\packages\\",
-        "outputPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\obj\\",
+        "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj",
+        "packagesPath": "C:\\Users\\soumy.oza\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\parth.jani\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\soumy.oza\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -67,7 +67,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -345,20 +345,20 @@
         }
       }
     },
-    "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj": {
+    "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
+        "projectUniqueName": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
         "projectName": "Safety.Application",
-        "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
-        "packagesPath": "C:\\Users\\parth.jani\\.nuget\\packages\\",
-        "outputPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\obj\\",
+        "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
+        "packagesPath": "C:\\Users\\soumy.oza\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\parth.jani\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\soumy.oza\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -374,17 +374,17 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj": {
-                "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj"
+              "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj": {
+                "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj"
               },
-              "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\Safety.Contracts.csproj": {
-                "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\Safety.Contracts.csproj"
+              "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\Safety.Contracts.csproj": {
+                "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\Safety.Contracts.csproj"
               },
-              "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj": {
-                "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj"
+              "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj": {
+                "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj"
               },
-              "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj": {
-                "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj"
+              "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj"
               }
             }
           }
@@ -430,7 +430,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
@@ -848,20 +848,20 @@
         }
       }
     },
-    "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\Safety.Contracts.csproj": {
+    "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\Safety.Contracts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\Safety.Contracts.csproj",
+        "projectUniqueName": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\Safety.Contracts.csproj",
         "projectName": "Safety.Contracts",
-        "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\Safety.Contracts.csproj",
-        "packagesPath": "C:\\Users\\parth.jani\\.nuget\\packages\\",
-        "outputPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\obj\\",
+        "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\Safety.Contracts.csproj",
+        "packagesPath": "C:\\Users\\soumy.oza\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Contracts\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\parth.jani\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\soumy.oza\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -911,7 +911,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -1189,20 +1189,20 @@
         }
       }
     },
-    "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj": {
+    "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj",
         "projectName": "Safety.Domain",
-        "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj",
-        "packagesPath": "C:\\Users\\parth.jani\\.nuget\\packages\\",
-        "outputPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\obj\\",
+        "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj",
+        "packagesPath": "C:\\Users\\soumy.oza\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\parth.jani\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\soumy.oza\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -1218,8 +1218,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
-                "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
+              "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
+                "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\SharedKernel.csproj"
               }
             }
           }
@@ -1262,7 +1262,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -1540,20 +1540,20 @@
         }
       }
     },
-    "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj": {
+    "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj",
         "projectName": "Safety.Infrastructure",
-        "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\parth.jani\\.nuget\\packages\\",
-        "outputPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\obj\\",
+        "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\Safety.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\soumy.oza\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\parth.jani\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\soumy.oza\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -1569,8 +1569,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj": {
-                "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj"
+              "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj": {
+                "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Domain\\Safety.Domain.csproj"
               }
             }
           }
@@ -1617,7 +1617,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -1895,20 +1895,20 @@
         }
       }
     },
-    "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
+    "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\SharedKernel.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\SharedKernel.csproj",
+        "projectUniqueName": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\SharedKernel.csproj",
         "projectName": "SharedKernel",
-        "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\SharedKernel.csproj",
-        "packagesPath": "C:\\Users\\parth.jani\\.nuget\\packages\\",
-        "outputPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\obj\\",
+        "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\SharedKernel.csproj",
+        "packagesPath": "C:\\Users\\soumy.oza\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Shared\\SharedKernel\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\parth.jani\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\soumy.oza\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -1971,7 +1971,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

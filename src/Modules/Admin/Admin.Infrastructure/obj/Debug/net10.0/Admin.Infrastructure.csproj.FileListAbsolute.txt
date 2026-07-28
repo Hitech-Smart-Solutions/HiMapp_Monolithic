@@ -16,3 +16,21 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\De
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\refint\Admin.Infrastructure.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\Admin.Infrastructure.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\ref\Admin.Infrastructure.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\bin\Debug\net10.0\Admin.Infrastructure.deps.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\bin\Debug\net10.0\Admin.Infrastructure.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\bin\Debug\net10.0\Admin.Infrastructure.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\bin\Debug\net10.0\Admin.Domain.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\bin\Debug\net10.0\SharedKernel.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\bin\Debug\net10.0\Admin.Domain.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\bin\Debug\net10.0\SharedKernel.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\Admin.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\Admin.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\Admin.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\Admin.Infrastructure.AssemblyInfo.cs
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\Admin.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\Admin.Infrastructure.sourcelink.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\Admin.In.0934E8C7.Up2Date
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\Admin.Infrastructure.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\refint\Admin.Infrastructure.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\Admin.Infrastructure.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Admin\Admin.Infrastructure\obj\Debug\net10.0\ref\Admin.Infrastructure.dll

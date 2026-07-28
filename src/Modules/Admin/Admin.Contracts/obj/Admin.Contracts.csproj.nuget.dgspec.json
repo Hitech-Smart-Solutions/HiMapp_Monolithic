@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj": {}
+    "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj": {}
   },
   "projects": {
-    "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj": {
+    "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj",
+        "projectUniqueName": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj",
         "projectName": "Admin.Contracts",
-        "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj",
-        "packagesPath": "C:\\Users\\parth.jani\\.nuget\\packages\\",
-        "outputPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\obj\\",
+        "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\Admin.Contracts.csproj",
+        "packagesPath": "C:\\Users\\soumy.oza\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Admin\\Admin.Contracts\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\parth.jani\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\soumy.oza\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -67,7 +67,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",

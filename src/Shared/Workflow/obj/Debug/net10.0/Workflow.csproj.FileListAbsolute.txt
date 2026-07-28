@@ -14,3 +14,19 @@ C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflo
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\refint\Workflow.dll
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\ref\Workflow.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\bin\Debug\net10.0\Workflow.deps.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\bin\Debug\net10.0\Workflow.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\bin\Debug\net10.0\Workflow.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\bin\Debug\net10.0\SharedKernel.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\bin\Debug\net10.0\SharedKernel.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.csproj.AssemblyReference.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.AssemblyInfoInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.AssemblyInfo.cs
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.csproj.CoreCompileInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.sourcelink.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.csproj.Up2Date
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\refint\Workflow.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\Workflow.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Workflow\obj\Debug\net10.0\ref\Workflow.dll

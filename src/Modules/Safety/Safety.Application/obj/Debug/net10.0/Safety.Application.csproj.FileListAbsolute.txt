@@ -22,3 +22,27 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Deb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\refint\Safety.Application.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\ref\Safety.Application.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Safety.Application.deps.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Safety.Application.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Safety.Application.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Admin.Contracts.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Safety.Contracts.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Safety.Domain.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Safety.Infrastructure.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\SharedKernel.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Safety.Contracts.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Safety.Domain.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Admin.Contracts.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\Safety.Infrastructure.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\bin\Debug\net10.0\SharedKernel.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.csproj.AssemblyReference.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.AssemblyInfoInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.AssemblyInfo.cs
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.csproj.CoreCompileInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.sourcelink.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.A.566B3E41.Up2Date
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\refint\Safety.Application.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\Safety.Application.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Safety\Safety.Application\obj\Debug\net10.0\ref\Safety.Application.dll

@@ -14,3 +14,19 @@ C:\Parth Working\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\No
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\refint\Notifications.dll
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\Notifications.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\ref\Notifications.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\bin\Debug\net10.0\Notifications.deps.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\bin\Debug\net10.0\Notifications.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\bin\Debug\net10.0\Notifications.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\bin\Debug\net10.0\SharedKernel.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\bin\Debug\net10.0\SharedKernel.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\Notifications.csproj.AssemblyReference.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\Notifications.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\Notifications.AssemblyInfoInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\Notifications.AssemblyInfo.cs
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\Notifications.csproj.CoreCompileInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\Notifications.sourcelink.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\Notifica.A40DC325.Up2Date
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\Notifications.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\refint\Notifications.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\Notifications.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Notifications\obj\Debug\net10.0\ref\Notifications.dll

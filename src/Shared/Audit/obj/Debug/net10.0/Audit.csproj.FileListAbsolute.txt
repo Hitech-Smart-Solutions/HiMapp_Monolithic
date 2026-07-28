@@ -14,3 +14,19 @@ C:\Parth Working\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.dll
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\refint\Audit.dll
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\ref\Audit.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\bin\Debug\net10.0\Audit.deps.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\bin\Debug\net10.0\Audit.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\bin\Debug\net10.0\Audit.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\bin\Debug\net10.0\SharedKernel.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\bin\Debug\net10.0\SharedKernel.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.csproj.AssemblyReference.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.AssemblyInfoInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.AssemblyInfo.cs
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.csproj.CoreCompileInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.sourcelink.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.csproj.Up2Date
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\refint\Audit.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\Audit.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Shared\Audit\obj\Debug\net10.0\ref\Audit.dll

@@ -22,3 +22,27 @@ C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\o
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\refint\Execution.Application.dll
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.pdb
 C:\Parth Working\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\ref\Execution.Application.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.csproj.AssemblyReference.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.AssemblyInfoInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.AssemblyInfo.cs
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.csproj.CoreCompileInputs.cache
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.sourcelink.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\refint\Execution.Application.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Execution.Application.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Application.deps.json
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Application.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Application.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Contracts.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Domain.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Infrastructure.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\SharedKernel.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Workflow.dll
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Contracts.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Domain.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Execution.Infrastructure.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\Workflow.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\bin\Debug\net10.0\SharedKernel.pdb
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\Executio.E8988AC3.Up2Date
+C:\Users\soumy.oza\Desktop\Himapp\HiMapp_Monolithic\src\Modules\Execution\Execution.Application\obj\Debug\net10.0\ref\Execution.Application.dll

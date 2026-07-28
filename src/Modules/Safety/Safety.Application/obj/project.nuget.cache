@@ -1,26 +1,26 @@
 {
   "version": 2,
-  "dgSpecHash": "lEHFCKa8FkY=",
+  "dgSpecHash": "eAaYovsy1EA=",
   "success": true,
-  "projectFilePath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
+  "projectFilePath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\parth.jani\\.nuget\\packages\\mediatr\\12.4.1\\mediatr.12.4.1.nupkg.sha512",
-    "C:\\Users\\parth.jani\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",
-    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.0\\microsoft.entityframeworkcore.8.0.0.nupkg.sha512",
-    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.0\\microsoft.entityframeworkcore.abstractions.8.0.0.nupkg.sha512",
-    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.0\\microsoft.entityframeworkcore.analyzers.8.0.0.nupkg.sha512",
-    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.0\\microsoft.entityframeworkcore.relational.8.0.0.nupkg.sha512",
-    "C:\\Users\\parth.jani\\.nuget\\packages\\npgsql\\8.0.0\\npgsql.8.0.0.nupkg.sha512",
-    "C:\\Users\\parth.jani\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.0\\npgsql.entityframeworkcore.postgresql.8.0.0.nupkg.sha512"
+    "C:\\Users\\soumy.oza\\.nuget\\packages\\mediatr\\12.4.1\\mediatr.12.4.1.nupkg.sha512",
+    "C:\\Users\\soumy.oza\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",
+    "C:\\Users\\soumy.oza\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.0\\microsoft.entityframeworkcore.8.0.0.nupkg.sha512",
+    "C:\\Users\\soumy.oza\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.0\\microsoft.entityframeworkcore.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\soumy.oza\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.0\\microsoft.entityframeworkcore.analyzers.8.0.0.nupkg.sha512",
+    "C:\\Users\\soumy.oza\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.0\\microsoft.entityframeworkcore.relational.8.0.0.nupkg.sha512",
+    "C:\\Users\\soumy.oza\\.nuget\\packages\\npgsql\\8.0.0\\npgsql.8.0.0.nupkg.sha512",
+    "C:\\Users\\soumy.oza\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.0\\npgsql.entityframeworkcore.postgresql.8.0.0.nupkg.sha512"
   ],
   "logs": [
     {
       "code": "NU1903",
       "level": "Warning",
       "message": "Package 'Npgsql' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-x9vc-6hfv-hg8c",
-      "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
+      "projectPath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
+      "filePath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Modules\\Safety\\Safety.Application\\Safety.Application.csproj",
       "libraryId": "Npgsql",
       "targetGraphs": [
         "net10.0"
