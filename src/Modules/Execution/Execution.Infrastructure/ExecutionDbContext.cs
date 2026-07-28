@@ -22,6 +22,8 @@ public sealed class ExecutionDbContext : DbContext
     public DbSet<DailyLaborDetail> DailyLaborDetails { get; set; } = null!;
     public DbSet<Manpower> Manpowers { get; set; } = null!;
     public DbSet<ManpowerDetail> ManpowerDetails { get; set; } = null!;
+    public DbSet<DailyDepartmentalLabourSlip> DailyDepartmentalLabourSlips { get; set; } = null!;
+    public DbSet<SiteDailyProgress> SiteDailyProgresses { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
