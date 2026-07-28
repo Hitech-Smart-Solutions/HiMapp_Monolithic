@@ -1,8 +1,8 @@
 namespace Himapp.Notifications.Models;
 
 public sealed record NotificationDeliveryLog(
-    long? NotificationId,
-    long OutboxEventId,
+    int? NotificationId,
+    int OutboxEventId,
     NotificationChannel Channel,
     string Status,
     int Attempts,

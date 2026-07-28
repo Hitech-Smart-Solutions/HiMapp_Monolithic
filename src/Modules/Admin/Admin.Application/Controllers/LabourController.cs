@@ -25,10 +25,10 @@ public sealed class LabourController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{id:long}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(LabourDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetLabourByIdQuery(id), cancellationToken);
         return result is null ? NotFound() : Ok(result);
@@ -59,12 +59,12 @@ public sealed class LabourController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
-    [HttpPut("{id:long}")]
+    [HttpPut("{id:int}")]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(LabourDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(long id, [FromForm] LabourFormRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(int id, [FromForm] LabourFormRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(
             new UpdateLabourCommand(
@@ -81,23 +81,23 @@ public sealed class LabourController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:long}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _mediator.Send(new DeleteLabourCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 
     private static UploadedFileInfo ToUploadedFileInfo(IFormFile file) =>
-        new(file.FileName, file.ContentType, file.Length);
+        new(file.FileName, file.ContentType, (int)file.Length);
 }
 
 public sealed class LabourFormRequest
 {
-    public long ProjectId { get; init; }
-    public long ContractorId { get; init; }
+    public int ProjectId { get; init; }
+    public int ContractorId { get; init; }
     public string Name { get; init; } = string.Empty;
     public DateOnly DateOfBirth { get; init; }
     public string AadhaarNumber { get; init; } = string.Empty;

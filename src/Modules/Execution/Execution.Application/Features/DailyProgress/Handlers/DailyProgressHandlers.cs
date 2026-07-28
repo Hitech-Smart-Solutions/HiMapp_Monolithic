@@ -17,7 +17,7 @@ internal sealed class GetAllDailyProgressQueryHandler : IRequestHandler<GetAllDa
     {
         return await _db.DailyProgresses
             .AsNoTracking()
-            .Select(d => new DailyProgressModel(d.Id, d.UniqueId, d.ProjectId, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate))
+            .Select(d => new DailyProgressModel((int)d.Id, d.UniqueId, (int)d.ProjectId, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, (int?)d.CreatedBy, d.CreatedDate, (int?)d.LastModifiedBy, d.LastModifiedDate))
             .ToArrayAsync(cancellationToken);
     }
 }
@@ -31,7 +31,7 @@ internal sealed class GetDailyProgressByIdQueryHandler : IRequestHandler<GetDail
     {
         var d = await _db.DailyProgresses.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
         if (d is null) return null;
-        return new DailyProgressModel(d.Id, d.UniqueId, d.ProjectId, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate);
+        return new DailyProgressModel((int)d.Id, d.UniqueId, (int)d.ProjectId, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, (int?)d.CreatedBy, d.CreatedDate, (int?)d.LastModifiedBy, d.LastModifiedDate);
     }
 }
 
@@ -63,7 +63,7 @@ internal sealed class CreateDailyProgressCommandHandler : IRequestHandler<Create
         _db.DailyProgresses.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DailyProgressModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        return new DailyProgressModel((int)entity.Id, entity.UniqueId, (int)entity.ProjectId, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, (int?)entity.CreatedBy, entity.CreatedDate, (int?)entity.LastModifiedBy, entity.LastModifiedDate);
     }
 }
 
@@ -86,7 +86,7 @@ internal sealed class UpdateDailyProgressCommandHandler : IRequestHandler<Update
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DailyProgressModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        return new DailyProgressModel((int)entity.Id, entity.UniqueId, (int)entity.ProjectId, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, (int?)entity.CreatedBy, entity.CreatedDate, (int?)entity.LastModifiedBy, entity.LastModifiedDate);
     }
 }
 

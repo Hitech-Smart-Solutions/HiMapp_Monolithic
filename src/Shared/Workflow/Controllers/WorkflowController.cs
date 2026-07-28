@@ -32,8 +32,8 @@ public sealed class WorkflowController : ControllerBase
     /// <summary>
     /// Get the workflow status + history for an entity.
     /// </summary>
-    [HttpGet("{entityName}/{entityId:long}")]
-    public async Task<IActionResult> GetStatus(string entityName, long entityId, CancellationToken cancellationToken)
+    [HttpGet("{entityName}/{entityId:int}")]
+    public async Task<IActionResult> GetStatus(string entityName, int entityId, CancellationToken cancellationToken)
     {
         var instance = await _workflowService.GetByEntityAsync(entityName, entityId, cancellationToken);
         if (instance is null)
@@ -79,8 +79,8 @@ public sealed class WorkflowController : ControllerBase
     /// <summary>
     /// Approve an entity at the next level.
     /// </summary>
-    [HttpPost("{entityName}/{entityId:long}/approve")]
-    public async Task<IActionResult> Approve(string entityName, long entityId, [FromBody] WorkflowActionRequest request, CancellationToken cancellationToken)
+    [HttpPost("{entityName}/{entityId:int}/approve")]
+    public async Task<IActionResult> Approve(string entityName, int entityId, [FromBody] WorkflowActionRequest request, CancellationToken cancellationToken)
     {
         return await ExecuteAction(entityName, entityId, WorkflowActions.Approve, request?.Comment, cancellationToken);
     }
@@ -88,8 +88,8 @@ public sealed class WorkflowController : ControllerBase
     /// <summary>
     /// Reject an entity.
     /// </summary>
-    [HttpPost("{entityName}/{entityId:long}/reject")]
-    public async Task<IActionResult> Reject(string entityName, long entityId, [FromBody] WorkflowActionRequest request, CancellationToken cancellationToken)
+    [HttpPost("{entityName}/{entityId:int}/reject")]
+    public async Task<IActionResult> Reject(string entityName, int entityId, [FromBody] WorkflowActionRequest request, CancellationToken cancellationToken)
     {
         return await ExecuteAction(entityName, entityId, WorkflowActions.Reject, request?.Comment, cancellationToken);
     }
@@ -97,8 +97,8 @@ public sealed class WorkflowController : ControllerBase
     /// <summary>
     /// Cancel a workflow.
     /// </summary>
-    [HttpPost("{entityName}/{entityId:long}/cancel")]
-    public async Task<IActionResult> Cancel(string entityName, long entityId, [FromBody] WorkflowActionRequest request, CancellationToken cancellationToken)
+    [HttpPost("{entityName}/{entityId:int}/cancel")]
+    public async Task<IActionResult> Cancel(string entityName, int entityId, [FromBody] WorkflowActionRequest request, CancellationToken cancellationToken)
     {
         return await ExecuteAction(entityName, entityId, WorkflowActions.Cancel, request?.Comment, cancellationToken);
     }
@@ -106,8 +106,8 @@ public sealed class WorkflowController : ControllerBase
     /// <summary>
     /// Submit (or resubmit) an entity for approval.
     /// </summary>
-    [HttpPost("{entityName}/{entityId:long}/submit")]
-    public async Task<IActionResult> Submit(string entityName, long entityId, CancellationToken cancellationToken)
+    [HttpPost("{entityName}/{entityId:int}/submit")]
+    public async Task<IActionResult> Submit(string entityName, int entityId, CancellationToken cancellationToken)
     {
         var existing = await _workflowService.GetByEntityAsync(entityName, entityId, cancellationToken);
         if (existing is not null)
@@ -128,7 +128,7 @@ public sealed class WorkflowController : ControllerBase
         });
     }
 
-    private async Task<IActionResult> ExecuteAction(string entityName, long entityId, string action, string? comment, CancellationToken cancellationToken)
+    private async Task<IActionResult> ExecuteAction(string entityName, int entityId, string action, string? comment, CancellationToken cancellationToken)
     {
         var instance = await _workflowService.GetByEntityAsync(entityName, entityId, cancellationToken);
         if (instance is null)

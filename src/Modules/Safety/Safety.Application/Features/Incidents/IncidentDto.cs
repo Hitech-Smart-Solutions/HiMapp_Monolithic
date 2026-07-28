@@ -10,4 +10,4 @@ public sealed record IncidentDto(
     string Status,
     UploadedFileInfo? Attachment);
 
-public sealed record UploadedFileInfo(string FileName, string ContentType, long SizeBytes);
+public sealed record UploadedFileInfo(string FileName, string ContentType, int SizeBytes);

@@ -5,21 +5,22 @@ namespace Himapp.Admin.Domain.Labour;
 
 public sealed class Labour : BaseEntity
 {
-    public long ProjectId { get; private set; }
-    public long ContractorId { get; private set; }
+
+    public int ProjectId { get; private set; }
+    public int ContractorId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public DateOnly DateOfBirth { get; private set; }
     public string AadhaarMasked { get; private set; } = string.Empty;
     public byte[] AadhaarHash { get; private set; } = [];
     public string? Pan { get; private set; }
-    public long PhotoFileId { get; private set; }
+    public int PhotoFileId { get; private set; }
     public LabourStatus Status { get; private set; } = LabourStatus.Registered;
 
     private Labour()
     {
     }
 
-    public static Labour Register(long projectId, long contractorId, string name, DateOnly dateOfBirth, string aadhaarMasked, byte[] aadhaarHash, string? pan, long photoFileId)
+    public static Labour Register(int projectId, int contractorId, string name, DateOnly dateOfBirth, string aadhaarMasked, byte[] aadhaarHash, string? pan, int photoFileId)
     {
         var labour = new Labour
         {
@@ -38,7 +39,7 @@ public sealed class Labour : BaseEntity
         return labour;
     }
 
-    public void UpdateProfile(long projectId, long contractorId, string name, DateOnly dateOfBirth, string aadhaarMasked, byte[] aadhaarHash, string? pan, long photoFileId)
+    public void UpdateProfile(int projectId, int contractorId, string name, DateOnly dateOfBirth, string aadhaarMasked, byte[] aadhaarHash, string? pan, int photoFileId)
     {
         ProjectId = projectId;
         ContractorId = contractorId;

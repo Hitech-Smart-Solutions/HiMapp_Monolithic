@@ -63,7 +63,7 @@ public sealed class SafetyController : ControllerBase
     }
 
     private static UploadedFileInfo? ToUploadedFileInfo(IFormFile? file) =>
-        file is null || file.Length == 0 ? null : new UploadedFileInfo(file.FileName, file.ContentType, file.Length);
+        file is null || file.Length == 0 ? null : new UploadedFileInfo(file.FileName, file.ContentType, (int)file.Length);
 }
 
 public sealed class IncidentFormRequest

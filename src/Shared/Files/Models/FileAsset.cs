@@ -7,6 +7,6 @@ public sealed class FileAsset : BaseEntity
     public string FileName { get; init; } = string.Empty;
     public string ContentType { get; init; } = string.Empty;
     public string StorageKey { get; init; } = string.Empty;
-    public long SizeBytes { get; init; }
+    public int SizeBytes { get; init; }
     public string Purpose { get; init; } = string.Empty;
 }

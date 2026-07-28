@@ -2,7 +2,7 @@ namespace Himapp.Admin.Contracts.Projects;
 
 public interface IProjectDirectory
 {
-    Task<ProjectSummary?> FindAsync(long projectId, CancellationToken cancellationToken = default);
+    Task<ProjectSummary?> FindAsync(int projectId, CancellationToken cancellationToken = default);
 }
 
-public sealed record ProjectSummary(long ProjectId, string Code, string Name);
+public sealed record ProjectSummary(int ProjectId, string Code, string Name);

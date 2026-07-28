@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "BI5Eoic+Fn0=",
+  "dgSpecHash": "uxIlSr5SH4A=",
   "success": true,
   "projectFilePath": "C:\\Users\\soumy.oza\\Desktop\\Himapp\\HiMapp_Monolithic\\src\\Shared\\Notifications\\Notifications.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\soumy.oza\\.nuget\\packages\\mediatr\\12.4.1\\mediatr.12.4.1.nupkg.sha512",
+    "C:\\Users\\soumy.oza\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",
     "C:\\Users\\soumy.oza\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.0\\microsoft.entityframeworkcore.8.0.0.nupkg.sha512",
     "C:\\Users\\soumy.oza\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.0\\microsoft.entityframeworkcore.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\soumy.oza\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.0\\microsoft.entityframeworkcore.analyzers.8.0.0.nupkg.sha512",

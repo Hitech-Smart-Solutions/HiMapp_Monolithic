@@ -90,7 +90,7 @@ public sealed class AutoUserActionLogAttribute : Attribute, IAsyncActionFilter
 
             // Extract ProgramId from the response body (if it implements IHasProgramId)
             int programId = 0;
-            long programRowId = 0;
+            int programRowId = 0;
             string? programRowCode = null;
 
             if (objectResult?.Value is IHasProgramId hasProgramId)
@@ -115,7 +115,7 @@ public sealed class AutoUserActionLogAttribute : Attribute, IAsyncActionFilter
             // Extract entity/record ID from route (e.g., api/workflow/DailyLabor/123)
             if (programRowId == 0 && context.RouteData.Values.TryGetValue("id", out var routeId))
             {
-                long.TryParse(routeId?.ToString(), out programRowId);
+                int.TryParse(routeId?.ToString(), out programRowId);
             }
 
             // Derive entity name from route pattern
@@ -133,7 +133,7 @@ public sealed class AutoUserActionLogAttribute : Attribute, IAsyncActionFilter
                 userId,
                 actionId,
                 programId,
-                (int)programRowId,
+                programRowId,
                 programRowCode,
                 remarks,
                 context.HttpContext.RequestAborted);
@@ -206,27 +206,8 @@ public sealed class AutoUserActionLogAttribute : Attribute, IAsyncActionFilter
     }
 
     /// <summary>
-    /// Tries to extract a long property value by name from an object using reflection.
+    /// Tries to extract a property value by name from an object using reflection.
+    /// This overload for long was removed when IDs were changed to int.
     /// </summary>
-    private static void TryExtractProperty(Type type, object obj, string propertyName, out long result)
-    {
-        result = 0;
-        try
-        {
-            var prop = type.GetProperty(propertyName);
-            if (prop != null && prop.CanRead)
-            {
-                var value = prop.GetValue(obj);
-                if (value != null)
-                {
-                    result = Convert.ToInt64(value);
-                }
-            }
-        }
-        catch
-        {
-            // Ignore reflection errors
-        }
-    }
 }
 

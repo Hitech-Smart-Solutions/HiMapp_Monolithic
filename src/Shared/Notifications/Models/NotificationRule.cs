@@ -5,7 +5,7 @@ public sealed record NotificationRule(
     string EventType,
     NotificationRecipientType RecipientType,
     int? RecipientRoleId,
-    long? RecipientUserId,
+    int? RecipientUserId,
     string? Expression,
     NotificationChannel Channels,
     bool IsMandatory,

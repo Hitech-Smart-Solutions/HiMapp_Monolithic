@@ -4,7 +4,7 @@ namespace Himapp.Notifications.Models;
 
 public sealed class Notification : BaseEntity
 {
-    public long UserId { get; init; }
+    public int UserId { get; init; }
     public string Title { get; init; } = string.Empty;
     public string Body { get; init; } = string.Empty;
     public string DeepLink { get; init; } = string.Empty;

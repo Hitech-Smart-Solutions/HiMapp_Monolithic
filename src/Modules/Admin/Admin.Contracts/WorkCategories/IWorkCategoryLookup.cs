@@ -2,7 +2,7 @@ namespace Himapp.Admin.Contracts.WorkCategories;
 
 public interface IWorkCategoryLookup
 {
-    Task<WorkCategorySummary?> FindAsync(long workCategoryId, CancellationToken cancellationToken = default);
+    Task<WorkCategorySummary?> FindAsync(int workCategoryId, CancellationToken cancellationToken = default);
 }
 
-public sealed record WorkCategorySummary(long WorkCategoryId, string Name);
+public sealed record WorkCategorySummary(int WorkCategoryId, string Name);

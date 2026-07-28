@@ -4,5 +4,5 @@ namespace Himapp.Files.Services;
 
 public interface IFileService
 {
-    Task<FileAsset> RegisterAsync(string fileName, string contentType, string purpose, long sizeBytes, CancellationToken cancellationToken = default);
+    Task<FileAsset> RegisterAsync(string fileName, string contentType, string purpose, int sizeBytes, CancellationToken cancellationToken = default);
 }

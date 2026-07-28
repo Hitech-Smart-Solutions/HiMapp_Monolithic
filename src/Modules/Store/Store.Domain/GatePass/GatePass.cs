@@ -5,10 +5,10 @@ namespace Himapp.Store.Domain.GatePass;
 
 public sealed class GatePass : BaseEntity
 {
-    public long ProjectId { get; init; }
+    public int ProjectId { get; init; }
     public string GatePassNo { get; init; } = string.Empty;
     public string Path { get; init; } = "A";
-    public long? ServiceRequestId { get; init; }
+    public int? ServiceRequestId { get; init; }
     public string Status { get; private set; } = "Draft";
     public string? BackdatedReason { get; init; }
     public string? CancelReason { get; private set; }
@@ -33,4 +33,4 @@ public sealed class GatePass : BaseEntity
     }
 }
 
-public sealed record GatePassLine(string LineType, long? ItemId, long? EquipmentId, decimal Quantity, string Uom, DateOnly? ExpectedReturnDate, decimal ReturnedQuantity);
+public sealed record GatePassLine(string LineType, int? ItemId, int? EquipmentId, decimal Quantity, string Uom, DateOnly? ExpectedReturnDate, decimal ReturnedQuantity);

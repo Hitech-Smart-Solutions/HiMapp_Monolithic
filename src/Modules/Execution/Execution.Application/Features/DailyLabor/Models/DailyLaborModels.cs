@@ -49,7 +49,7 @@ public sealed class DailyLaborModel : IRequiresApproval
 
     // IRequiresApproval implementation
     public string EntityName => "DailyLabor";
-    public long EntityId => Id;
+    public int EntityId => Id;
 
     public DailyLaborModel(int id, Guid uniqueId, int? companyId, int? projectId, DateTimeOffset reportDate, string? remarks, short? status, bool isActive, int createdBy, DateTime createdDate, int lastModifiedBy, DateTime lastModifiedDate, IReadOnlyCollection<DailyLaborDetailModel> details)
     {

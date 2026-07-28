@@ -1,9 +1,9 @@
 namespace Himapp.Workflow.Models;
 
 public sealed record ApprovalHistory(
-    long WorkflowId,
+    int WorkflowId,
     int Level,
     string Action,
-    long ActorUserId,
+    int ActorUserId,
     string? Comment,
     DateTimeOffset ActionAt);

@@ -15,6 +15,6 @@ public interface IRequiresApproval
     /// <summary>
     /// The unique ID of the entity that was just created/updated.
     /// </summary>
-    long EntityId { get; }
+    int EntityId { get; }
 }
 

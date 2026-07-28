@@ -6,13 +6,13 @@ namespace Himapp.Workflow.Services;
 
 public sealed class InMemoryWorkflowService : IWorkflowService
 {
-    private readonly ConcurrentDictionary<long, WorkflowInstance> _instances = [];
+    private readonly ConcurrentDictionary<int, WorkflowInstance> _instances = [];
     private readonly IClock _clock;
-    private long _nextId;
+    private int _nextId;
 
     public InMemoryWorkflowService(IClock clock) => _clock = clock;
 
-    public Task<WorkflowInstance> StartAsync(string workflowType, string entityName, long entityId, long actorUserId, CancellationToken cancellationToken = default)
+    public Task<WorkflowInstance> StartAsync(string workflowType, string entityName, int entityId, int actorUserId, CancellationToken cancellationToken = default)
     {
         var id = Interlocked.Increment(ref _nextId);
         var instance = new WorkflowInstance
@@ -30,7 +30,7 @@ public sealed class InMemoryWorkflowService : IWorkflowService
         return Task.FromResult(instance);
     }
 
-    public Task<WorkflowInstance> FireAsync(long workflowId, string trigger, long actorUserId, string? comment, CancellationToken cancellationToken = default)
+    public Task<WorkflowInstance> FireAsync(int workflowId, string trigger, int actorUserId, string? comment, CancellationToken cancellationToken = default)
     {
         if (!_instances.TryGetValue(workflowId, out var instance))
         {
@@ -54,13 +54,13 @@ public sealed class InMemoryWorkflowService : IWorkflowService
         return Task.FromResult(instance);
     }
 
-    public Task<WorkflowInstance?> GetByIdAsync(long workflowId, CancellationToken cancellationToken = default)
+    public Task<WorkflowInstance?> GetByIdAsync(int workflowId, CancellationToken cancellationToken = default)
     {
         _instances.TryGetValue(workflowId, out var instance);
         return Task.FromResult(instance);
     }
 
-    public Task<WorkflowInstance?> GetByEntityAsync(string entityName, long entityId, CancellationToken cancellationToken = default)
+    public Task<WorkflowInstance?> GetByEntityAsync(string entityName, int entityId, CancellationToken cancellationToken = default)
     {
         var instance = _instances.Values.FirstOrDefault(x =>
             x.EntityName.Equals(entityName, StringComparison.OrdinalIgnoreCase) && x.EntityId == entityId);

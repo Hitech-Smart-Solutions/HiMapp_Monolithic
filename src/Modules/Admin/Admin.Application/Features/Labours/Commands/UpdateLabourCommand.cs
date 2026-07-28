@@ -3,9 +3,9 @@ using MediatR;
 namespace Himapp.Admin.Application.Features.Labours.Commands;
 
 public sealed record UpdateLabourCommand(
-    long Id,
-    long ProjectId,
-    long ContractorId,
+    int Id,
+    int ProjectId,
+    int ContractorId,
     string Name,
     DateOnly DateOfBirth,
     string AadhaarNumber,

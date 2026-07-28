@@ -5,7 +5,7 @@ namespace Himapp.Execution.Domain.Dpr;
 
 public sealed class DailyProgressReport : BaseEntity
 {
-    public long ProjectId { get; init; }
+    public int ProjectId { get; init; }
     public DateOnly WorkDate { get; init; }
     public string Status { get; private set; } = "Draft";
 
