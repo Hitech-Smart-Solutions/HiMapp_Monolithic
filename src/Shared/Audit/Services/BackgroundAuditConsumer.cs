@@ -1,5 +1,4 @@
 using Himapp.Audit.Models;
-using Himapp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,7 +8,11 @@ namespace Himapp.Audit.Services;
 
 /// <summary>
 /// Background service that consumes audit log entries from the channel
-/// and batch-writes them to the database.
+/// and batch-writes them to the database using a dedicated DbContext.
+/// 
+/// This service uses its own <see cref="AuditDbContext"/> to write logs,
+/// keeping audit log writes separate from transactional DbContexts to
+/// avoid contention (as per US-LOG-006/007).
 /// </summary>
 public sealed class BackgroundAuditConsumer : BackgroundService
 {
@@ -58,18 +61,17 @@ public sealed class BackgroundAuditConsumer : BackgroundService
         try
         {
             using var scope = _scopeFactory.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<HimappDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<AuditDbContext>();
 
-            db.Set<TransactionActionHistory>().AddRange(batch);
+            db.TransactionActionHistories.AddRange(batch);
             await db.SaveChangesAsync(stoppingToken);
 
             _logger.LogDebug("Flushed {Count} audit log entries to database.", batch.Count);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to flush {Count} audit log entries to database.", batch.Count);
+            _logger.LogError(ex, "Failed to flush {Count} audit log entries to database. Entries will be dropped.", batch.Count);
             // Entries are lost on failure (fire-and-forget semantics per US-LOG-006)
         }
     }
 }
-

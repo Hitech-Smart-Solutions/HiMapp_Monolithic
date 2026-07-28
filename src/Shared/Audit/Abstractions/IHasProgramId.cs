@@ -13,4 +13,3 @@ public interface IHasProgramId
     /// </summary>
     long ProgramId { get; }
 }
-

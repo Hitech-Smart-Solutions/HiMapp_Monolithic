@@ -33,6 +33,7 @@
     <ProjectReference Include="src\Shared\Workflow\Workflow.csproj" />
     <ProjectReference Include="src\Shared\Files\Files.csproj" />
     <ProjectReference Include="src\Shared\Integrations.D365\Integrations.D365.csproj" />
+    <ProjectReference Include="src\Shared\Audit\Audit.csproj" />
     <ProjectReference Include="src\Modules\Admin\Admin.Application\Admin.Application.csproj" />
     <ProjectReference Include="src\Modules\Safety\Safety.Application\Safety.Application.csproj" />
     <ProjectReference Include="src\Modules\Execution\Execution.Application\Execution.Application.csproj" />
