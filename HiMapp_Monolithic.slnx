@@ -9,6 +9,7 @@
   <Project Path="src\Modules\Admin\Admin.Domain\Admin.Domain.csproj" />
   <Project Path="src/Modules/Execution/Execution.Infrastructure/Execution.Infrastructure.csproj" />
   <Project Path="src\Modules\Admin\Admin.Infrastructure\Admin.Infrastructure.csproj" />
+  <Project Path="src/Shared/Audit/Audit.csproj" />
   <Project Path="src\Modules\Admin\Admin.Application\Admin.Application.csproj" />
   <Project Path="src\Modules\Safety\Safety.Contracts\Safety.Contracts.csproj" />
   <Project Path="src\Modules\Safety\Safety.Domain\Safety.Domain.csproj" />

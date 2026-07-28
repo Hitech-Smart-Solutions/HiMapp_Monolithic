@@ -11,7 +11,6 @@ public sealed class ExecutionDbContext : DbContext
     }
 
     // DbSets for execution domain entities
-    public DbSet<UOM> UOMs { get; set; } = null!;
     public DbSet<Activity> Activities { get; set; } = null!;
     public DbSet<ProjectActivity> ProjectActivities { get; set; } = null!;
     public DbSet<RateMaster> RateMasters { get; set; } = null!;
@@ -23,7 +22,6 @@ public sealed class ExecutionDbContext : DbContext
     public DbSet<DailyLaborDetail> DailyLaborDetails { get; set; } = null!;
     public DbSet<Manpower> Manpowers { get; set; } = null!;
     public DbSet<ManpowerDetail> ManpowerDetails { get; set; } = null!;
-    public DbSet<Area> Areas { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

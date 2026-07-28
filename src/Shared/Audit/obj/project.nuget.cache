@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "dgSpecHash": "8B5gaYDv7eE=",
+  "success": false,
+  "projectFilePath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\Audit\\Audit.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore\\8.0.0\\microsoft.entityframeworkcore.8.0.0.nupkg.sha512",
+    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\8.0.0\\microsoft.entityframeworkcore.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.0\\microsoft.entityframeworkcore.analyzers.8.0.0.nupkg.sha512",
+    "C:\\Users\\parth.jani\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.0\\microsoft.entityframeworkcore.relational.8.0.0.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1104",
+      "level": "Error",
+      "message": "Unable to find project 'C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\Data\\Data.csproj'. Check that the project reference is valid and that the project file exists.",
+      "projectPath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\Audit\\Audit.csproj",
+      "filePath": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\Audit\\Audit.csproj",
+      "libraryId": "C:\\Parth Working\\HiMapp_Monolithic\\src\\Shared\\Data\\Data.csproj",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}
