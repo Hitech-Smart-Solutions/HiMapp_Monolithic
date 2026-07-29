@@ -1,17 +1,17 @@
 namespace Himapp.Execution.Application.Features.ProjectActivities.Models;
 
 public sealed record ProjectActivityModel(
-    long Id,
+    int Id,
     System.Guid UniqueId,
-    long ProjectId,
-    long ActivityId,
+    int ProjectId,
+    int ActivityId,
     bool IsActive,
-    long? CreatedBy,
+    int? CreatedBy,
     System.DateTimeOffset CreatedDate,
-    long? LastModifiedBy,
+    int? LastModifiedBy,
     System.DateTimeOffset LastModifiedDate
 );
 
-public sealed record CreateProjectActivityRequest(long ProjectId, long ActivityId);
+public sealed record CreateProjectActivityRequest(int ProjectId, int ActivityId);
 
-public sealed record UpdateProjectActivityRequest(long ProjectId, long ActivityId, bool IsActive);
+public sealed record UpdateProjectActivityRequest(int ProjectId, int ActivityId, bool IsActive);

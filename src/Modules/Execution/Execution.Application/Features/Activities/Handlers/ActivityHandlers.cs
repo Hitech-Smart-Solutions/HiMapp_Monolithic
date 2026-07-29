@@ -66,7 +66,7 @@ internal sealed class DeleteActivityCommandHandler : IRequestHandler<DeleteActiv
         var entity = await _db.Activities.FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
         if (entity is null) return false;
 
-        var pas = _db.ProjectActivities.Where(x => x.ActivityId == request.Id);
+        var pas = _db.ProjectActivities.Where(x => x.ActivityID == request.Id);
         _db.ProjectActivities.RemoveRange(pas);
         _db.Activities.Remove(entity);
         await _db.SaveChangesAsync(cancellationToken);

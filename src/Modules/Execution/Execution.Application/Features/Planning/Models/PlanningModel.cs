@@ -1,20 +1,20 @@
 namespace Himapp.Execution.Application.Features.Planning.Models;
 
 public sealed record PlanningModel(
-    long Id,
+    int Id,
     System.Guid UniqueId,
-    long ProjectId,
+    int ProjectId,
     string PlanType,
     System.DateOnly StartDate,
     System.DateOnly? EndDate,
     string? Remarks,
     string Status,
     bool IsActive,
-    long? CreatedBy,
+    int? CreatedBy,
     System.DateTimeOffset CreatedDate,
-    long? LastModifiedBy,
+    int? LastModifiedBy,
     System.DateTimeOffset LastModifiedDate
 );
 
-public sealed record CreatePlanningRequest(long ProjectId, string PlanType, System.DateOnly StartDate, System.DateOnly? EndDate, string? Remarks);
+public sealed record CreatePlanningRequest(int ProjectId, string PlanType, System.DateOnly StartDate, System.DateOnly? EndDate, string? Remarks);
 public sealed record UpdatePlanningRequest(string? Remarks, string Status, bool IsActive);

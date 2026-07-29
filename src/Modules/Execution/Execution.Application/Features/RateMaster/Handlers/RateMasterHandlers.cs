@@ -16,11 +16,11 @@ internal sealed class CreateRateMasterCommandHandler : IRequestHandler<CreateRat
     {
         var entity = new Himapp.Execution.Domain.Entities.RateMaster
         {
-            UniqueId = Guid.NewGuid(),
-            ProjectId = request.Request.ProjectId,
-            ActivityId = request.Request.ActivityId,
+            UniqueID = Guid.NewGuid(),
+            ProjectID = request.Request.ProjectId,
+            ActivityID = request.Request.ActivityId,
             Rate = request.Request.Rate,
-            Uom = string.Empty,
+            UOMID = 0,
             EffectiveFrom = request.Request.EffectiveFrom,
             IsActive = true,
             CreatedBy = null,
@@ -32,7 +32,7 @@ internal sealed class CreateRateMasterCommandHandler : IRequestHandler<CreateRat
         _db.RateMasters.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new RateMasterModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ActivityId, entity.Rate, 0, entity.EffectiveFrom, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        return new RateMasterModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.Rate, 0, entity.EffectiveFrom, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
 }
 
@@ -43,20 +43,20 @@ internal sealed class UpdateRateMasterCommandHandler : IRequestHandler<UpdateRat
 
     public async Task<RateMasterModel?> Handle(UpdateRateMasterCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.RateMasters.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var entity = await _db.RateMasters.FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (entity is null) return null;
 
-        entity.ProjectId = request.Request.ProjectId;
-        entity.ActivityId = request.Request.ActivityId;
+        entity.ProjectID = request.Request.ProjectId;
+        entity.ActivityID = request.Request.ActivityId;
         entity.Rate = request.Request.Rate;
-        entity.Uom = string.Empty;
+        entity.UOMID = 0;
         entity.EffectiveFrom = request.Request.EffectiveFrom;
         entity.IsActive = request.Request.IsActive;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new RateMasterModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ActivityId, entity.Rate, 0, entity.EffectiveFrom, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        return new RateMasterModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.Rate, 0, entity.EffectiveFrom, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
 }
 
@@ -67,7 +67,7 @@ internal sealed class DeleteRateMasterCommandHandler : IRequestHandler<DeleteRat
 
     public async Task<bool> Handle(DeleteRateMasterCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.RateMasters.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var entity = await _db.RateMasters.FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (entity is null) return false;
 
         entity.IsActive = false;
@@ -86,7 +86,7 @@ internal sealed class GetAllRateMastersQueryHandler : IRequestHandler<GetAllRate
     {
         return await _db.RateMasters
             .AsNoTracking()
-            .Select(r => new RateMasterModel(r.Id, r.UniqueId, r.ProjectId, r.ActivityId, r.Rate, 0, r.EffectiveFrom, r.IsActive, r.CreatedBy, r.CreatedDate, r.LastModifiedBy, r.LastModifiedDate))
+            .Select(r => new RateMasterModel(r.ID, r.UniqueID, r.ProjectID, r.ActivityID, r.Rate, 0, r.EffectiveFrom, r.IsActive, r.CreatedBy, r.CreatedDate, r.LastModifiedBy, r.LastModifiedDate))
             .ToArrayAsync(cancellationToken);
     }
 }
@@ -98,9 +98,9 @@ internal sealed class GetRateMasterByIdQueryHandler : IRequestHandler<GetRateMas
 
     public async Task<RateMasterModel?> Handle(GetRateMasterByIdQuery request, CancellationToken cancellationToken)
     {
-        var r = await _db.RateMasters.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var r = await _db.RateMasters.AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (r is null) return null;
-        return new RateMasterModel(r.Id, r.UniqueId, r.ProjectId, r.ActivityId, r.Rate, 0, r.EffectiveFrom, r.IsActive, r.CreatedBy, r.CreatedDate, r.LastModifiedBy, r.LastModifiedDate);
+        return new RateMasterModel(r.ID, r.UniqueID, r.ProjectID, r.ActivityID, r.Rate, 0, r.EffectiveFrom, r.IsActive, r.CreatedBy, r.CreatedDate, r.LastModifiedBy, r.LastModifiedDate);
     }
 }
 

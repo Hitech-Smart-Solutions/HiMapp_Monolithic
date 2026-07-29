@@ -18,9 +18,9 @@ internal sealed class CreateProjectActivityCommandHandler : IRequestHandler<Crea
         var r = request.Request;
         var entity = new ProjectActivity
         {
-            UniqueId = Guid.NewGuid(),
-            ProjectId = r.ProjectId,
-            ActivityId = r.ActivityId,
+            UniqueID = Guid.NewGuid(),
+            ProjectID = r.ProjectId,
+            ActivityID = r.ActivityId,
             IsActive = true,
             CreatedBy = null,
             CreatedDate = DateTimeOffset.UtcNow,
@@ -31,7 +31,7 @@ internal sealed class CreateProjectActivityCommandHandler : IRequestHandler<Crea
         _db.ProjectActivities.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new ProjectActivityModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ActivityId, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
 }
 
@@ -42,17 +42,17 @@ internal sealed class UpdateProjectActivityCommandHandler : IRequestHandler<Upda
 
     public async Task<ProjectActivityModel?> Handle(UpdateProjectActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.ProjectActivities.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var entity = await _db.ProjectActivities.FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (entity is null) return null;
 
-        entity.ProjectId = request.Request.ProjectId;
-        entity.ActivityId = request.Request.ActivityId;
+        entity.ProjectID = request.Request.ProjectId;
+        entity.ActivityID = request.Request.ActivityId;
         entity.IsActive = request.Request.IsActive;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new ProjectActivityModel(entity.Id, entity.UniqueId, entity.ProjectId, entity.ActivityId, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
 }
 
@@ -63,7 +63,7 @@ internal sealed class DeleteProjectActivityCommandHandler : IRequestHandler<Dele
 
     public async Task<bool> Handle(DeleteProjectActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.ProjectActivities.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var entity = await _db.ProjectActivities.FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (entity is null) return false;
 
         entity.IsActive = false;
@@ -82,7 +82,7 @@ internal sealed class GetAllProjectActivitiesQueryHandler : IRequestHandler<GetA
     {
         return await _db.ProjectActivities
             .AsNoTracking()
-            .Select(p => new ProjectActivityModel(p.Id, p.UniqueId, p.ProjectId, p.ActivityId, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate))
+            .Select(p => new ProjectActivityModel(p.ID, p.UniqueID, p.ProjectID, p.ActivityID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate))
             .ToArrayAsync(cancellationToken);
     }
 }
@@ -94,9 +94,9 @@ internal sealed class GetProjectActivityByIdQueryHandler : IRequestHandler<GetPr
 
     public async Task<ProjectActivityModel?> Handle(GetProjectActivityByIdQuery request, CancellationToken cancellationToken)
     {
-        var p = await _db.ProjectActivities.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var p = await _db.ProjectActivities.AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (p is null) return null;
-        return new ProjectActivityModel(p.Id, p.UniqueId, p.ProjectId, p.ActivityId, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate);
+        return new ProjectActivityModel(p.ID, p.UniqueID, p.ProjectID, p.ActivityID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate);
     }
 }
 

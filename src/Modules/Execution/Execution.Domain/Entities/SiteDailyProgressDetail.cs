@@ -3,14 +3,14 @@
 // EF entity for schema table "DailyProgressDetails"
 public sealed class SiteDailyProgressDetail
 {
-    public long Id { get; set; }
+    public int ID { get; set; }
     public Guid UniqueId { get; set; }
 
-    public int SiteDailyProgressId { get; set; }
-    public int ActivityId { get; set; }
+    public int SiteDailyProgressID { get; set; }
+    public int ActivityID { get; set; }
 
     public decimal Quantity { get; set; }
-    public string Uom { get; set; } = string.Empty;
+    public int UOMID { get; set; }
 
     public decimal Rate { get; set; }
 

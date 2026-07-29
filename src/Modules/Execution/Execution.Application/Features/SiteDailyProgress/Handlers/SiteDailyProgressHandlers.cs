@@ -17,7 +17,7 @@ internal sealed class GetAllSiteDailyProgressesQueryHandler : IRequestHandler<Ge
         return await _db.SiteDailyProgresses
             .AsNoTracking()
             .Where(d => d.IsActive)
-            .Select(d => new SiteDailyProgressDto { Id = d.Id, ProgramId = d.ProjectId })
+            .Select(d => new SiteDailyProgressDto { Id = d.ID, ProgramId = d.ProjectID })
             .ToArrayAsync(cancellationToken);
     }
 }
@@ -29,9 +29,9 @@ internal sealed class GetSiteDailyProgressByIdQueryHandler : IRequestHandler<Get
 
     public async Task<SiteDailyProgressDto?> Handle(GetSiteDailyProgressByIdQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.SiteDailyProgresses.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id && x.IsActive, cancellationToken);
+        var d = await _db.SiteDailyProgresses.AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (d is null) return null;
-        return new SiteDailyProgressDto { Id = d.Id, ProgramId = d.ProjectId };
+        return new SiteDailyProgressDto { Id = d.ID, ProgramId = d.ProjectID };
     }
 }
 
@@ -46,8 +46,8 @@ internal sealed class CreateSiteDailyProgressCommandHandler : IRequestHandler<Cr
 
         var entity = new Himapp.Execution.Domain.Entities.SiteDailyProgress
         {
-            UniqueId = Guid.NewGuid(),
-            ProjectId = r.ProjectId,
+            UniqueID = Guid.NewGuid(),
+            ProjectID = r.ProjectId,
             SectionID = 0,
             ReportDate = r.ReportDate.HasValue ? DateOnly.FromDateTime(r.ReportDate.Value.UtcDateTime) : DateOnly.FromDateTime(DateTime.UtcNow),
             Hindrances = r.Remarks,
@@ -64,7 +64,7 @@ internal sealed class CreateSiteDailyProgressCommandHandler : IRequestHandler<Cr
         _db.SiteDailyProgresses.Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new SiteDailyProgressDto { Id = entity.Id, ProgramId = entity.ProjectId };
+        return new SiteDailyProgressDto { Id = entity.ID, ProgramId = entity.ProjectID };
     }
 }
 
@@ -75,19 +75,19 @@ internal sealed class UpdateSiteDailyProgressCommandHandler : IRequestHandler<Up
 
     public async Task<SiteDailyProgressDto?> Handle(UpdateSiteDailyProgressCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.SiteDailyProgresses.FirstOrDefaultAsync(x => x.Id == request.Id && x.IsActive, cancellationToken);
+        var entity = await _db.SiteDailyProgresses.FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return null;
 
         var r = request.Request;
 
-        entity.ProjectId = r.ProjectId;
+        entity.ProjectID = r.ProjectId;
         entity.ReportDate = r.ReportDate.HasValue ? DateOnly.FromDateTime(r.ReportDate.Value.UtcDateTime) : entity.ReportDate;
         entity.Remarks = r.Remarks ?? entity.Remarks;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new SiteDailyProgressDto { Id = entity.Id, ProgramId = entity.ProjectId };
+        return new SiteDailyProgressDto { Id = entity.ID, ProgramId = entity.ProjectID };
     }
 }
 
@@ -98,7 +98,7 @@ internal sealed class DeleteSiteDailyProgressCommandHandler : IRequestHandler<De
 
     public async Task<bool> Handle(DeleteSiteDailyProgressCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.SiteDailyProgresses.FirstOrDefaultAsync(x => x.Id == request.Id && x.IsActive, cancellationToken);
+        var entity = await _db.SiteDailyProgresses.FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;
 
         entity.IsActive = false;

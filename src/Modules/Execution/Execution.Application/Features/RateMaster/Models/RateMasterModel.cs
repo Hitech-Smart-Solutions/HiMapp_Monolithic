@@ -1,19 +1,19 @@
 namespace Himapp.Execution.Application.Features.RateMaster.Models;
 
 public sealed record RateMasterModel(
-    long Id,
+    int Id,
     System.Guid UniqueId,
-    long ProjectId,
-    long ActivityId,
+    int ProjectId,
+    int ActivityId,
     decimal Rate,
     int UomId,
     System.DateOnly EffectiveFrom,
     bool IsActive,
-    long? CreatedBy,
+    int? CreatedBy,
     System.DateTimeOffset CreatedDate,
-    long? LastModifiedBy,
+    int? LastModifiedBy,
     System.DateTimeOffset LastModifiedDate
 );
 
-public sealed record CreateRateMasterRequest(long ProjectId, long ActivityId, decimal Rate, int UomId, System.DateOnly EffectiveFrom);
-public sealed record UpdateRateMasterRequest(long ProjectId, long ActivityId, decimal Rate, int UomId, System.DateOnly EffectiveFrom, bool IsActive);
+public sealed record CreateRateMasterRequest(int ProjectId, int ActivityId, decimal Rate, int UomId, System.DateOnly EffectiveFrom);
+public sealed record UpdateRateMasterRequest(int ProjectId, int ActivityId, decimal Rate, int UomId, System.DateOnly EffectiveFrom, bool IsActive);

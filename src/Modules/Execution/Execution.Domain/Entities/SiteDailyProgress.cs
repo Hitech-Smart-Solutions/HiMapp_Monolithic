@@ -3,10 +3,10 @@
 // EF entity for schema table "DailyProgress"
 public sealed class SiteDailyProgress
 {
-    public int Id { get; set; }
-    public Guid UniqueId { get; set; }
+    public int ID { get; set; }
+    public Guid UniqueID { get; set; }
 
-    public int ProjectId { get; set; }
+    public int ProjectID { get; set; }
 
     public int SectionID { get; set; }
     public DateOnly ReportDate { get; set; }
