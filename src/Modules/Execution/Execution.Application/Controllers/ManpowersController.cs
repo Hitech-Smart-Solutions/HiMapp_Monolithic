@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
+using Himapp.Execution.Application.Features.Manpower.Commands;
+using Himapp.Execution.Application.Features.Manpower.Queries;
 
 namespace Himapp.Execution.Application.Controllers;
 
@@ -16,30 +18,30 @@ public sealed class ManpowersController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
-        Ok(await _mediator.Send(new Himapp.Execution.Application.Features.Manpower.Queries.GetAllManpowersQuery(), cancellationToken));
+        Ok(await _mediator.Send(new GetAllManpowersQuery(), cancellationToken));
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken) =>
-        OkOrNotFound(await _mediator.Send(new Himapp.Execution.Application.Features.Manpower.Queries.GetManpowerByIdQuery(id), cancellationToken));
+        OkOrNotFound(await _mediator.Send(new GetManpowerByIdQuery(id), cancellationToken));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateManpowerRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new Himapp.Execution.Application.Features.Manpower.Commands.CreateManpowerCommand(request), cancellationToken);
+        var result = await _mediator.Send(new CreateManpowerCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateManpowerRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new Himapp.Execution.Application.Features.Manpower.Commands.UpdateManpowerCommand(id, request), cancellationToken);
+        var result = await _mediator.Send(new UpdateManpowerCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new Himapp.Execution.Application.Features.Manpower.Commands.DeleteManpowerCommand(id), cancellationToken);
+        var deleted = await _mediator.Send(new DeleteManpowerCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 

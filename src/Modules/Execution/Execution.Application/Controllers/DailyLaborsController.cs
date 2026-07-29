@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
+using Himapp.Execution.Application.Features.DailyLabor.Commands;
+using Himapp.Execution.Application.Features.DailyLabor.Queries;
 
 namespace Himapp.Execution.Application.Controllers;
 
@@ -17,30 +19,30 @@ public sealed class DailyLaborsController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
-        Ok(await _mediator.Send(new Himapp.Execution.Application.Features.DailyLabor.Queries.GetAllDailyLaborsQuery(), cancellationToken));
+        Ok(await _mediator.Send(new GetAllDailyLaborsQuery(), cancellationToken));
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken) =>
-        OkOrNotFound(await _mediator.Send(new Himapp.Execution.Application.Features.DailyLabor.Queries.GetDailyLaborByIdQuery(id), cancellationToken));
+        OkOrNotFound(await _mediator.Send(new GetDailyLaborByIdQuery(id), cancellationToken));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateDailyLaborRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new Himapp.Execution.Application.Features.DailyLabor.Commands.CreateDailyLaborCommand(request), cancellationToken);
+        var result = await _mediator.Send(new CreateDailyLaborCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateDailyLaborRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new Himapp.Execution.Application.Features.DailyLabor.Commands.UpdateDailyLaborCommand(id, request), cancellationToken);
+        var result = await _mediator.Send(new UpdateDailyLaborCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new Himapp.Execution.Application.Features.DailyLabor.Commands.DeleteDailyLaborCommand(id), cancellationToken);
+        var deleted = await _mediator.Send(new DeleteDailyLaborCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 
