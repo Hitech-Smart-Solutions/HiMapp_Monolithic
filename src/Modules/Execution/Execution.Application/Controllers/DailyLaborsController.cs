@@ -9,7 +9,6 @@ namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
 [Authorize]
-[RequiresApproval]
 [Route("v1/execution/daily-labors")]
 public sealed class DailyLaborsController : ControllerBase
 {
