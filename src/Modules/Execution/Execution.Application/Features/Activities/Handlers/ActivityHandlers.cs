@@ -1,16 +1,21 @@
 using Himapp.Execution.Application.Features.Activities.Commands;
 using Himapp.Execution.Application.Features.Activities.Queries;
 using Himapp.Execution.Domain.Entities;
-using Himapp.Execution.Infrastructure;
+using Himapp.Execution.Contracts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Himapp.Execution.Application.Features.Activities.Handlers;
 
-internal sealed class CreateActivityCommandHandler : IRequestHandler<CreateActivityCommand, ActivityDto>
+internal sealed class ActivityHandlers :
+    IRequestHandler<CreateActivityCommand, ActivityDto>,
+    IRequestHandler<UpdateActivityCommand, ActivityDto?>,
+    IRequestHandler<DeleteActivityCommand, bool>,
+    IRequestHandler<GetAllActivitiesQuery, IReadOnlyCollection<ActivityDto>>,
+    IRequestHandler<GetActivityByIdQuery, ActivityDto?>
 {
-    private readonly ExecutionDbContext _db;
-    public CreateActivityCommandHandler(ExecutionDbContext db) => _db = db;
+    private readonly IExecutionDbContext _db;
+    public ActivityHandlers(IExecutionDbContext db) => _db = db;
 
     public async Task<ActivityDto> Handle(CreateActivityCommand request, CancellationToken cancellationToken)
     {
@@ -27,21 +32,15 @@ internal sealed class CreateActivityCommandHandler : IRequestHandler<CreateActiv
             LastModifiedDate = DateTimeOffset.UtcNow
         };
 
-        _db.Activities.Add(entity);
+        _db.Set<Activity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
         return new ActivityDto(entity.ID, request.CompanyID, request.ActivityName, request.UOMID, request.CreateBy, request.LastModifiedBy);
     }
-}
-
-internal sealed class UpdateActivityCommandHandler : IRequestHandler<UpdateActivityCommand, ActivityDto?>
-{
-    private readonly ExecutionDbContext _db;
-    public UpdateActivityCommandHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<ActivityDto?> Handle(UpdateActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Activities.FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
+        var entity = await _db.Set<Activity>().FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
         if (entity is null) return null;
 
         entity.ActivityName = request.ActivityName;
@@ -54,38 +53,24 @@ internal sealed class UpdateActivityCommandHandler : IRequestHandler<UpdateActiv
 
         return new ActivityDto(entity.ID, entity.CompanyID, entity.ActivityName, entity.UOMID, entity.CreatedBy, entity.LastModifiedBy);
     }
-}
-
-internal sealed class DeleteActivityCommandHandler : IRequestHandler<DeleteActivityCommand, bool>
-{
-    private readonly ExecutionDbContext _db;
-    public DeleteActivityCommandHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<bool> Handle(DeleteActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Activities.FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
+        var entity = await _db.Set<Activity>().FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
         if (entity is null) return false;
 
-        var pas = _db.ProjectActivities.Where(x => x.ActivityID == request.Id);
-        _db.ProjectActivities.RemoveRange(pas);
-        _db.Activities.Remove(entity);
+        var pas = _db.Set<ProjectActivity>().Where(x => x.ActivityID == request.Id);
+        _db.Set<ProjectActivity>().RemoveRange(pas);
+        _db.Set<Activity>().Remove(entity);
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }
-}
-
-internal sealed class GetAllActivitiesQueryHandler : IRequestHandler<GetAllActivitiesQuery, IReadOnlyCollection<ActivityDto>>
-{
-    private readonly ExecutionDbContext _db;
-    public GetAllActivitiesQueryHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<IReadOnlyCollection<ActivityDto>> Handle(GetAllActivitiesQuery request, CancellationToken cancellationToken)
     {
-        var activities = _db.Activities.AsNoTracking();
-        var projectActivities = _db.ProjectActivities.AsNoTracking();
+        var activities = _db.Set<Activity>().AsNoTracking();
 
         var items = await (from a in activities
-
                            orderby a.ID
                            select new ActivityDto(
                                a.ID,
@@ -98,27 +83,20 @@ internal sealed class GetAllActivitiesQueryHandler : IRequestHandler<GetAllActiv
 
         return items;
     }
-}
-
-internal sealed class GetActivityByIdQueryHandler : IRequestHandler<GetActivityByIdQuery, ActivityDto?>
-{
-    private readonly ExecutionDbContext _db;
-    public GetActivityByIdQueryHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<ActivityDto?> Handle(GetActivityByIdQuery request, CancellationToken cancellationToken)
     {
-        var activities = _db.Activities.AsNoTracking();
-        var projectActivities = _db.ProjectActivities.AsNoTracking();
+        var activities = _db.Set<Activity>().AsNoTracking();
 
         var dto = await (from a in activities
                          where a.ID == request.Id
                          select new ActivityDto(
                              a.ID,
-                               a.CompanyID,
-                               a.ActivityName,
-                               a.UOMID,
-                               a.CreatedBy,
-                               a.LastModifiedBy))
+                             a.CompanyID,
+                             a.ActivityName,
+                             a.UOMID,
+                             a.CreatedBy,
+                             a.LastModifiedBy))
                         .FirstOrDefaultAsync(cancellationToken);
 
         return dto;

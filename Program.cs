@@ -1,7 +1,6 @@
 using Himapp.Admin.Application;
 using Himapp.Admin.Infrastructure;
 using Himapp.Execution.Application;
-using Himapp.Execution.Infrastructure;
 using Himapp.Files;
 using Himapp.Integrations.D365;
 using Himapp.Notifications;
@@ -74,8 +73,6 @@ builder.Services
 // Modules
 builder.Services
     // Register EF DbContexts used by modules
-    .AddDbContext<ExecutionDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
     .AddDbContext<AdminDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
     .AddDbContext<PMDbContext>(options =>

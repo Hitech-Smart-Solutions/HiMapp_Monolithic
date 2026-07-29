@@ -2,43 +2,37 @@ using Himapp.Execution.Application.Features.SiteDailyProgress.Models;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Commands;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
 using Himapp.Execution.Domain.Entities;
-using Himapp.Execution.Infrastructure;
+using Himapp.Execution.Contracts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Himapp.Execution.Application.Features.SiteDailyProgress.Handlers;
 
-internal sealed class GetAllSiteDailyProgressesQueryHandler : IRequestHandler<GetAllSiteDailyProgressesQuery, IEnumerable<SiteDailyProgressDto>>
+internal sealed class SiteDailyProgressHandlers :
+    IRequestHandler<GetAllSiteDailyProgressesQuery, IEnumerable<SiteDailyProgressDto>>,
+    IRequestHandler<GetSiteDailyProgressByIdQuery, SiteDailyProgressDto?>,
+    IRequestHandler<CreateSiteDailyProgressCommand, SiteDailyProgressDto>,
+    IRequestHandler<UpdateSiteDailyProgressCommand, SiteDailyProgressDto?>,
+    IRequestHandler<DeleteSiteDailyProgressCommand, bool>
 {
-    private readonly ExecutionDbContext _db;
-    public GetAllSiteDailyProgressesQueryHandler(ExecutionDbContext db) => _db = db;
+    private readonly IExecutionDbContext _db;
+    public SiteDailyProgressHandlers(IExecutionDbContext db) => _db = db;
+
     public async Task<IEnumerable<SiteDailyProgressDto>> Handle(GetAllSiteDailyProgressesQuery request, CancellationToken cancellationToken)
     {
-        return await _db.SiteDailyProgresses
+        return await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>()
             .AsNoTracking()
             .Where(d => d.IsActive)
             .Select(d => new SiteDailyProgressDto { Id = d.ID, ProgramId = d.ProjectID })
             .ToArrayAsync(cancellationToken);
     }
-}
-
-internal sealed class GetSiteDailyProgressByIdQueryHandler : IRequestHandler<GetSiteDailyProgressByIdQuery, SiteDailyProgressDto?>
-{
-    private readonly ExecutionDbContext _db;
-    public GetSiteDailyProgressByIdQueryHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<SiteDailyProgressDto?> Handle(GetSiteDailyProgressByIdQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.SiteDailyProgresses.AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+        var d = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>().AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (d is null) return null;
         return new SiteDailyProgressDto { Id = d.ID, ProgramId = d.ProjectID };
     }
-}
-
-internal sealed class CreateSiteDailyProgressCommandHandler : IRequestHandler<CreateSiteDailyProgressCommand, SiteDailyProgressDto>
-{
-    private readonly ExecutionDbContext _db;
-    public CreateSiteDailyProgressCommandHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<SiteDailyProgressDto> Handle(CreateSiteDailyProgressCommand request, CancellationToken cancellationToken)
     {
@@ -61,21 +55,15 @@ internal sealed class CreateSiteDailyProgressCommandHandler : IRequestHandler<Cr
             LastModifiedDate = DateTimeOffset.UtcNow
         };
 
-        _db.SiteDailyProgresses.Add(entity);
+        _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
         return new SiteDailyProgressDto { Id = entity.ID, ProgramId = entity.ProjectID };
     }
-}
-
-internal sealed class UpdateSiteDailyProgressCommandHandler : IRequestHandler<UpdateSiteDailyProgressCommand, SiteDailyProgressDto?>
-{
-    private readonly ExecutionDbContext _db;
-    public UpdateSiteDailyProgressCommandHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<SiteDailyProgressDto?> Handle(UpdateSiteDailyProgressCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.SiteDailyProgresses.FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>().FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return null;
 
         var r = request.Request;
@@ -89,16 +77,10 @@ internal sealed class UpdateSiteDailyProgressCommandHandler : IRequestHandler<Up
 
         return new SiteDailyProgressDto { Id = entity.ID, ProgramId = entity.ProjectID };
     }
-}
-
-internal sealed class DeleteSiteDailyProgressCommandHandler : IRequestHandler<DeleteSiteDailyProgressCommand, bool>
-{
-    private readonly ExecutionDbContext _db;
-    public DeleteSiteDailyProgressCommandHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<bool> Handle(DeleteSiteDailyProgressCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.SiteDailyProgresses.FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>().FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;
 
         entity.IsActive = false;

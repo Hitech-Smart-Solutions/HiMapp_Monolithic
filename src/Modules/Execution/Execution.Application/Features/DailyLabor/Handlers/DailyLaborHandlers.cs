@@ -2,21 +2,26 @@ using Himapp.Execution.Application.Features.DailyLabor.Commands;
 using Himapp.Execution.Application.Features.DailyLabor.Models;
 using Himapp.Execution.Application.Features.DailyLabor.Queries;
 using Himapp.Execution.Domain.Entities;
-using Himapp.Execution.Infrastructure;
+using Himapp.Execution.Contracts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Himapp.Execution.Application.Features.DailyLabor.Handlers;
 
-internal sealed class GetAllDailyLaborsQueryHandler : IRequestHandler<GetAllDailyLaborsQuery, IReadOnlyCollection<DailyLaborModel>>
+internal sealed class DailyLaborHandlers :
+    IRequestHandler<GetAllDailyLaborsQuery, IReadOnlyCollection<DailyLaborModel>>,
+    IRequestHandler<GetDailyLaborByIdQuery, DailyLaborModel?>,
+    IRequestHandler<CreateDailyLaborCommand, DailyLaborModel>,
+    IRequestHandler<UpdateDailyLaborCommand, DailyLaborModel?>,
+    IRequestHandler<DeleteDailyLaborCommand, bool>
 {
-    private readonly ExecutionDbContext _db;
-    public GetAllDailyLaborsQueryHandler(ExecutionDbContext db) => _db = db;
+    private readonly IExecutionDbContext _db;
+    public DailyLaborHandlers(IExecutionDbContext db) => _db = db;
 
     public async Task<IReadOnlyCollection<DailyLaborModel>> Handle(GetAllDailyLaborsQuery request, CancellationToken cancellationToken)
     {
         // Return header-only projection for performance (details omitted)
-        return await _db.DailyLabors
+        return await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>()
             .AsNoTracking()
             .Where(d => d.IsActive)
             .Select(d => new DailyLaborModel(
@@ -35,16 +40,10 @@ internal sealed class GetAllDailyLaborsQueryHandler : IRequestHandler<GetAllDail
                 Array.Empty<DailyLaborDetailModel>()))
             .ToArrayAsync(cancellationToken);
     }
-}
-
-internal sealed class GetDailyLaborByIdQueryHandler : IRequestHandler<GetDailyLaborByIdQuery, DailyLaborModel?>
-{
-    private readonly ExecutionDbContext _db;
-    public GetDailyLaborByIdQueryHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<DailyLaborModel?> Handle(GetDailyLaborByIdQuery request, CancellationToken cancellationToken)
     {
-        var entity = await _db.DailyLabors
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>()
             .AsNoTracking()
             .Include(d => d.DailyLaborDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
@@ -79,12 +78,6 @@ internal sealed class GetDailyLaborByIdQueryHandler : IRequestHandler<GetDailyLa
             entity.LastModifiedDate,
             details);
     }
-}
-
-internal sealed class CreateDailyLaborCommandHandler : IRequestHandler<CreateDailyLaborCommand, DailyLaborModel>
-{
-    private readonly ExecutionDbContext _db;
-    public CreateDailyLaborCommandHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<DailyLaborModel> Handle(CreateDailyLaborCommand request, CancellationToken cancellationToken)
     {
@@ -131,23 +124,38 @@ internal sealed class CreateDailyLaborCommandHandler : IRequestHandler<CreateDai
             }
         }
 
-        _db.DailyLabors.Add(entity);
+        _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
         var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ProductivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(entity.ID, entity.UniqueID, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
-}
+    public async Task<bool> Handle(DeleteDailyLaborCommand request, CancellationToken cancellationToken)
+    {
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().Include(d => d.DailyLaborDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+        if (entity is null) return false;
 
-internal sealed class UpdateDailyLaborCommandHandler : IRequestHandler<UpdateDailyLaborCommand, DailyLaborModel?>
-{
-    private readonly ExecutionDbContext _db;
-    public UpdateDailyLaborCommandHandler(ExecutionDbContext db) => _db = db;
+        // Soft delete header and child details
+        entity.IsActive = false;
+        entity.LastModifiedDate = DateTime.UtcNow;
+
+        if (entity.DailyLaborDetail != null)
+        {
+            foreach (var dd in entity.DailyLaborDetail)
+            {
+                dd.IsActive = false;
+                dd.LastModifiedDate = DateTimeOffset.UtcNow;
+            }
+        }
+
+        await _db.SaveChangesAsync(cancellationToken);
+        return true;
+    }
 
     public async Task<DailyLaborModel?> Handle(UpdateDailyLaborCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.DailyLabors
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>()
             .Include(d => d.DailyLaborDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
 
@@ -164,7 +172,7 @@ internal sealed class UpdateDailyLaborCommandHandler : IRequestHandler<UpdateDai
         // Remove existing details (physically) and add new ones
         if (entity.DailyLaborDetail != null && entity.DailyLaborDetail.Any())
         {
-            _db.DailyLaborDetails.RemoveRange(entity.DailyLaborDetail);
+            _db.Set<Himapp.Execution.Domain.Entities.DailyLaborDetail>().RemoveRange(entity.DailyLaborDetail);
             entity.DailyLaborDetail.Clear();
         }
 
@@ -200,34 +208,6 @@ internal sealed class UpdateDailyLaborCommandHandler : IRequestHandler<UpdateDai
         var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ProductivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(entity.ID, entity.UniqueID, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
-    }
-}
-
-internal sealed class DeleteDailyLaborCommandHandler : IRequestHandler<DeleteDailyLaborCommand, bool>
-{
-    private readonly ExecutionDbContext _db;
-    public DeleteDailyLaborCommandHandler(ExecutionDbContext db) => _db = db;
-
-    public async Task<bool> Handle(DeleteDailyLaborCommand request, CancellationToken cancellationToken)
-    {
-        var entity = await _db.DailyLabors.Include(d => d.DailyLaborDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
-        if (entity is null) return false;
-
-        // Soft delete header and child details
-        entity.IsActive = false;
-        entity.LastModifiedDate = DateTime.UtcNow;
-
-        if (entity.DailyLaborDetail != null)
-        {
-            foreach (var dd in entity.DailyLaborDetail)
-            {
-                dd.IsActive = false;
-                dd.LastModifiedDate = DateTimeOffset.UtcNow;
-            }
-        }
-
-        await _db.SaveChangesAsync(cancellationToken);
-        return true;
     }
 }
 

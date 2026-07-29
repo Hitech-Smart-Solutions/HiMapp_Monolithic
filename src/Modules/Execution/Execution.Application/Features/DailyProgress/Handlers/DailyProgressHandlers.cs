@@ -2,43 +2,36 @@ using Himapp.Execution.Application.Features.DailyProgress.Models;
 using Himapp.Execution.Application.Features.DailyProgress.Commands;
 using Himapp.Execution.Application.Features.DailyProgress.Queries;
 using Himapp.Execution.Domain.Entities;
-using Himapp.Execution.Infrastructure;
+using Himapp.Execution.Contracts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Himapp.Execution.Application.Features.DailyProgress.Handlers;
 
-internal sealed class GetAllDailyProgressQueryHandler : IRequestHandler<GetAllDailyProgressQuery, IReadOnlyCollection<DailyProgressModel>>
+internal sealed class DailyProgressHandlers :
+    IRequestHandler<GetAllDailyProgressQuery, IReadOnlyCollection<DailyProgressModel>>,
+    IRequestHandler<GetDailyProgressByIdQuery, DailyProgressModel?>,
+    IRequestHandler<CreateDailyProgressCommand, DailyProgressModel>,
+    IRequestHandler<UpdateDailyProgressCommand, DailyProgressModel?>,
+    IRequestHandler<DeleteDailyProgressCommand, bool>
 {
-    private readonly ExecutionDbContext _db;
-    public GetAllDailyProgressQueryHandler(ExecutionDbContext db) => _db = db;
+    private readonly IExecutionDbContext _db;
+    public DailyProgressHandlers(IExecutionDbContext db) => _db = db;
 
     public async Task<IReadOnlyCollection<DailyProgressModel>> Handle(GetAllDailyProgressQuery request, CancellationToken cancellationToken)
     {
-        return await _db.DailyProgresses
+        return await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
             .AsNoTracking()
-            .Select(d => new DailyProgressModel((int)d.ID, d.UniqueID, (int)d.ProjectID, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, (int?)d.CreatedBy, d.CreatedDate, (int?)d.LastModifiedBy, d.LastModifiedDate))
+            .Select(d => new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate))
             .ToArrayAsync(cancellationToken);
     }
-}
-
-internal sealed class GetDailyProgressByIdQueryHandler : IRequestHandler<GetDailyProgressByIdQuery, DailyProgressModel?>
-{
-    private readonly ExecutionDbContext _db;
-    public GetDailyProgressByIdQueryHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<DailyProgressModel?> Handle(GetDailyProgressByIdQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.DailyProgresses.AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+        var d = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>().AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (d is null) return null;
-        return new DailyProgressModel((int)d.ID, d.UniqueID, (int)d.ProjectID, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, (int?)d.CreatedBy, d.CreatedDate, (int?)d.LastModifiedBy, d.LastModifiedDate);
+        return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate);
     }
-}
-
-internal sealed class CreateDailyProgressCommandHandler : IRequestHandler<CreateDailyProgressCommand, DailyProgressModel>
-{
-    private readonly ExecutionDbContext _db;
-    public CreateDailyProgressCommandHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<DailyProgressModel> Handle(CreateDailyProgressCommand request, CancellationToken cancellationToken)
     {
@@ -60,21 +53,15 @@ internal sealed class CreateDailyProgressCommandHandler : IRequestHandler<Create
             LastModifiedDate = DateTimeOffset.UtcNow
         };
 
-        _db.DailyProgresses.Add(entity);
+        _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DailyProgressModel((int)entity.ID, entity.UniqueID, (int)entity.ProjectID, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, (int?)entity.CreatedBy, entity.CreatedDate, (int?)entity.LastModifiedBy, entity.LastModifiedDate);
+        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
-}
-
-internal sealed class UpdateDailyProgressCommandHandler : IRequestHandler<UpdateDailyProgressCommand, DailyProgressModel?>
-{
-    private readonly ExecutionDbContext _db;
-    public UpdateDailyProgressCommandHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<DailyProgressModel?> Handle(UpdateDailyProgressCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.DailyProgresses.FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (entity is null) return null;
 
         entity.Hindrances = request.Request.Hindrances ?? entity.Hindrances;
@@ -86,18 +73,12 @@ internal sealed class UpdateDailyProgressCommandHandler : IRequestHandler<Update
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DailyProgressModel((int)entity.ID, entity.UniqueID, (int)entity.ProjectID, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, (int?)entity.CreatedBy, entity.CreatedDate, (int?)entity.LastModifiedBy, entity.LastModifiedDate);
+        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
-}
-
-internal sealed class DeleteDailyProgressCommandHandler : IRequestHandler<DeleteDailyProgressCommand, bool>
-{
-    private readonly ExecutionDbContext _db;
-    public DeleteDailyProgressCommandHandler(ExecutionDbContext db) => _db = db;
 
     public async Task<bool> Handle(DeleteDailyProgressCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.DailyProgresses.FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (entity is null) return false;
 
         entity.IsActive = false;

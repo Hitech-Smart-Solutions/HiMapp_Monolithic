@@ -9,7 +9,6 @@
 		<PackageReference Include="MediatR" Version="12.4.1" />
 		<ProjectReference Include="..\Execution.Contracts\Execution.Contracts.csproj" />
 		<ProjectReference Include="..\Execution.Domain\Execution.Domain.csproj" />
-		<ProjectReference Include="..\Execution.Infrastructure\Execution.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\..\Shared\Workflow\Workflow.csproj" />
 	</ItemGroup>
 	<PropertyGroup>
