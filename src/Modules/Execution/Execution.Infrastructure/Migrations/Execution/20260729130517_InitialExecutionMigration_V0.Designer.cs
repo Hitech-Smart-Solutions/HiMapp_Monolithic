@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     [DbContext(typeof(ExecutionDbContext))]
-    [Migration("20260729071457_newMigrationAfterColumnChanges")]
-    partial class newMigrationAfterColumnChanges
+    [Migration("20260729130517_InitialExecutionMigration_V0")]
+    partial class InitialExecutionMigration_V0
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -583,14 +583,14 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.Planning", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<long?>("CreatedBy")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -601,8 +601,8 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<long?>("LastModifiedBy")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
@@ -611,8 +611,8 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ProjectID")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
@@ -624,30 +624,30 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UniqueId")
+                    b.Property<Guid>("UniqueID")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("Plannings", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.PlanningDetail", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<long>("ActivityId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ActivityID")
+                        .HasColumnType("integer");
 
-                    b.Property<long>("AreaId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("AreaID")
+                        .HasColumnType("integer");
 
-                    b.Property<long?>("CreatedBy")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -655,14 +655,14 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<long?>("LastModifiedBy")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("PlanningId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("PlanningID")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
@@ -670,31 +670,30 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<decimal>("TargetQuantity")
                         .HasColumnType("numeric");
 
-                    b.Property<Guid>("UniqueId")
+                    b.Property<int>("UOMID")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UniqueID")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Uom")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("PlanningDetails", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.ProjectActivity", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<long>("ActivityId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ActivityID")
+                        .HasColumnType("integer");
 
-                    b.Property<long?>("CreatedBy")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -705,36 +704,36 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<long?>("LastModifiedBy")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ProjectID")
+                        .HasColumnType("integer");
 
-                    b.Property<Guid>("UniqueId")
+                    b.Property<Guid>("UniqueID")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("ProjectActivities", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.RateMaster", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<long>("ActivityId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ActivityID")
+                        .HasColumnType("integer");
 
-                    b.Property<long?>("CreatedBy")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -745,37 +744,36 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<long?>("LastModifiedBy")
-                        .HasColumnType("bigint");
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ProjectID")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Rate")
                         .HasColumnType("numeric");
 
-                    b.Property<Guid>("UniqueId")
+                    b.Property<int>("UOMID")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UniqueID")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Uom")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("RateMasters", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgress", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
@@ -801,7 +799,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<string>("NextDayPlan")
                         .HasColumnType("text");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int>("ProjectID")
                         .HasColumnType("integer");
 
                     b.Property<string>("Remarks")
@@ -816,10 +814,10 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("numeric");
 
-                    b.Property<Guid>("UniqueId")
+                    b.Property<Guid>("UniqueID")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("SiteDailyProgresses", "execution");
                 });

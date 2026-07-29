@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     /// <inheritdoc />
-    public partial class InitialExecutionMigration : Migration
+    public partial class InitialExecutionMigration_V0 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -138,10 +138,10 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 schema: "execution",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UniqueId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProjectId = table.Column<int>(type: "integer", nullable: false),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectID = table.Column<int>(type: "integer", nullable: false),
                     ReportDate = table.Column<DateOnly>(type: "date", nullable: false),
                     Hindrances = table.Column<string>(type: "text", nullable: true),
                     HindranceAudioUrl = table.Column<string>(type: "text", nullable: true),
@@ -157,7 +157,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DailyProgresses", x => x.Id);
+                    table.PrimaryKey("PK_DailyProgresses", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -189,24 +189,24 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 schema: "execution",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UniqueId = table.Column<Guid>(type: "uuid", nullable: false),
-                    PlanningId = table.Column<long>(type: "bigint", nullable: false),
-                    AreaId = table.Column<long>(type: "bigint", nullable: false),
-                    ActivityId = table.Column<long>(type: "bigint", nullable: false),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    PlanningID = table.Column<int>(type: "integer", nullable: false),
+                    AreaID = table.Column<int>(type: "integer", nullable: false),
+                    ActivityID = table.Column<int>(type: "integer", nullable: false),
                     TargetQuantity = table.Column<decimal>(type: "numeric", nullable: false),
-                    Uom = table.Column<string>(type: "text", nullable: false),
+                    UOMID = table.Column<int>(type: "integer", nullable: false),
                     Remarks = table.Column<string>(type: "text", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
                     CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<long>(type: "bigint", nullable: true),
+                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
                     LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlanningDetails", x => x.Id);
+                    table.PrimaryKey("PK_PlanningDetails", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -214,24 +214,24 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 schema: "execution",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UniqueId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProjectId = table.Column<long>(type: "bigint", nullable: false),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectID = table.Column<int>(type: "integer", nullable: false),
                     PlanType = table.Column<string>(type: "text", nullable: false),
                     StartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EndDate = table.Column<DateOnly>(type: "date", nullable: true),
                     Remarks = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<string>(type: "text", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
                     CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<long>(type: "bigint", nullable: true),
+                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
                     LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Plannings", x => x.Id);
+                    table.PrimaryKey("PK_Plannings", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -239,21 +239,21 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 schema: "execution",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UniqueId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProjectId = table.Column<long>(type: "bigint", nullable: false),
-                    ActivityId = table.Column<long>(type: "bigint", nullable: false),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectID = table.Column<int>(type: "integer", nullable: false),
+                    ActivityID = table.Column<int>(type: "integer", nullable: false),
                     Enabled = table.Column<bool>(type: "boolean", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
                     CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<long>(type: "bigint", nullable: true),
+                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
                     LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectActivities", x => x.Id);
+                    table.PrimaryKey("PK_ProjectActivities", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -261,23 +261,23 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 schema: "execution",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UniqueId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProjectId = table.Column<long>(type: "bigint", nullable: false),
-                    ActivityId = table.Column<long>(type: "bigint", nullable: false),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectID = table.Column<int>(type: "integer", nullable: false),
+                    ActivityID = table.Column<int>(type: "integer", nullable: false),
                     Rate = table.Column<decimal>(type: "numeric", nullable: false),
-                    Uom = table.Column<string>(type: "text", nullable: false),
+                    UOMID = table.Column<int>(type: "integer", nullable: false),
                     EffectiveFrom = table.Column<DateOnly>(type: "date", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedBy = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
                     CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<long>(type: "bigint", nullable: true),
+                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
                     LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RateMasters", x => x.Id);
+                    table.PrimaryKey("PK_RateMasters", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -285,10 +285,10 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 schema: "execution",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UniqueId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProjectId = table.Column<int>(type: "integer", nullable: false),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectID = table.Column<int>(type: "integer", nullable: false),
                     SectionID = table.Column<int>(type: "integer", nullable: false),
                     ReportDate = table.Column<DateOnly>(type: "date", nullable: false),
                     Hindrances = table.Column<string>(type: "text", nullable: true),
@@ -304,7 +304,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SiteDailyProgresses", x => x.Id);
+                    table.PrimaryKey("PK_SiteDailyProgresses", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
