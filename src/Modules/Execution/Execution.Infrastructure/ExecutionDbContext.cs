@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Himapp.Execution.Domain.Entities;
 using System.Reflection;
+using Himapp.Execution.Contracts;
 
 namespace Himapp.Execution.Infrastructure;
 
-public sealed class ExecutionDbContext : DbContext
+public sealed class ExecutionDbContext : DbContext, IExecutionDbContext
 {
     public ExecutionDbContext(DbContextOptions<ExecutionDbContext> options) : base(options)
     {

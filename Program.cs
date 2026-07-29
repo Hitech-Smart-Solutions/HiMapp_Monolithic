@@ -1,6 +1,9 @@
 using Himapp.Admin.Application;
 using Himapp.Admin.Infrastructure;
+using Himapp.Audit;
 using Himapp.Execution.Application;
+using Himapp.Execution.Contracts;
+using Himapp.Execution.Infrastructure;
 using Himapp.Files;
 using Himapp.Integrations.D365;
 using Himapp.Notifications;
@@ -8,17 +11,16 @@ using Himapp.PM.Application;
 using Himapp.PM.Infrastructure;
 using Himapp.Safety.Application;
 using Himapp.Safety.Infrastructure;
+using Himapp.SharedKernel;
+using Himapp.SharedKernel.Logging;
 using Himapp.Store.Application;
 using Himapp.Store.Infrastructure;
 using Himapp.Workflow;
 using Himapp.Workflow.Controllers;
-using Himapp.SharedKernel;
-using Himapp.Audit;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Himapp.SharedKernel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +74,8 @@ builder.Services
 
 // Modules
 builder.Services
+    .AddDbContext<ExecutionDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
     // Register EF DbContexts used by modules
     .AddDbContext<AdminDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
@@ -88,6 +92,9 @@ builder.Services
     .AddExecutionModule()
     .AddPlantMachineryModule()
     .AddStoreModule();
+
+builder.Services.AddScoped<IExecutionDbContext>(sp =>
+    sp.GetRequiredService<ExecutionDbContext>());
 
 // Register shared kernel services (IClock, ICurrentUser, Outbox service, hosted dispatcher)
 builder.Services.AddSharedKernel();
