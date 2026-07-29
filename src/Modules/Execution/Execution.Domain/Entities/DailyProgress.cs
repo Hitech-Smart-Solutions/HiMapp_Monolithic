@@ -1,6 +1,6 @@
 namespace Himapp.Execution.Domain.Entities;
 
-// EF entity for schema table "DailyProgress"
+// EF entity for schema table "DailyProgress" Page Name : Project DPR
 public sealed class DailyProgress
 {
     public int ID { get; set; }

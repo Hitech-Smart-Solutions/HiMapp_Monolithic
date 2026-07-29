@@ -1,6 +1,6 @@
 namespace Himapp.Execution.Domain.Entities;
 
-// EF entity for schema table "PlanningDetails"
+// EF entity for schema table "PlanningDetails" Page Name : Site Execution Planning
 public sealed class PlanningDetail
 {
     public int ID { get; set; }

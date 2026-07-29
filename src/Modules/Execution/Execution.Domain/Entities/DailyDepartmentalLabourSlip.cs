@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Himapp.Execution.Domain.Entities
 {
+    // EF entity for schema table "DailyDepartmentalLabourSlip" Page Name : Daily Department Labour Slip (DDLS)
     public class DailyDepartmentalLabourSlip
     {
         public DailyDepartmentalLabourSlip()

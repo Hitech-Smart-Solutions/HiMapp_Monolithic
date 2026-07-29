@@ -1,6 +1,6 @@
 namespace Himapp.Execution.Domain.Entities;
 
-// EF entity for schema table "Activity"
+// EF entity for schema table "Activity" Page Name MIS Group Activity Master
 public sealed class Activity
 {
     public int ID { get; set; }

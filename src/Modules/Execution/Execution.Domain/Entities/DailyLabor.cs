@@ -1,7 +1,7 @@
 namespace Himapp.Execution.Domain.Entities;
 
 // EF entity for schema table "DailyLabor"
-// EF entity for schema table "DailyLabor"
+// EF entity for schema table "DailyLabor" Page Name : Project Manpower Entry
 public class DailyLabor
 {
     public DailyLabor()

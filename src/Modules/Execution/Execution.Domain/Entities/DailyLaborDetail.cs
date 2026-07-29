@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Himapp.Execution.Domain.Entities;
 
-// EF entity for schema table "DailyLaborDetails"
+// EF entity for schema table "DailyLaborDetails"  Page Name : Project Manpower Entry
 public class DailyLaborDetail
 {
     public Guid UniqueID { get; set; }

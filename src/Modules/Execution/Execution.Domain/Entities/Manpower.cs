@@ -1,6 +1,6 @@
 namespace Himapp.Execution.Domain.Entities;
 
-// EF entity for schema table "Manpower"
+// EF entity for schema table "Manpower" Page Name : Site Manpower Entry
 public class Manpower
 {
     public Manpower()
