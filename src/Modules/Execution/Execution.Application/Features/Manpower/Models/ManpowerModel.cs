@@ -73,6 +73,9 @@ public sealed class CreateManpowerRequest
     public int SectionId { get; set; }
     public DateOnly EntryDate { get; set; }
     public string? Remarks { get; set; }
+
+    public int CreatedBy { get; init; }
+    public int LastModifiedBy { get; init; }
     public List<ManpowerDetailRequest>? Details { get; set; }
 }
 
@@ -83,5 +86,7 @@ public sealed class UpdateManpowerRequest
     public string? Remarks { get; set; }
     public int StateId { get; set; }
     public bool IsActive { get; set; }
+
+    public int LastModifiedBy { get; init; }
     public List<ManpowerDetailRequest>? Details { get; set; }
 }

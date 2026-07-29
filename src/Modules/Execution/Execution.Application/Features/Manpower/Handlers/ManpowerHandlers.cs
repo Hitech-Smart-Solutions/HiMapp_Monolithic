@@ -80,9 +80,9 @@ internal sealed class CreateManpowerCommandHandler : IRequestHandler<CreateManpo
             Remarks = r.Remarks,
             StateID = 3,
             IsActive = true,
-            CreatedBy = 0,
+            CreatedBy = r.CreatedBy,
             CreatedDate = DateTimeOffset.UtcNow,
-            LastModifiedBy = 0,
+            LastModifiedBy = r.LastModifiedBy,
             LastModifiedDate = DateTimeOffset.UtcNow
         };
 
@@ -100,9 +100,9 @@ internal sealed class CreateManpowerCommandHandler : IRequestHandler<CreateManpo
                     OtherCount = d.OtherCount,
                     TotalCount = d.SkilledCount + d.UnskilledCount + d.OtherCount,
                     IsActive = true,
-                    CreatedBy = 0,
+                    CreatedBy = r.CreatedBy,
                     CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = 0,
+                    LastModifiedBy = r.LastModifiedBy,
                     LastModifiedDate = DateTimeOffset.UtcNow,
                     Manpower = entity
                 };
@@ -136,6 +136,7 @@ internal sealed class UpdateManpowerCommandHandler : IRequestHandler<UpdateManpo
         entity.Remarks = r.Remarks;
         entity.StateID = r.StateId;
         entity.IsActive = r.IsActive;
+        entity.LastModifiedBy = r.LastModifiedBy;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         if (entity.ManpowerDetail != null && entity.ManpowerDetail.Any())
@@ -158,9 +159,9 @@ internal sealed class UpdateManpowerCommandHandler : IRequestHandler<UpdateManpo
                     OtherCount = d.OtherCount,
                     TotalCount = d.SkilledCount + d.UnskilledCount + d.OtherCount,
                     IsActive = true,
-                    CreatedBy = 0,
+                    CreatedBy = r.LastModifiedBy,
                     CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = 0,
+                    LastModifiedBy = r.LastModifiedBy,
                     LastModifiedDate = DateTimeOffset.UtcNow,
                     Manpower = entity
                 };
