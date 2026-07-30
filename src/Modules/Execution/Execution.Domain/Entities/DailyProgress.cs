@@ -1,8 +1,14 @@
 namespace Himapp.Execution.Domain.Entities;
 
 // EF entity for schema table "DailyProgress" Page Name : Project DPR
-public sealed class DailyProgress
+public class DailyProgress
 {
+
+    public DailyProgress()
+    {
+        DailyProgressDetail = new HashSet<DailyProgressDetail>();
+        DailyProgressPhoto = new HashSet<DailyProgressPhoto>();
+    }
     public int ID { get; set; }
     public Guid UniqueID { get; set; }
 
@@ -23,5 +29,8 @@ public sealed class DailyProgress
     public DateTimeOffset CreatedDate { get; set; }
     public int? LastModifiedBy { get; set; }
     public DateTimeOffset LastModifiedDate { get; set; }
+
+    public virtual ICollection<DailyProgressDetail> DailyProgressDetail { get; set; }
+    public virtual ICollection<DailyProgressPhoto> DailyProgressPhoto { get; set; }
 }
 
