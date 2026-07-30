@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Himapp.PM.Contracts;
 
 namespace Himapp.PM.Infrastructure;
 
-public sealed class PMDbContext : DbContext
+public sealed class PMDbContext : DbContext, IPMDbContext
 {
     public PMDbContext(DbContextOptions<PMDbContext> options) : base(options)
     {

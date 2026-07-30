@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Himapp.Safety.Domain.Induction;
+using Himapp.Safety.Contracts;
 
 namespace Himapp.Safety.Infrastructure;
 
-public sealed class SafetyDbContext : DbContext
+public sealed class SafetyDbContext : DbContext, ISafetyDbContext
 {
     public SafetyDbContext(DbContextOptions<SafetyDbContext> options) : base(options)
     {

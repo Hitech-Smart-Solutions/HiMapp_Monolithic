@@ -4,8 +4,6 @@
     <PackageReference Include="MediatR" Version="12.4.1" />
     <ProjectReference Include="..\PM.Contracts\PM.Contracts.csproj" />
     <ProjectReference Include="..\PM.Domain\PM.Domain.csproj" />
-    <ProjectReference Include="..\..\Store\Store.Contracts\Store.Contracts.csproj" />
-    <ProjectReference Include="..\PM.Infrastructure\PM.Infrastructure.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <RootNamespace>Himapp.PM.Application</RootNamespace>

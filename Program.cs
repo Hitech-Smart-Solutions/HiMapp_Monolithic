@@ -1,4 +1,5 @@
 using Himapp.Admin.Application;
+using Himapp.Admin.Contracts;
 using Himapp.Admin.Infrastructure;
 using Himapp.Audit;
 using Himapp.Execution.Application;
@@ -8,12 +9,15 @@ using Himapp.Files;
 using Himapp.Integrations.D365;
 using Himapp.Notifications;
 using Himapp.PM.Application;
+using Himapp.PM.Contracts;
 using Himapp.PM.Infrastructure;
 using Himapp.Safety.Application;
+using Himapp.Safety.Contracts;
 using Himapp.Safety.Infrastructure;
 using Himapp.SharedKernel;
 using Himapp.SharedKernel.Logging;
 using Himapp.Store.Application;
+using Himapp.Store.Contracts;
 using Himapp.Store.Infrastructure;
 using Himapp.Workflow;
 using Himapp.Workflow.Controllers;
@@ -95,6 +99,19 @@ builder.Services
 
 builder.Services.AddScoped<IExecutionDbContext>(sp =>
     sp.GetRequiredService<ExecutionDbContext>());
+
+builder.Services.AddScoped<IAdminDbContext>(sp =>
+    sp.GetRequiredService<AdminDbContext>());
+
+builder.Services.AddScoped<IPMDbContext>(sp =>
+    sp.GetRequiredService<PMDbContext>());
+
+builder.Services.AddScoped<ISafetyDbContext>(sp =>
+    sp.GetRequiredService<SafetyDbContext>());
+
+builder.Services.AddScoped<IStoreDbContext>(sp =>
+    sp.GetRequiredService<StoreDbContext>());
+
 
 // Register shared kernel services (IClock, ICurrentUser, Outbox service, hosted dispatcher)
 builder.Services.AddSharedKernel();

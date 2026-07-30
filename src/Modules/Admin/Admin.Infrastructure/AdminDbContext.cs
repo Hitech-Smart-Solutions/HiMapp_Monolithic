@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Himapp.Admin.Domain.Labour;
+using Himapp.Admin.Contracts;
 
 namespace Himapp.Admin.Infrastructure;
 
-public sealed class AdminDbContext : DbContext
+public sealed class AdminDbContext : DbContext, IAdminDbContext
 {
     public AdminDbContext(DbContextOptions<AdminDbContext> options) : base(options)
     {

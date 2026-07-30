@@ -28,7 +28,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="src\Modules\Admin\Admin.Infrastructure\Admin.Infrastructure.csproj" />
     <ProjectReference Include="src\Modules\Execution\Execution.Infrastructure\Execution.Infrastructure.csproj" />
+    <ProjectReference Include="src\Modules\PM\PM.Infrastructure\PM.Infrastructure.csproj" />
+    <ProjectReference Include="src\Modules\Safety\Safety.Infrastructure\Safety.Infrastructure.csproj" />
+    <ProjectReference Include="src\Modules\Store\Store.Infrastructure\Store.Infrastructure.csproj" />
     <ProjectReference Include="src\Shared\SharedKernel\SharedKernel.csproj" />
     <ProjectReference Include="src\Shared\Notifications\Notifications.csproj" />
     <ProjectReference Include="src\Shared\Workflow\Workflow.csproj" />

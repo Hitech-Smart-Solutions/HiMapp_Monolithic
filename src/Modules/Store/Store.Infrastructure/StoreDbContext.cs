@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Himapp.Store.Domain.GatePass;
+using Himapp.Store.Contracts;
 
 namespace Himapp.Store.Infrastructure;
 
-public sealed class StoreDbContext : DbContext
+public sealed class StoreDbContext : DbContext, IStoreDbContext
 {
     public StoreDbContext(DbContextOptions<StoreDbContext> options) : base(options)
     {
