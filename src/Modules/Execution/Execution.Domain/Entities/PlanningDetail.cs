@@ -1,7 +1,7 @@
 namespace Himapp.Execution.Domain.Entities;
 
 // EF entity for schema table "PlanningDetails" Page Name : Site Execution Planning
-public sealed class PlanningDetail
+public class PlanningDetail
 {
     public int ID { get; set; }
     public Guid UniqueID { get; set; }
@@ -20,5 +20,7 @@ public sealed class PlanningDetail
     public DateTimeOffset CreatedDate { get; set; }
     public int? LastModifiedBy { get; set; }
     public DateTimeOffset LastModifiedDate { get; set; }
+    public virtual Planning? Planning { get; set; }
+
 }
 

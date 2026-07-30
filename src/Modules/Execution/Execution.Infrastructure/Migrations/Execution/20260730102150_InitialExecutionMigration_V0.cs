@@ -106,34 +106,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 });
 
             migrationBuilder.CreateTable(
-                name: "DailyProgressDetails",
-                schema: "execution",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
-                    DailyProgressID = table.Column<int>(type: "integer", nullable: false),
-                    ActivityID = table.Column<int>(type: "integer", nullable: false),
-                    Quantity = table.Column<decimal>(type: "numeric", nullable: false),
-                    Uom = table.Column<string>(type: "text", nullable: false),
-                    Rate = table.Column<decimal>(type: "numeric", nullable: false),
-                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
-                    PlanQuantity = table.Column<decimal>(type: "numeric", nullable: true),
-                    Variance = table.Column<decimal>(type: "numeric", nullable: false),
-                    Remarks = table.Column<string>(type: "text", nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
-                    CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
-                    LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DailyProgressDetails", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "DailyProgresses",
                 schema: "execution",
                 columns: table => new
@@ -182,31 +154,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Manpowers", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PlanningDetails",
-                schema: "execution",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
-                    PlanningID = table.Column<int>(type: "integer", nullable: false),
-                    AreaID = table.Column<int>(type: "integer", nullable: false),
-                    ActivityID = table.Column<int>(type: "integer", nullable: false),
-                    TargetQuantity = table.Column<decimal>(type: "numeric", nullable: false),
-                    UOMID = table.Column<int>(type: "integer", nullable: false),
-                    Remarks = table.Column<string>(type: "text", nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
-                    CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
-                    LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlanningDetails", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -385,6 +332,70 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 });
 
             migrationBuilder.CreateTable(
+                name: "DailyProgressDetails",
+                schema: "execution",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    DailyProgressID = table.Column<int>(type: "integer", nullable: false),
+                    ActivityID = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<decimal>(type: "numeric", nullable: false),
+                    Uom = table.Column<string>(type: "text", nullable: false),
+                    Rate = table.Column<decimal>(type: "numeric", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    PlanQuantity = table.Column<decimal>(type: "numeric", nullable: true),
+                    Variance = table.Column<decimal>(type: "numeric", nullable: false),
+                    Remarks = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
+                    LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DailyProgressDetails", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_DailyProgressDetails_DailyProgresses_DailyProgressID",
+                        column: x => x.DailyProgressID,
+                        principalSchema: "execution",
+                        principalTable: "DailyProgresses",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DailyProgressPhoto",
+                schema: "execution",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    DailyProgressID = table.Column<int>(type: "integer", nullable: false),
+                    PhotoUrl = table.Column<string>(type: "text", nullable: false),
+                    Caption = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
+                    LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DailyProgressPhoto", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_DailyProgressPhoto_DailyProgresses_DailyProgressID",
+                        column: x => x.DailyProgressID,
+                        principalSchema: "execution",
+                        principalTable: "DailyProgresses",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ManpowerDetails",
                 schema: "execution",
                 columns: table => new
@@ -417,6 +428,102 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PlanningDetails",
+                schema: "execution",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    PlanningID = table.Column<int>(type: "integer", nullable: false),
+                    AreaID = table.Column<int>(type: "integer", nullable: false),
+                    ActivityID = table.Column<int>(type: "integer", nullable: false),
+                    TargetQuantity = table.Column<decimal>(type: "numeric", nullable: false),
+                    UOMID = table.Column<int>(type: "integer", nullable: false),
+                    Remarks = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
+                    LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlanningDetails", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_PlanningDetails_Plannings_PlanningID",
+                        column: x => x.PlanningID,
+                        principalSchema: "execution",
+                        principalTable: "Plannings",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SiteDailyProgressDetail",
+                schema: "execution",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UniqueId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SiteDailyProgressID = table.Column<int>(type: "integer", nullable: false),
+                    ActivityID = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<decimal>(type: "numeric", nullable: false),
+                    UOMID = table.Column<int>(type: "integer", nullable: false),
+                    Rate = table.Column<decimal>(type: "numeric", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    PlanQuantity = table.Column<decimal>(type: "numeric", nullable: true),
+                    Variance = table.Column<decimal>(type: "numeric", nullable: false),
+                    Remarks = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
+                    LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SiteDailyProgressDetail", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_SiteDailyProgressDetail_SiteDailyProgresses_SiteDailyProgre~",
+                        column: x => x.SiteDailyProgressID,
+                        principalSchema: "execution",
+                        principalTable: "SiteDailyProgresses",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SiteDailyProgressPhoto",
+                schema: "execution",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    DailyProgressID = table.Column<int>(type: "integer", nullable: false),
+                    PhotoUrl = table.Column<string>(type: "text", nullable: false),
+                    Caption = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: true),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "integer", nullable: true),
+                    LastModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SiteDailyProgressPhoto", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_SiteDailyProgressPhoto_SiteDailyProgresses_DailyProgressID",
+                        column: x => x.DailyProgressID,
+                        principalSchema: "execution",
+                        principalTable: "SiteDailyProgresses",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_DailyDepartmentalLabourSlipDetails_DailyDepartmentalLabourS~",
                 schema: "execution",
@@ -430,10 +537,40 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 column: "DailyLabourID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DailyProgressDetails_DailyProgressID",
+                schema: "execution",
+                table: "DailyProgressDetails",
+                column: "DailyProgressID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DailyProgressPhoto_DailyProgressID",
+                schema: "execution",
+                table: "DailyProgressPhoto",
+                column: "DailyProgressID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ManpowerDetails_ManpowerID",
                 schema: "execution",
                 table: "ManpowerDetails",
                 column: "ManpowerID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlanningDetails_PlanningID",
+                schema: "execution",
+                table: "PlanningDetails",
+                column: "PlanningID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SiteDailyProgressDetail_SiteDailyProgressID",
+                schema: "execution",
+                table: "SiteDailyProgressDetail",
+                column: "SiteDailyProgressID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SiteDailyProgressPhoto_DailyProgressID",
+                schema: "execution",
+                table: "SiteDailyProgressPhoto",
+                column: "DailyProgressID");
         }
 
         /// <inheritdoc />
@@ -456,7 +593,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "DailyProgresses",
+                name: "DailyProgressPhoto",
                 schema: "execution");
 
             migrationBuilder.DropTable(
@@ -468,10 +605,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "Plannings",
-                schema: "execution");
-
-            migrationBuilder.DropTable(
                 name: "ProjectActivities",
                 schema: "execution");
 
@@ -480,7 +613,11 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 schema: "execution");
 
             migrationBuilder.DropTable(
-                name: "SiteDailyProgresses",
+                name: "SiteDailyProgressDetail",
+                schema: "execution");
+
+            migrationBuilder.DropTable(
+                name: "SiteDailyProgressPhoto",
                 schema: "execution");
 
             migrationBuilder.DropTable(
@@ -492,7 +629,19 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 schema: "execution");
 
             migrationBuilder.DropTable(
+                name: "DailyProgresses",
+                schema: "execution");
+
+            migrationBuilder.DropTable(
                 name: "Manpowers",
+                schema: "execution");
+
+            migrationBuilder.DropTable(
+                name: "Plannings",
+                schema: "execution");
+
+            migrationBuilder.DropTable(
+                name: "SiteDailyProgresses",
                 schema: "execution");
         }
     }

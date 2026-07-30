@@ -475,7 +475,52 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     b.HasKey("ID");
 
+                    b.HasIndex("DailyProgressID");
+
                     b.ToTable("DailyProgressDetails", "execution");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressPhoto", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("Caption")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DailyProgressID")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PhotoUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DailyProgressID");
+
+                    b.ToTable("DailyProgressPhoto", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.Manpower", b =>
@@ -675,6 +720,8 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     b.HasKey("ID");
 
+                    b.HasIndex("PlanningID");
+
                     b.ToTable("PlanningDetails", "execution");
                 });
 
@@ -819,6 +866,109 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.ToTable("SiteDailyProgresses", "execution");
                 });
 
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgressDetail", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("ActivityID")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("PlanQuantity")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("text");
+
+                    b.Property<int>("SiteDailyProgressID")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UOMID")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UniqueId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Variance")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("SiteDailyProgressID");
+
+                    b.ToTable("SiteDailyProgressDetail", "execution");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgressPhoto", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("Caption")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DailyProgressID")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PhotoUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DailyProgressID");
+
+                    b.ToTable("SiteDailyProgressPhoto", "execution");
+                });
+
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails", b =>
                 {
                     b.HasOne("Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip", "DailyDepartmentalLabourSlip")
@@ -839,6 +989,28 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Navigation("DailyLabor");
                 });
 
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressDetail", b =>
+                {
+                    b.HasOne("Himapp.Execution.Domain.Entities.DailyProgress", "DailyProgress")
+                        .WithMany("DailyProgressDetail")
+                        .HasForeignKey("DailyProgressID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DailyProgress");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressPhoto", b =>
+                {
+                    b.HasOne("Himapp.Execution.Domain.Entities.DailyProgress", "DailyProgress")
+                        .WithMany("DailyProgressPhoto")
+                        .HasForeignKey("DailyProgressID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DailyProgress");
+                });
+
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.ManpowerDetail", b =>
                 {
                     b.HasOne("Himapp.Execution.Domain.Entities.Manpower", "Manpower")
@@ -848,6 +1020,39 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .IsRequired();
 
                     b.Navigation("Manpower");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.PlanningDetail", b =>
+                {
+                    b.HasOne("Himapp.Execution.Domain.Entities.Planning", "Planning")
+                        .WithMany("PlanningDetail")
+                        .HasForeignKey("PlanningID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Planning");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgressDetail", b =>
+                {
+                    b.HasOne("Himapp.Execution.Domain.Entities.SiteDailyProgress", "DailyProgress")
+                        .WithMany("SiteDailyProgressDetail")
+                        .HasForeignKey("SiteDailyProgressID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DailyProgress");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgressPhoto", b =>
+                {
+                    b.HasOne("Himapp.Execution.Domain.Entities.SiteDailyProgress", "DailyProgress")
+                        .WithMany("SiteDailyProgressPhoto")
+                        .HasForeignKey("DailyProgressID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DailyProgress");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip", b =>
@@ -860,9 +1065,28 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Navigation("DailyLaborDetail");
                 });
 
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgress", b =>
+                {
+                    b.Navigation("DailyProgressDetail");
+
+                    b.Navigation("DailyProgressPhoto");
+                });
+
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.Manpower", b =>
                 {
                     b.Navigation("ManpowerDetail");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.Planning", b =>
+                {
+                    b.Navigation("PlanningDetail");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgress", b =>
+                {
+                    b.Navigation("SiteDailyProgressDetail");
+
+                    b.Navigation("SiteDailyProgressPhoto");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,7 +1,7 @@
 ﻿namespace Himapp.Execution.Domain.Entities;
 
 // EF entity for schema table "DailyProgressDetails"  Page Name : Site DPR
-public sealed class SiteDailyProgressDetail
+public class SiteDailyProgressDetail
 {
     public int ID { get; set; }
     public Guid UniqueId { get; set; }
@@ -29,5 +29,6 @@ public sealed class SiteDailyProgressDetail
     public DateTimeOffset CreatedDate { get; set; }
     public int? LastModifiedBy { get; set; }
     public DateTimeOffset LastModifiedDate { get; set; }
+    public virtual SiteDailyProgress? DailyProgress { get; set; }
 }
 
