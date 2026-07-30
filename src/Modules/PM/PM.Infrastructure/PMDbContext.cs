@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Himapp.PM.Contracts;
+using Himapp.PM.Application;
 
 namespace Himapp.PM.Infrastructure;
 

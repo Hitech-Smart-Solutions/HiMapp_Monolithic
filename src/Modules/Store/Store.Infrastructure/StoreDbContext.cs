@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Himapp.Store.Domain.GatePass;
-using Himapp.Store.Contracts;
+using Himapp.Store.Application;
 
 namespace Himapp.Store.Infrastructure;
 

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Himapp.Execution.Domain.Entities;
 using System.Reflection;
-using Himapp.Execution.Contracts;
+using Himapp.Execution.Application;
 
 namespace Himapp.Execution.Infrastructure;
 

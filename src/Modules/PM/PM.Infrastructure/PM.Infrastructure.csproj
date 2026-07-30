@@ -11,7 +11,7 @@
 
   <ItemGroup>
 	<ProjectReference Include="..\PM.Domain\PM.Domain.csproj" />
-	<ProjectReference Include="..\PM.Contracts\PM.Contracts.csproj" />
+	<ProjectReference Include="..\PM.Application\PM.Application.csproj" />
   </ItemGroup>
 
 </Project>

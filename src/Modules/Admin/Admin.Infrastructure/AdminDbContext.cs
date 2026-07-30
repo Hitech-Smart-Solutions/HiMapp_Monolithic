@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Himapp.Admin.Domain.Labour;
-using Himapp.Admin.Contracts;
+using Himapp.Admin.Application;
 
 namespace Himapp.Admin.Infrastructure;
 

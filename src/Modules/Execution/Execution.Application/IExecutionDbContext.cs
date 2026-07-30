@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Himapp.Execution.Contracts;
+namespace Himapp.Execution.Application;
 
 public interface IExecutionDbContext
 {

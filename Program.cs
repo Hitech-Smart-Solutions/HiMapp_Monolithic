@@ -1,23 +1,23 @@
 using Himapp.Admin.Application;
-using Himapp.Admin.Contracts;
+// Admin.Contracts moved to Admin.Application
 using Himapp.Admin.Infrastructure;
 using Himapp.Audit;
 using Himapp.Execution.Application;
-using Himapp.Execution.Contracts;
+// Execution.Contracts moved to Execution.Application
 using Himapp.Execution.Infrastructure;
 using Himapp.Files;
 using Himapp.Integrations.D365;
 using Himapp.Notifications;
 using Himapp.PM.Application;
-using Himapp.PM.Contracts;
+// PM.Contracts moved to PM.Application
 using Himapp.PM.Infrastructure;
 using Himapp.Safety.Application;
-using Himapp.Safety.Contracts;
+// Safety.Contracts moved to Safety.Application
 using Himapp.Safety.Infrastructure;
 using Himapp.SharedKernel;
 using Himapp.SharedKernel.Logging;
 using Himapp.Store.Application;
-using Himapp.Store.Contracts;
+// Store.Contracts moved to Store.Application
 using Himapp.Store.Infrastructure;
 using Himapp.Workflow;
 using Himapp.Workflow.Controllers;

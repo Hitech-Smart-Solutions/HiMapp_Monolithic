@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Himapp.Safety.Domain.Induction;
-using Himapp.Safety.Contracts;
+using Himapp.Safety.Application;
 
 namespace Himapp.Safety.Infrastructure;
 

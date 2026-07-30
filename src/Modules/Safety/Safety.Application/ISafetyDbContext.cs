@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Himapp.Store.Contracts;
+namespace Himapp.Safety.Application;
 
-public interface IStoreDbContext
+public interface ISafetyDbContext
 {
     DbSet<TEntity> Set<TEntity>() where TEntity : class;
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
