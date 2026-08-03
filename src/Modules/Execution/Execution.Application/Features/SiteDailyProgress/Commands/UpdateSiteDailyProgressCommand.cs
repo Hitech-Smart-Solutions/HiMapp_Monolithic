@@ -3,7 +3,7 @@ using Himapp.Execution.Application.Features.SiteDailyProgress.Models;
 
 namespace Himapp.Execution.Application.Features.SiteDailyProgress.Commands;
 
-public sealed class UpdateSiteDailyProgressCommand : IRequest<SiteDailyProgressDto?>
+public sealed class UpdateSiteDailyProgressCommand : IRequest<SiteDailyProgressModel?>
 {
     public int Id { get; }
     public UpdateSiteDailyProgressRequest Request { get; }

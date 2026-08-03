@@ -4,4 +4,4 @@ using System.Collections.Generic;
 
 namespace Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
 
-public sealed class GetAllSiteDailyProgressesQuery : IRequest<IEnumerable<SiteDailyProgressDto>> { }
+public sealed class GetAllSiteDailyProgressesQuery : IRequest<IEnumerable<SiteDailyProgressModel>> { }

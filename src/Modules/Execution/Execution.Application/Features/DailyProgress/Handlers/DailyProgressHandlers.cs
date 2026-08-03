@@ -22,15 +22,31 @@ internal sealed class DailyProgressHandlers :
     {
         return await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
             .AsNoTracking()
-            .Select(d => new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate))
+            .Select(d => new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, Array.Empty<DailyProgressDetailModel>()))
             .ToArrayAsync(cancellationToken);
     }
 
     public async Task<DailyProgressModel?> Handle(GetDailyProgressByIdQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>().AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+        var d = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
+            .AsNoTracking()
+            .Include(x => x.DailyProgressDetail)
+            .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (d is null) return null;
-        return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate);
+
+        var details = d.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(
+            dd.ID,
+            dd.UniqueID,
+            dd.ActivityID,
+            dd.Quantity,
+            dd.Uom,
+            dd.Rate,
+            dd.Amount,
+            dd.PlanQuantity,
+            dd.Variance,
+            dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
+
+        return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.ReportDate, d.Hindrances, d.HindranceAudioUrl, d.NextDayPlan, d.Remarks, d.TotalAmount, d.Status, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details);
     }
 
     public async Task<DailyProgressModel> Handle(CreateDailyProgressCommand request, CancellationToken cancellationToken)
@@ -47,21 +63,50 @@ internal sealed class DailyProgressHandlers :
             TotalAmount = 0m,
             Status = "DRAFT",
             IsActive = true,
-            CreatedBy = null,
+            CreatedBy = 0,
             CreatedDate = DateTimeOffset.UtcNow,
-            LastModifiedBy = null,
+            LastModifiedBy = 0,
             LastModifiedDate = DateTimeOffset.UtcNow
         };
+
+        if (r.Details?.Any() == true)
+        {
+            foreach (var d in r.Details)
+            {
+                var detail = new Himapp.Execution.Domain.Entities.DailyProgressDetail
+                {
+                    UniqueID = Guid.NewGuid(),
+                    ActivityID = d.ActivityId,
+                    Quantity = d.Quantity,
+                    Uom = d.Uom,
+                    Rate = d.Rate,
+                    PlanQuantity = d.PlanQuantity,
+                    Remarks = d.Remarks,
+                    IsActive = true,
+                    CreatedBy = 0,
+                    CreatedDate = DateTimeOffset.UtcNow,
+                    LastModifiedBy = 0,
+                    LastModifiedDate = DateTimeOffset.UtcNow
+                };
+
+                // Amount and Variance are computed in DB
+                entity.DailyProgressDetail?.Add(detail);
+            }
+        }
 
         _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.Quantity, dd.Uom, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
+
+        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<DailyProgressModel?> Handle(UpdateDailyProgressCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
+            .Include(d => d.DailyProgressDetail)
+            .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (entity is null) return null;
 
         entity.Hindrances = request.Request.Hindrances ?? entity.Hindrances;
@@ -69,20 +114,69 @@ internal sealed class DailyProgressHandlers :
         entity.Remarks = request.Request.Remarks ?? entity.Remarks;
         entity.Status = request.Request.Status;
         entity.IsActive = request.Request.IsActive;
+        entity.LastModifiedBy = 0;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
+
+        // Remove existing details and add new ones
+        if (entity.DailyProgressDetail != null && entity.DailyProgressDetail.Any())
+        {
+            _db.Set<Himapp.Execution.Domain.Entities.DailyProgressDetail>().RemoveRange(entity.DailyProgressDetail);
+            entity.DailyProgressDetail.Clear();
+        }
+
+        if (request.Request.Details?.Any() == true)
+        {
+            foreach (var d in request.Request.Details)
+            {
+                var detail = new Himapp.Execution.Domain.Entities.DailyProgressDetail
+                {
+                    UniqueID = Guid.NewGuid(),
+                    ActivityID = d.ActivityId,
+                    Quantity = d.Quantity,
+                    Uom = d.Uom,
+                    Rate = d.Rate,
+                    PlanQuantity = d.PlanQuantity,
+                    Remarks = d.Remarks,
+                    IsActive = true,
+                    CreatedBy = 0,
+                    CreatedDate = DateTimeOffset.UtcNow,
+                    LastModifiedBy = 0,
+                    LastModifiedDate = DateTimeOffset.UtcNow
+                };
+
+                entity.DailyProgressDetail?.Add(detail);
+            }
+        }
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.Quantity, dd.Uom, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
+
+        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ReportDate, entity.Hindrances, entity.HindranceAudioUrl, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<bool> Handle(DeleteDailyProgressCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
+            .Include(d => d.DailyProgressDetail)
+            .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (entity is null) return false;
 
+        // Soft delete header and child details
         entity.IsActive = false;
+        entity.LastModifiedBy = 0;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
+
+        if (entity.DailyProgressDetail != null)
+        {
+            foreach (var dd in entity.DailyProgressDetail)
+            {
+                dd.IsActive = false;
+                dd.LastModifiedBy = 0;
+                dd.LastModifiedDate = DateTimeOffset.UtcNow;
+            }
+        }
+
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }

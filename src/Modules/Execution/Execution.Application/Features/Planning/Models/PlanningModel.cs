@@ -13,8 +13,9 @@ public sealed record PlanningModel(
     int? CreatedBy,
     System.DateTimeOffset CreatedDate,
     int? LastModifiedBy,
-    System.DateTimeOffset LastModifiedDate
+    System.DateTimeOffset LastModifiedDate,
+    IReadOnlyCollection<PlanningDetailModel> Details
 );
 
-public sealed record CreatePlanningRequest(int ProjectId, string PlanType, System.DateOnly StartDate, System.DateOnly? EndDate, string? Remarks);
-public sealed record UpdatePlanningRequest(string? Remarks, string Status, bool IsActive);
+public sealed record CreatePlanningRequest(int ProjectId, string PlanType, System.DateOnly StartDate, System.DateOnly? EndDate, string? Remarks, List<PlanningDetailRequest>? Details = null);
+public sealed record UpdatePlanningRequest(string? Remarks, string Status, bool IsActive, List<PlanningDetailRequest>? Details = null);

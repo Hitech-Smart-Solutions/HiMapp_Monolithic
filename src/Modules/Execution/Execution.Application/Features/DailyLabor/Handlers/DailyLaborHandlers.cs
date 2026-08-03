@@ -138,6 +138,7 @@ internal sealed class DailyLaborHandlers :
 
         // Soft delete header and child details
         entity.IsActive = false;
+        entity.LastModifiedBy = 0;
         entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.DailyLaborDetail != null)
@@ -145,6 +146,7 @@ internal sealed class DailyLaborHandlers :
             foreach (var dd in entity.DailyLaborDetail)
             {
                 dd.IsActive = false;
+                dd.LastModifiedBy = 0;
                 dd.LastModifiedDate = DateTimeOffset.UtcNow;
             }
         }

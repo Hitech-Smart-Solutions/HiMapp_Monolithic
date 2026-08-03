@@ -171,6 +171,7 @@ internal sealed class ManpowerHandlers :
         if (entity is null) return false;
 
         entity.IsActive = false;
+        entity.LastModifiedBy = 0;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         if (entity.ManpowerDetail != null)
@@ -178,6 +179,7 @@ internal sealed class ManpowerHandlers :
             foreach (var dd in entity.ManpowerDetail)
             {
                 dd.IsActive = false;
+                dd.LastModifiedBy = 0;
                 dd.LastModifiedDate = DateTimeOffset.UtcNow;
             }
         }
