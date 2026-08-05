@@ -118,6 +118,17 @@ builder.Services.AddSharedKernel();
 
 #endregion
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 var app = builder.Build();
 
 // Add a logging scope for application-wide enrichment (module/application name)
@@ -133,6 +144,7 @@ app.Use(async (context, next) =>
 #region 🔹 Middleware
 
 app.UseHttpsRedirection();
+app.UseCors("AllowAllOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 
