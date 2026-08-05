@@ -1,4 +1,5 @@
 using Himapp.Execution.Application.Features.Activities;
+using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.Activities.Commands;
 using Himapp.Execution.Application.Features.Activities.Queries;
 using MediatR;
@@ -18,8 +19,8 @@ public sealed class ActivityController : ControllerBase
     public ActivityController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
-        Ok(await _mediator.Send(new GetAllActivitiesQuery(), cancellationToken));
+    public async Task<IActionResult> GetAll([FromQuery] SearchParams searchParams, CancellationToken cancellationToken) =>
+        Ok(await _mediator.Send(new GetAllActivitiesQuery(searchParams), cancellationToken));
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
