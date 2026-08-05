@@ -1,15 +1,17 @@
+using Himapp.Execution.Application.Features;
+using Himapp.Execution.Application.Features.Activities.Queries;
+using Himapp.Execution.Application.Features.Manpower.Commands;
 using Himapp.Execution.Application.Features.Manpower.Models;
+using Himapp.Execution.Application.Features.Manpower.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MediatR;
-using Himapp.Execution.Application.Features.Manpower.Commands;
-using Himapp.Execution.Application.Features.Manpower.Queries;
 
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("v1/execution/manpowers")]
 public sealed class ManpowersController : ControllerBase
 {
@@ -23,6 +25,10 @@ public sealed class ManpowersController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken) =>
         OkOrNotFound(await _mediator.Send(new GetManpowerByIdQuery(id), cancellationToken));
+
+    [HttpGet("GetManpowerByProjectID")]
+    public async Task<IActionResult> GetByProjectID([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken) =>
+       Ok(await _mediator.Send(new GetManpowerByProjectID(searchParams), cancellationToken));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateManpowerRequest request, CancellationToken cancellationToken)
