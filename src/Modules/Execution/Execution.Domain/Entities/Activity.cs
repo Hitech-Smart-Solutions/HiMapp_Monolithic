@@ -9,7 +9,7 @@ public sealed class Activity
     public int CompanyID { get; set; }
     public string ActivityName { get; set; } = string.Empty;
 
-    public int UOMID;
+    public int UOMID { get; set; }
 
     public bool IsActive { get; set; }
 
