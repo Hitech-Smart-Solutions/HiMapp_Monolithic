@@ -26,3 +26,6 @@ publish/
 # Others
 *.cache
 *.tmp
+
+# DB Configuration files
+appsettings.json
