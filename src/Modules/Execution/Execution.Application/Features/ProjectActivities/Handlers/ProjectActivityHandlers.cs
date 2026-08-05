@@ -60,11 +60,9 @@ internal sealed class ProjectActivityHandlers :
 
     public async Task<bool> Handle(DeleteProjectActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<ProjectActivity>().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+        var entity = await _db.Set<ProjectActivity>().FirstOrDefaultAsync(x => x.ActivityID == request.Id && x.ProjectID == request.ProjectId , cancellationToken);
         if (entity is null) return false;
-        entity.Enabled = false;
-        entity.IsActive = false;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        _db.Set<ProjectActivity>().Remove(entity);
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }

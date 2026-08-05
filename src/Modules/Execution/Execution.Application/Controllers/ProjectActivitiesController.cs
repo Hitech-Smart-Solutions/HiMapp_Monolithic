@@ -41,10 +41,10 @@ public sealed class ProjectActivitiesController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpDelete("{id:int}/{projectid:int}")]
+    public async Task<IActionResult> Delete(int id,int projectid, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeleteProjectActivityCommand(id), cancellationToken);
+        var deleted = await _mediator.Send(new DeleteProjectActivityCommand(id, projectid), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 }
