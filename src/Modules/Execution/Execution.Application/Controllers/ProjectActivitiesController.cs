@@ -20,7 +20,7 @@ public sealed class ProjectActivitiesController : ControllerBase
     public async Task<IActionResult> GetAll([FromQuery] SearchParamsCompanyProjectWise searchParams, CancellationToken cancellationToken) => 
         Ok(await _mediator.Send(new GetAllProjectActivitiesQuery(searchParams), cancellationToken));
 
-    [HttpGet("{id:long}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetProjectActivityByIdQuery(id), cancellationToken);
@@ -34,7 +34,7 @@ public sealed class ProjectActivitiesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
-    [HttpPut("{id:long}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateProjectActivityRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new UpdateProjectActivityCommand(id, request), cancellationToken);
@@ -46,5 +46,12 @@ public sealed class ProjectActivitiesController : ControllerBase
     {
         var deleted = await _mediator.Send(new DeleteProjectActivityCommand(id, projectid), cancellationToken);
         return deleted ? Ok() : NotFound();
+    }
+
+    [HttpGet("GetProjectActivityByProjectId/{projectid:int}")]
+    public async Task<IActionResult> GetProjectActivityByProjectId(int projectid, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetProjectActivityByProjectIdQuery(projectid), cancellationToken);
+        return result is null ? NotFound() : Ok(result);
     }
 }

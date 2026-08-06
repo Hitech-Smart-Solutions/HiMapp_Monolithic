@@ -16,7 +16,8 @@ internal sealed class ProjectActivityHandlers :
     IRequestHandler<UpdateProjectActivityCommand, ProjectActivityModel?>,
     IRequestHandler<DeleteProjectActivityCommand, bool>,
     IRequestHandler<GetAllProjectActivitiesQuery, System.Data.DataSet>,
-    IRequestHandler<GetProjectActivityByIdQuery, ProjectActivityModel?>
+    IRequestHandler<GetProjectActivityByIdQuery, ProjectActivityModel?>,
+    IRequestHandler<GetProjectActivityByProjectIdQuery, List<ProjectActivityRefrenceModel?>>
 {
     private readonly IExecutionDbContext _db;
     public ProjectActivityHandlers(IExecutionDbContext db) => _db = db;
@@ -60,7 +61,7 @@ internal sealed class ProjectActivityHandlers :
 
     public async Task<bool> Handle(DeleteProjectActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<ProjectActivity>().FirstOrDefaultAsync(x => x.ActivityID == request.Id && x.ProjectID == request.ProjectId , cancellationToken);
+        var entity = await _db.Set<ProjectActivity>().FirstOrDefaultAsync(x => x.ActivityID == request.Id && x.ProjectID == request.ProjectId, cancellationToken);
         if (entity is null) return false;
         _db.Set<ProjectActivity>().Remove(entity);
         await _db.SaveChangesAsync(cancellationToken);
@@ -133,6 +134,22 @@ internal sealed class ProjectActivityHandlers :
         var p = await _db.Set<ProjectActivity>().AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (p is null) return null;
         return new ProjectActivityModel(p.ID, p.UniqueID, p.ProjectID, p.ActivityID, p.IsActive, p.Enabled, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate);
+    }
+
+    public async Task<List<ProjectActivityRefrenceModel>> Handle(GetProjectActivityByProjectIdQuery request, CancellationToken cancellationToken)
+    {
+        var data = await _db.Set<ProjectActivity>()
+            .AsNoTracking()
+            .Where(x => x.ProjectID == request.ProjectId && x.Enabled)
+            .Select(x => new ProjectActivityRefrenceModel(
+            x.ID,
+            x.ProjectID,
+            x.ActivityID,
+            "", // ActivityName (set properly if you have relation)
+            x.Enabled
+        ))
+        .ToListAsync(cancellationToken);
+        return data;
     }
 }
 

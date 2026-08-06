@@ -13,6 +13,14 @@ public sealed record ProjectActivityModel(
     System.DateTimeOffset LastModifiedDate
 );
 
+public sealed record ProjectActivityRefrenceModel(
+    int Id,
+    int ProjectId,
+    int ActivityId,
+    string ActivityName,
+    bool Enabled
+);
+
 public sealed record CreateProjectActivityRequest(int ProjectId, int ActivityId, bool Enabled, int? CreatedBy, int? LastModifiedBy);
 
 public sealed record UpdateProjectActivityRequest(int Id,int ProjectId, int ActivityId, bool Enabled, int? CreatedBy, int? LastModifiedBy);
