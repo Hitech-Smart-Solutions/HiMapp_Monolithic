@@ -31,6 +31,11 @@ internal sealed class ActivityHandlers :
             CompanyID = request.CompanyID,
             ActivityName = request.ActivityName,
             UOMID = request.UOMID,
+            RevenueRate = request.RevenueRate,
+            SkilledLabourRate = request.SkilledLabourRate,
+            UnSkilledLabourRate = request.UnSkilledLabourRate,
+            OtherLabourRate = request.OtherLabourRate,
+            OutputRequired = request.OutputRequired,
             IsActive = true,
             CreatedBy = request.CreateBy,
             CreatedDate = DateTimeOffset.UtcNow,
@@ -41,7 +46,7 @@ internal sealed class ActivityHandlers :
         _db.Set<Activity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new ActivityDto(entity.ID, request.CompanyID, request.ActivityName, request.UOMID, request.CreateBy, request.LastModifiedBy);
+        return new ActivityDto(entity.ID, request.CompanyID, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.CreateBy, request.LastModifiedBy);
     }
 
     public async Task<ActivityDto?> Handle(UpdateActivityCommand request, CancellationToken cancellationToken)
@@ -52,22 +57,39 @@ internal sealed class ActivityHandlers :
         entity.ActivityName = request.ActivityName;
         entity.UOMID = request.UOMID;
         entity.IsActive = true;
+        entity.RevenueRate = request.RevenueRate;
+        entity.SkilledLabourRate = request.SkilledLabourRate;
+        entity.UnSkilledLabourRate = request.UnSkilledLabourRate;
+        entity.OtherLabourRate = request.OtherLabourRate;
+        entity.OutputRequired = request.OutputRequired;
         entity.LastModifiedBy = request.LastModifiedBy;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new ActivityDto(entity.ID, entity.CompanyID, entity.ActivityName, entity.UOMID, entity.CreatedBy, entity.LastModifiedBy);
+        return new ActivityDto(entity.ID, entity.CompanyID, entity.ActivityName, entity.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, entity.CreatedBy, entity.LastModifiedBy);
     }
 
     public async Task<bool> Handle(DeleteActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Activity>().FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
+        var entity = await _db.Set<Activity>()
+    .FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
+
         if (entity is null) return false;
 
-        var pas = _db.Set<ProjectActivity>().Where(x => x.ActivityID == request.Id);
-        _db.Set<ProjectActivity>().RemoveRange(pas);
-        _db.Set<Activity>().Remove(entity);
+        // Mark child records inactive
+        var pas = await _db.Set<ProjectActivity>()
+            .Where(x => x.ActivityID == request.Id)
+            .ToListAsync(cancellationToken);
+
+        foreach (var pa in pas)
+        {
+            pa.IsActive = false; // or pa.Enabled = false;
+        }
+
+        // Mark main entity inactive
+        entity.IsActive = false; // or entity.Enabled = false;
+
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }
@@ -142,6 +164,11 @@ internal sealed class ActivityHandlers :
                              a.CompanyID,
                              a.ActivityName,
                              a.UOMID,
+                             a.RevenueRate,
+                             a.SkilledLabourRate,
+                             a.UnSkilledLabourRate,
+                             a.OtherLabourRate,
+                             a.OutputRequired,                             
                              a.CreatedBy,
                              a.LastModifiedBy))
                         .FirstOrDefaultAsync(cancellationToken);

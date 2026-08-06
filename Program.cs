@@ -38,7 +38,13 @@ builder.Logging.AddSharedLogging(builder.Configuration);
 builder.Services.AddAuthorization();
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(Himapp.Workflow.DependencyInjection).Assembly)
-    .AddAuditActionFilter(); // 🔥 Registers the global auto-log action filter for ALL controllers
+    .AddAuditActionFilter().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    })
+    .AddNewtonsoftJson(options =>
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+    );  // 🔥 Registers the global auto-log action filter for ALL controllers
 builder.Services.AddHealthChecks();
 builder.Services.AddSignalR();
 

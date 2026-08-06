@@ -1,3 +1,4 @@
+using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.ProjectActivities.Commands;
 using Himapp.Execution.Application.Features.ProjectActivities.Models;
 using Himapp.Execution.Application.Features.ProjectActivities.Queries;
@@ -16,10 +17,11 @@ public sealed class ProjectActivitiesController : ControllerBase
     public ProjectActivitiesController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken) => Ok(await _mediator.Send(new GetAllProjectActivitiesQuery(), cancellationToken));
+    public async Task<IActionResult> GetAll([FromQuery] SearchParamsCompanyProjectWise searchParams, CancellationToken cancellationToken) => 
+        Ok(await _mediator.Send(new GetAllProjectActivitiesQuery(searchParams), cancellationToken));
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetProjectActivityByIdQuery(id), cancellationToken);
         return result is null ? NotFound() : Ok(result);
@@ -32,17 +34,24 @@ public sealed class ProjectActivitiesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> Update(long id, [FromBody] UpdateProjectActivityRequest request, CancellationToken cancellationToken)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateProjectActivityRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new UpdateProjectActivityCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    [HttpDelete("{id:int}/{projectid:int}")]
+    public async Task<IActionResult> Delete(int id,int projectid, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeleteProjectActivityCommand(id), cancellationToken);
+        var deleted = await _mediator.Send(new DeleteProjectActivityCommand(id, projectid), cancellationToken);
         return deleted ? Ok() : NotFound();
+    }
+
+    [HttpGet("GetProjectActivitiesByProjectId/{projectid:int}")]
+    public async Task<IActionResult> GetProjectActivitiesByProjectId(int projectid, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetProjectActivitiesByProjectIdQuery(projectid), cancellationToken);
+        return result is null ? NotFound() : Ok(result);
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Himapp.Execution.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     [DbContext(typeof(ExecutionDbContext))]
-    partial class ExecutionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260806092439_NewColumnsInActivityMaster_V4")]
+    partial class NewColumnsInActivityMaster_V4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -652,7 +655,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateOnly?>("EndDate")
@@ -664,11 +667,12 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int?>("LastModifiedBy")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("LastModifiedDate")
+                    b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("PlanTypeID")
-                        .HasColumnType("integer");
+                    b.Property<string>("PlanType")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("ProjectID")
                         .HasColumnType("integer");
@@ -679,8 +683,9 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
 
-                    b.Property<int>("StatusID")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<Guid>("UniqueID")
                         .HasColumnType("uuid");
@@ -707,7 +712,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
@@ -716,7 +721,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int?>("LastModifiedBy")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("LastModifiedDate")
+                    b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PlanningID")
@@ -739,66 +744,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.HasIndex("PlanningID");
 
                     b.ToTable("PlanningDetails", "execution");
-                });
-
-            modelBuilder.Entity("Himapp.Execution.Domain.Entities.PlanningDocumentDetail", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
-
-                    b.Property<string>("ContentType")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DocumentName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileExtension")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("PlanningID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("PlanningID");
-
-                    b.ToTable("PlanningDocumentDetail", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.ProjectActivity", b =>
@@ -1124,17 +1069,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Navigation("Planning");
                 });
 
-            modelBuilder.Entity("Himapp.Execution.Domain.Entities.PlanningDocumentDetail", b =>
-                {
-                    b.HasOne("Himapp.Execution.Domain.Entities.Planning", "Planning")
-                        .WithMany("PlanningDocumentDetail")
-                        .HasForeignKey("PlanningID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Planning");
-                });
-
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgressDetail", b =>
                 {
                     b.HasOne("Himapp.Execution.Domain.Entities.SiteDailyProgress", "DailyProgress")
@@ -1182,8 +1116,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.Planning", b =>
                 {
                     b.Navigation("PlanningDetail");
-
-                    b.Navigation("PlanningDocumentDetail");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgress", b =>

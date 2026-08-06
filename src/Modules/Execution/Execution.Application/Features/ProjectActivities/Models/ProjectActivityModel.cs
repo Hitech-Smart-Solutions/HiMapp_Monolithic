@@ -6,12 +6,33 @@ public sealed record ProjectActivityModel(
     int ProjectId,
     int ActivityId,
     bool IsActive,
+    bool Enabled, 
+    decimal RevenueRate,
+    decimal SkilledLabourRate,
+    decimal UnSkilledLabourRate,
+    decimal OtherLabourRate, 
+    bool OutputRequired,
     int? CreatedBy,
     System.DateTimeOffset CreatedDate,
     int? LastModifiedBy,
     System.DateTimeOffset LastModifiedDate
 );
 
-public sealed record CreateProjectActivityRequest(int ProjectId, int ActivityId);
+public sealed record ProjectActivityRefrenceModel(
+    int Id,
+    int ProjectId,
+    int ActivityId,
+    string ActivityName,
+    bool Enabled,
+    decimal RevenueRate,
+    decimal SkilledLabourRate,
+    decimal UnSkilledLabourRate,
+    decimal OtherLabourRate,
+    bool OutputRequired,
+    int UOMID,
+    string UOMName
+);
 
-public sealed record UpdateProjectActivityRequest(int ProjectId, int ActivityId, bool IsActive);
+public sealed record CreateProjectActivityRequest(int ProjectId, int ActivityId, bool Enabled, decimal RevenueRate, decimal SkilledLabourRate, decimal UnSkilledLabourRate, decimal OtherLabourRate, bool OutputRequired, int? CreatedBy, int? LastModifiedBy);
+
+public sealed record UpdateProjectActivityRequest(int Id, int ProjectId, int ActivityId, bool Enabled, decimal RevenueRate, decimal SkilledLabourRate, decimal UnSkilledLabourRate, decimal OtherLabourRate, bool OutputRequired, int? CreatedBy, int? LastModifiedBy);
