@@ -1,4 +1,3 @@
-using Himapp.Execution.Application.Features.Activities;
 using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.Activities.Commands;
 using Himapp.Execution.Application.Features.Activities.Queries;
@@ -6,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Himapp.Execution.Application.Features.Activities.Models;
 
 namespace Himapp.Execution.Application.Controllers;
 

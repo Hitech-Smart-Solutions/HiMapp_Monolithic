@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System;
 using Npgsql;
 using NpgsqlTypes;
+using Himapp.Execution.Application.Features.Activities.Models;
 
 namespace Himapp.Execution.Application.Features.Activities.Handlers;
 
