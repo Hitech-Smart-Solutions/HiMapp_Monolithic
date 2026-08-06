@@ -54,10 +54,10 @@ public sealed class ActivityController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpPut("SetActiveInActiveActivity")]
+    public async Task<IActionResult> SetActiveInActiveActivity(AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeleteActivityCommand(id), cancellationToken);
+        var deleted = await _mediator.Send(new DeleteActivityCommand(dtoInactive), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 }
