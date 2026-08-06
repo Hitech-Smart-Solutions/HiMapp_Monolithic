@@ -1,10 +1,12 @@
+using Himapp.Execution.Application.Features;
+using Himapp.Execution.Application.Features.Planning.Commands;
 using Himapp.Execution.Application.Features.Planning.Models;
+using Himapp.Execution.Application.Features.Planning.Queries;
+using Himapp.SharedKernel.Abstractions;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MediatR;
-using Himapp.Execution.Application.Features.Planning.Commands;
-using Himapp.Execution.Application.Features.Planning.Queries;
 
 namespace Himapp.Execution.Application.Controllers;
 
@@ -43,6 +45,27 @@ public sealed class PlanningsController : ControllerBase
     {
         var deleted = await _mediator.Send(new DeletePlanningCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();
+    }
+
+
+    [HttpGet("GetPlanningListByProject")]
+    public async Task<IActionResult> GetPlanningListByProject([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken)
+    {
+        if (searchParams.ProjectID <= 0)
+        {
+            return BadRequest("ProjectID is required.");
+        }
+
+        try
+        {
+            var result = await _mediator.Send(new GetPlanningListByProjectQuery(searchParams), cancellationToken);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+
     }
 
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);

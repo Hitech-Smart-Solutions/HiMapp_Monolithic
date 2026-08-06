@@ -17,6 +17,7 @@ public sealed class ExecutionDbContext : DbContext, IExecutionDbContext
     public DbSet<RateMaster> RateMasters { get; set; } = null!;
     public DbSet<Planning> Plannings { get; set; } = null!;
     public DbSet<PlanningDetail> PlanningDetails { get; set; } = null!;
+    public DbSet<PlanningDocumentDetail> PlanningDocumentDetail { get; set; } = null!;
     public DbSet<DailyProgress> DailyProgresses { get; set; } = null!;
     public DbSet<DailyProgressDetail> DailyProgressDetails { get; set; } = null!;
     public DbSet<DailyLabor> DailyLabors { get; set; } = null!;

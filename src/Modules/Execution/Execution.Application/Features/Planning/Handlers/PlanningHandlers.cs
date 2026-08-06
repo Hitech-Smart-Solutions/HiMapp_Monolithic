@@ -1,10 +1,12 @@
-using Himapp.Execution.Application.Features.Planning.Models;
 using Himapp.Execution.Application.Features.Planning.Commands;
+using Himapp.Execution.Application.Features.Planning.Models;
 using Himapp.Execution.Application.Features.Planning.Queries;
-using Himapp.Execution.Domain.Entities;
 using Himapp.Execution.Contracts;
+using Himapp.Execution.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using System.Data;
 
 namespace Himapp.Execution.Application.Features.Planning.Handlers;
 
@@ -13,7 +15,8 @@ internal sealed class PlanningHandlers :
     IRequestHandler<GetPlanningByIdQuery, PlanningModel?>,
     IRequestHandler<CreatePlanningCommand, PlanningModel>,
     IRequestHandler<UpdatePlanningCommand, PlanningModel?>,
-    IRequestHandler<DeletePlanningCommand, bool>
+    IRequestHandler<DeletePlanningCommand, bool>,
+    IRequestHandler<GetPlanningListByProjectQuery, DataSet>
 {
     private readonly IExecutionDbContext _db;
     public PlanningHandlers(IExecutionDbContext db) => _db = db;
@@ -22,7 +25,7 @@ internal sealed class PlanningHandlers :
     {
         return await _db.Set<Himapp.Execution.Domain.Entities.Planning>()
             .AsNoTracking()
-            .Select(p => new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.PlanType, p.StartDate, p.EndDate, p.Remarks, p.Status, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, Array.Empty<PlanningDetailModel>()))
+            .Select(p => new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.PlanTypeID, p.StartDate, p.EndDate, p.Remarks, p.StatusID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, Array.Empty<PlanningDetailModel>(), Array.Empty<PlanningDocumentDetailModel>()))
             .ToArrayAsync(cancellationToken);
     }
 
@@ -43,7 +46,16 @@ internal sealed class PlanningHandlers :
             pd.UOMID,
             pd.Remarks)).ToArray() ?? Array.Empty<PlanningDetailModel>();
 
-        return new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.PlanType, p.StartDate, p.EndDate, p.Remarks, p.Status, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, details);
+        var docDetails = p.PlanningDocumentDetail?.Select(pd => new PlanningDocumentDetailModel(
+            pd.ID,
+            pd.UniqueID,
+            pd.DocumentName,
+            pd.FileName,
+            pd.FilePath,
+            pd.FileExtension,
+            pd.ContentType)).ToArray() ?? Array.Empty<PlanningDocumentDetailModel>();
+
+        return new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.PlanTypeID, p.StartDate, p.EndDate, p.Remarks, p.StatusID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, details, docDetails);
     }
 
     public async Task<PlanningModel> Handle(CreatePlanningCommand request, CancellationToken cancellationToken)
@@ -53,16 +65,16 @@ internal sealed class PlanningHandlers :
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
-            PlanType = r.PlanType,
+            PlanTypeID = r.PlanTypeID,
             StartDate = r.StartDate,
             EndDate = r.EndDate,
             Remarks = r.Remarks,
-            Status = "DRAFT",
+            StatusID = 3,
             IsActive = true,
-            CreatedBy = 0,
-            CreatedDate = DateTimeOffset.UtcNow,
-            LastModifiedBy = 0,
-            LastModifiedDate = DateTimeOffset.UtcNow
+            CreatedBy = r.CreatedBy,
+            CreatedDate = DateTime.UtcNow,
+            LastModifiedBy = r.CreatedBy,
+            LastModifiedDate = DateTime.UtcNow
         };
 
         if (r.Details?.Any() == true)
@@ -78,13 +90,36 @@ internal sealed class PlanningHandlers :
                     UOMID = d.UomId,
                     Remarks = d.Remarks,
                     IsActive = true,
-                    CreatedBy = 0,
-                    CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = 0,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    CreatedBy = r.CreatedBy,
+                    CreatedDate = DateTime.UtcNow,
+                    LastModifiedBy = r.CreatedBy,
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.PlanningDetail?.Add(detail);
+            }
+        }
+
+        if (r.docDetails?.Any() == true)
+        {
+            foreach (var d in r.docDetails)
+            {
+                var docDetail = new Himapp.Execution.Domain.Entities.PlanningDocumentDetail
+                {
+                    UniqueID = Guid.NewGuid(),
+                    DocumentName = d.DocumentName,
+                    FileName = d.FileName,
+                    FilePath = d.FilePath,
+                    FileExtension = d.FileExtension,
+                    ContentType = d.ContentType,
+                    IsActive = true,
+                    CreatedBy = r.CreatedBy,
+                    CreatedDate = DateTime.UtcNow,
+                    LastModifiedBy = r.CreatedBy,
+                    LastModifiedDate = DateTime.UtcNow
+                };
+
+                entity.PlanningDocumentDetail?.Add(docDetail);
             }
         }
 
@@ -93,7 +128,9 @@ internal sealed class PlanningHandlers :
 
         var details = entity.PlanningDetail?.Select(pd => new PlanningDetailModel(pd.ID, pd.UniqueID, pd.AreaID, pd.ActivityID, pd.TargetQuantity, pd.UOMID, pd.Remarks)).ToArray() ?? Array.Empty<PlanningDetailModel>();
 
-        return new PlanningModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.PlanType, entity.StartDate, entity.EndDate, entity.Remarks, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        var docDetails = entity.PlanningDocumentDetail?.Select(pd => new PlanningDocumentDetailModel(pd.ID, pd.UniqueID, pd.DocumentName, pd.FileName, pd.FilePath, pd.FileExtension, pd.ContentType)).ToArray() ?? Array.Empty<PlanningDocumentDetailModel>();
+
+        return new PlanningModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.PlanTypeID, entity.StartDate, entity.EndDate, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, docDetails);
     }
 
     public async Task<PlanningModel?> Handle(UpdatePlanningCommand request, CancellationToken cancellationToken)
@@ -103,11 +140,13 @@ internal sealed class PlanningHandlers :
             .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (entity is null) return null;
 
+        int LastModifiedBy = request.Request.LastModifiedBy;
+
         entity.Remarks = request.Request.Remarks ?? entity.Remarks;
-        entity.Status = request.Request.Status;
+        entity.StatusID = request.Request.StatusID;
         entity.IsActive = request.Request.IsActive;
-        entity.LastModifiedBy = 0;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedBy = LastModifiedBy;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         // Remove existing details and add new ones
         if (entity.PlanningDetail != null && entity.PlanningDetail.Any())
@@ -129,13 +168,32 @@ internal sealed class PlanningHandlers :
                     UOMID = d.UomId,
                     Remarks = d.Remarks,
                     IsActive = true,
-                    CreatedBy = 0,
-                    CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = 0,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedBy = LastModifiedBy,
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.PlanningDetail?.Add(detail);
+            }
+        }
+
+        if (request.Request.docDetails?.Any() == true)
+        {
+            foreach (var d in request.Request.docDetails)
+            {
+                var docDetail = new Himapp.Execution.Domain.Entities.PlanningDocumentDetail
+                {
+                    UniqueID = Guid.NewGuid(),
+                    DocumentName = d.DocumentName,
+                    FileName = d.FileName,
+                    FilePath = d.FilePath,
+                    FileExtension = d.FileExtension,
+                    ContentType = d.ContentType,
+                    IsActive = true,
+                    LastModifiedBy = LastModifiedBy,
+                    LastModifiedDate = DateTime.UtcNow
+                };
+
+                entity.PlanningDocumentDetail?.Add(docDetail);
             }
         }
 
@@ -143,7 +201,9 @@ internal sealed class PlanningHandlers :
 
         var details = entity.PlanningDetail?.Select(pd => new PlanningDetailModel(pd.ID, pd.UniqueID, pd.AreaID, pd.ActivityID, pd.TargetQuantity, pd.UOMID, pd.Remarks)).ToArray() ?? Array.Empty<PlanningDetailModel>();
 
-        return new PlanningModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.PlanType, entity.StartDate, entity.EndDate, entity.Remarks, entity.Status, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        var docDetails = entity.PlanningDocumentDetail?.Select(pd => new PlanningDocumentDetailModel(pd.ID, pd.UniqueID, pd.DocumentName, pd.FileName, pd.FilePath, pd.FileExtension, pd.ContentType)).ToArray() ?? Array.Empty<PlanningDocumentDetailModel>();
+
+        return new PlanningModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.PlanTypeID, entity.StartDate, entity.EndDate, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, docDetails);
     }
 
     public async Task<bool> Handle(DeletePlanningCommand request, CancellationToken cancellationToken)
@@ -156,7 +216,7 @@ internal sealed class PlanningHandlers :
         // Soft delete header and child details
         entity.IsActive = false;
         entity.LastModifiedBy = 0;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.PlanningDetail != null)
         {
@@ -164,12 +224,150 @@ internal sealed class PlanningHandlers :
             {
                 pd.IsActive = false;
                 pd.LastModifiedBy = 0;
-                pd.LastModifiedDate = DateTimeOffset.UtcNow;
+                pd.LastModifiedDate = DateTime.UtcNow;
+            }
+        }
+
+        if (entity.PlanningDocumentDetail != null)
+        {
+            foreach (var pd in entity.PlanningDocumentDetail)
+            {
+                pd.IsActive = false;
+                pd.LastModifiedBy = 0;
+                pd.LastModifiedDate = DateTime.Now;
             }
         }
 
         await _db.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    public async Task<DataSet> Handle(GetPlanningListByProjectQuery request, CancellationToken cancellationToken)
+    {
+        DataSet ds = new DataSet();
+
+        string connectionString =
+            _db.Database.GetDbConnection().ConnectionString;
+
+        #region LIST
+
+        using (var connection = new NpgsqlConnection(connectionString))
+        {
+            DataTable dt = new DataTable();
+
+            await connection.OpenAsync(cancellationToken);
+
+            using var cmd = new NpgsqlCommand(
+                @"SELECT * FROM execution.uspgetplanningbyprojectid(
+                @p_projectid,
+                @p_filtercolumn,
+                @p_filtervalue,
+                @p_pageindex,
+                @p_pagesize,
+                @p_sortcolumn,
+                @p_isactive)",
+                connection);
+
+            cmd.Parameters.AddWithValue(
+                "@p_projectid",
+                request.SearchParams.ProjectID);
+
+            cmd.Parameters.AddWithValue(
+                "@p_filtercolumn",
+                request.SearchParams.FilterColumn ??
+                (object)DBNull.Value);
+
+            cmd.Parameters.AddWithValue(
+                "@p_filtervalue",
+                request.SearchParams.FilterValue ??
+                (object)DBNull.Value);
+
+            cmd.Parameters.AddWithValue(
+                "@p_pageindex",
+                request.SearchParams.PageIndex);
+
+            cmd.Parameters.AddWithValue(
+                "@p_pagesize",
+                request.SearchParams.PageSize);
+
+            cmd.Parameters.AddWithValue(
+                "@p_sortcolumn",
+                request.SearchParams.SortColumn ??
+                (object)DBNull.Value);
+
+            cmd.Parameters.AddWithValue(
+                "@p_isactive",
+                request.SearchParams.IsActive ?? "true");
+
+            using var da = new NpgsqlDataAdapter(cmd);
+
+            da.Fill(dt);
+
+            ds.Tables.Add(dt);
+        }
+
+        #endregion
+
+        #region COUNT
+
+        using (var connection = new NpgsqlConnection(connectionString))
+        {
+            DataTable dt = new DataTable();
+
+            await connection.OpenAsync(cancellationToken);
+
+            using var cmd = new NpgsqlCommand(
+                @"SELECT * FROM execution.uspgetplanningcountbyprojectid(
+                @p_projectid,
+                @p_filtercolumn,
+                @p_filtervalue,
+                @p_pageindex,
+                @p_pagesize,
+                @p_sortcolumn,
+                @p_isactive)",
+                connection);
+
+            cmd.Parameters.AddWithValue(
+                "@p_projectid",
+                request.SearchParams.ProjectID);
+
+            cmd.Parameters.AddWithValue(
+                "@p_filtercolumn",
+                request.SearchParams.FilterColumn ??
+                (object)DBNull.Value);
+
+            cmd.Parameters.AddWithValue(
+                "@p_filtervalue",
+                request.SearchParams.FilterValue ??
+                (object)DBNull.Value);
+
+            cmd.Parameters.AddWithValue(
+                "@p_pageindex",
+                request.SearchParams.PageIndex);
+
+            cmd.Parameters.AddWithValue(
+                "@p_pagesize",
+                request.SearchParams.PageSize);
+
+            cmd.Parameters.AddWithValue(
+                "@p_sortcolumn",
+                request.SearchParams.SortColumn ??
+                (object)DBNull.Value);
+
+            cmd.Parameters.AddWithValue(
+                "@p_isactive",
+                request.SearchParams.IsActive ?? "true");
+
+            using var da = new NpgsqlDataAdapter(cmd);
+
+            da.Fill(dt);
+
+            ds.Tables.Add(dt);
+        }
+
+        #endregion
+
+        return ds;
     }
 }
 
