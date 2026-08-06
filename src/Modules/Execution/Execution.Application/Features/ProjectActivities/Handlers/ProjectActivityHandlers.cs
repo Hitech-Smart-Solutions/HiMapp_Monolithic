@@ -17,7 +17,7 @@ internal sealed class ProjectActivityHandlers :
     IRequestHandler<DeleteProjectActivityCommand, bool>,
     IRequestHandler<GetAllProjectActivitiesQuery, System.Data.DataSet>,
     IRequestHandler<GetProjectActivityByIdQuery, ProjectActivityModel?>,
-    IRequestHandler<GetProjectActivitiesByProjectIdQuery, List<ProjectActivityRefrenceModel?>>
+    IRequestHandler<GetProjectActivitiesByProjectIdQuery, System.Data.DataSet>
 {
     private readonly IExecutionDbContext _db;
     public ProjectActivityHandlers(IExecutionDbContext db) => _db = db;
@@ -25,23 +25,48 @@ internal sealed class ProjectActivityHandlers :
     public async Task<ProjectActivityModel> Handle(CreateProjectActivityCommand request, CancellationToken cancellationToken)
     {
         var r = request.Request;
-        var entity = new ProjectActivity
+        var entityExists = await _db.Set<ProjectActivity>().FirstOrDefaultAsync(x => x.ProjectID == r.ProjectId && x.ActivityID == r.ActivityId, cancellationToken);
+        if (entityExists is null)
         {
-            UniqueID = Guid.NewGuid(),
-            ProjectID = r.ProjectId,
-            ActivityID = r.ActivityId,
-            Enabled = r.Enabled,
-            IsActive = true,
-            CreatedBy = r.CreatedBy,
-            CreatedDate = DateTimeOffset.UtcNow,
-            LastModifiedBy = r.LastModifiedBy,
-            LastModifiedDate = DateTimeOffset.UtcNow
-        };
+            var entity = new ProjectActivity
+            {
+                UniqueID = Guid.NewGuid(),
+                ProjectID = r.ProjectId,
+                ActivityID = r.ActivityId,
+                Enabled = r.Enabled,
+                RevenueRate = r.RevenueRate,
+                SkilledLabourRate = r.SkilledLabourRate,
+                UnSkilledLabourRate = r.UnSkilledLabourRate,
+                OtherLabourRate = r.OtherLabourRate,
+                OutputRequired = r.OutputRequired,
+                IsActive = true,
+                CreatedBy = r.CreatedBy,
+                CreatedDate = DateTimeOffset.UtcNow,
+                LastModifiedBy = r.LastModifiedBy,
+                LastModifiedDate = DateTimeOffset.UtcNow
+            };
 
-        _db.Set<ProjectActivity>().Add(entity);
-        await _db.SaveChangesAsync(cancellationToken);
+            _db.Set<ProjectActivity>().Add(entity);
+            await _db.SaveChangesAsync(cancellationToken);
+            return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        }
+        else
+        {
+            entityExists.ProjectID = request.Request.ProjectId;
+            entityExists.ActivityID = request.Request.ActivityId;
+            entityExists.Enabled = request.Request.Enabled;
+            entityExists.RevenueRate = request.Request.RevenueRate;
+            entityExists.SkilledLabourRate = request.Request.SkilledLabourRate;
+            entityExists.UnSkilledLabourRate = request.Request.UnSkilledLabourRate;
+            entityExists.OtherLabourRate = request.Request.OtherLabourRate;
+            entityExists.OutputRequired = request.Request.OutputRequired;
+            entityExists.LastModifiedDate = DateTimeOffset.UtcNow;
 
-        return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+            await _db.SaveChangesAsync(cancellationToken);
+
+            return new ProjectActivityModel(entityExists.ID, entityExists.UniqueID, entityExists.ProjectID, entityExists.ActivityID, entityExists.IsActive, entityExists.Enabled, entityExists.RevenueRate, entityExists.SkilledLabourRate, entityExists.UnSkilledLabourRate, entityExists.OtherLabourRate, entityExists.OutputRequired, entityExists.CreatedBy, entityExists.CreatedDate, entityExists.LastModifiedBy, entityExists.LastModifiedDate);
+        }
+
     }
 
     public async Task<ProjectActivityModel?> Handle(UpdateProjectActivityCommand request, CancellationToken cancellationToken)
@@ -52,11 +77,16 @@ internal sealed class ProjectActivityHandlers :
         entity.ProjectID = request.Request.ProjectId;
         entity.ActivityID = request.Request.ActivityId;
         entity.Enabled = request.Request.Enabled;
+        entity.RevenueRate = request.Request.RevenueRate;
+        entity.SkilledLabourRate = request.Request.SkilledLabourRate;
+        entity.UnSkilledLabourRate = request.Request.UnSkilledLabourRate;
+        entity.OtherLabourRate = request.Request.OtherLabourRate;
+        entity.OutputRequired = request.Request.OutputRequired;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
 
     public async Task<bool> Handle(DeleteProjectActivityCommand request, CancellationToken cancellationToken)
@@ -133,23 +163,40 @@ internal sealed class ProjectActivityHandlers :
     {
         var p = await _db.Set<ProjectActivity>().AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (p is null) return null;
-        return new ProjectActivityModel(p.ID, p.UniqueID, p.ProjectID, p.ActivityID, p.IsActive, p.Enabled, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate);
+        return new ProjectActivityModel(p.ID, p.UniqueID, p.ProjectID, p.ActivityID, p.IsActive, p.Enabled, p.RevenueRate, p.SkilledLabourRate, p.UnSkilledLabourRate, p.OtherLabourRate, p.OutputRequired, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate);
     }
 
-    public async Task<List<ProjectActivityRefrenceModel>> Handle(GetProjectActivitiesByProjectIdQuery request, CancellationToken cancellationToken)
+    public async Task<System.Data.DataSet> Handle(GetProjectActivitiesByProjectIdQuery request, CancellationToken cancellationToken)
     {
-        var data = await _db.Set<ProjectActivity>()
-            .AsNoTracking()
-            .Where(x => x.ProjectID == request.ProjectId && x.Enabled)
-            .Select(x => new ProjectActivityRefrenceModel(
-            x.ID,
-            x.ProjectID,
-            x.ActivityID,
-            "", // ActivityName (set properly if you have relation)
-            x.Enabled
-        ))
-        .ToListAsync(cancellationToken);
-        return data;
+       
+        // Prepare DataSet
+        var ds = new System.Data.DataSet("ProjectActivitiesResult");
+
+        // Force Npgsql path: require the underlying DbContext to obtain connection string
+        var dbContext = _db as DbContext;
+        if (dbContext is null)
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+
+        var dsLocal = new DataSet("ProjectActivitiesResult");
+        var connString = dbContext.Database.GetDbConnection().ConnectionString;
+
+        using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        // Rows table
+        using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uspgetprojectactivitiesbyprojectid(@p_projectid)", conn))
+        {
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandTimeout = 1800;
+            cmd.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, request.ProjectId);
+
+            var da = new NpgsqlDataAdapter(cmd);
+            var dt = new DataTable("Rows");
+            da.Fill(dt);
+            dsLocal.Tables.Add(dt);
+        }
+
+        return dsLocal;
     }
 }
 

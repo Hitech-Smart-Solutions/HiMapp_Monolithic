@@ -9,6 +9,10 @@ public sealed class ProjectActivity
     public int ProjectID { get; set; }
     public int ActivityID { get; set; }
     public decimal RevenueRate { get; set; }
+    public decimal SkilledLabourRate { get; set; }
+    public decimal UnSkilledLabourRate { get; set; }
+    public decimal OtherLabourRate { get; set; }
+    public bool OutputRequired { get; set; }
     public bool Enabled { get; set; }
     public bool IsActive { get; set; }
     public int? CreatedBy { get; set; }
