@@ -72,12 +72,24 @@ internal sealed class ActivityHandlers :
 
     public async Task<bool> Handle(DeleteActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Activity>().FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
+        var entity = await _db.Set<Activity>()
+    .FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
+
         if (entity is null) return false;
 
-        var pas = _db.Set<ProjectActivity>().Where(x => x.ActivityID == request.Id);
-        _db.Set<ProjectActivity>().RemoveRange(pas);
-        _db.Set<Activity>().Remove(entity);
+        // Mark child records inactive
+        var pas = await _db.Set<ProjectActivity>()
+            .Where(x => x.ActivityID == request.Id)
+            .ToListAsync(cancellationToken);
+
+        foreach (var pa in pas)
+        {
+            pa.IsActive = false; // or pa.Enabled = false;
+        }
+
+        // Mark main entity inactive
+        entity.IsActive = false; // or entity.Enabled = false;
+
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }
