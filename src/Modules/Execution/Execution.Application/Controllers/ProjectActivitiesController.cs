@@ -48,10 +48,10 @@ public sealed class ProjectActivitiesController : ControllerBase
         return deleted ? Ok() : NotFound();
     }
 
-    [HttpGet("GetProjectActivityByProjectId/{projectid:int}")]
-    public async Task<IActionResult> GetProjectActivityByProjectId(int projectid, CancellationToken cancellationToken)
+    [HttpGet("GetProjectActivitiesByProjectId/{projectid:int}")]
+    public async Task<IActionResult> GetProjectActivitiesByProjectId(int projectid, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetProjectActivityByProjectIdQuery(projectid), cancellationToken);
+        var result = await _mediator.Send(new GetProjectActivitiesByProjectIdQuery(projectid), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 }

@@ -17,7 +17,7 @@ internal sealed class ProjectActivityHandlers :
     IRequestHandler<DeleteProjectActivityCommand, bool>,
     IRequestHandler<GetAllProjectActivitiesQuery, System.Data.DataSet>,
     IRequestHandler<GetProjectActivityByIdQuery, ProjectActivityModel?>,
-    IRequestHandler<GetProjectActivityByProjectIdQuery, List<ProjectActivityRefrenceModel?>>
+    IRequestHandler<GetProjectActivitiesByProjectIdQuery, List<ProjectActivityRefrenceModel?>>
 {
     private readonly IExecutionDbContext _db;
     public ProjectActivityHandlers(IExecutionDbContext db) => _db = db;
@@ -136,7 +136,7 @@ internal sealed class ProjectActivityHandlers :
         return new ProjectActivityModel(p.ID, p.UniqueID, p.ProjectID, p.ActivityID, p.IsActive, p.Enabled, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate);
     }
 
-    public async Task<List<ProjectActivityRefrenceModel>> Handle(GetProjectActivityByProjectIdQuery request, CancellationToken cancellationToken)
+    public async Task<List<ProjectActivityRefrenceModel>> Handle(GetProjectActivitiesByProjectIdQuery request, CancellationToken cancellationToken)
     {
         var data = await _db.Set<ProjectActivity>()
             .AsNoTracking()
