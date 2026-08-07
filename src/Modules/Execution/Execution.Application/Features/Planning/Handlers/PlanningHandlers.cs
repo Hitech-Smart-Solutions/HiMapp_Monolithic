@@ -25,7 +25,7 @@ internal sealed class PlanningHandlers :
     {
         return await _db.Set<Himapp.Execution.Domain.Entities.Planning>()
             .AsNoTracking()
-            .Select(p => new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.PlanTypeID, p.StartDate, p.EndDate, p.Remarks, p.StatusID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, Array.Empty<PlanningDetailModel>(), Array.Empty<PlanningDocumentDetailModel>()))
+            .Select(p => new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.AreaID, p.PlanTypeID, p.StartDate, p.EndDate, p.Remarks, p.StatusID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, Array.Empty<PlanningDetailModel>(), Array.Empty<PlanningDocumentDetailModel>()))
             .ToArrayAsync(cancellationToken);
     }
 
@@ -55,7 +55,7 @@ internal sealed class PlanningHandlers :
             pd.FileExtension,
             pd.ContentType)).ToArray() ?? Array.Empty<PlanningDocumentDetailModel>();
 
-        return new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.PlanTypeID, p.StartDate, p.EndDate, p.Remarks, p.StatusID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, details, docDetails);
+        return new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.AreaID, p.PlanTypeID, p.StartDate, p.EndDate, p.Remarks, p.StatusID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, details, docDetails);
     }
 
     public async Task<PlanningModel> Handle(CreatePlanningCommand request, CancellationToken cancellationToken)
@@ -65,6 +65,7 @@ internal sealed class PlanningHandlers :
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
+            AreaID = r.AreaID,
             PlanTypeID = r.PlanTypeID,
             StartDate = r.StartDate,
             EndDate = r.EndDate,
@@ -130,7 +131,7 @@ internal sealed class PlanningHandlers :
 
         var docDetails = entity.PlanningDocumentDetail?.Select(pd => new PlanningDocumentDetailModel(pd.ID, pd.UniqueID, pd.DocumentName, pd.FileName, pd.FilePath, pd.FileExtension, pd.ContentType)).ToArray() ?? Array.Empty<PlanningDocumentDetailModel>();
 
-        return new PlanningModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.PlanTypeID, entity.StartDate, entity.EndDate, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, docDetails);
+        return new PlanningModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.AreaID, entity.PlanTypeID, entity.StartDate, entity.EndDate, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, docDetails);
     }
 
     public async Task<PlanningModel?> Handle(UpdatePlanningCommand request, CancellationToken cancellationToken)
@@ -176,6 +177,13 @@ internal sealed class PlanningHandlers :
             }
         }
 
+        // Remove existing document details and add new ones
+        if (entity.PlanningDocumentDetail != null && entity.PlanningDocumentDetail.Any())
+        {
+            _db.Set<Himapp.Execution.Domain.Entities.PlanningDocumentDetail>().RemoveRange(entity.PlanningDocumentDetail);
+            entity.PlanningDocumentDetail.Clear();
+        }
+
         if (request.Request.docDetails?.Any() == true)
         {
             foreach (var d in request.Request.docDetails)
@@ -203,7 +211,7 @@ internal sealed class PlanningHandlers :
 
         var docDetails = entity.PlanningDocumentDetail?.Select(pd => new PlanningDocumentDetailModel(pd.ID, pd.UniqueID, pd.DocumentName, pd.FileName, pd.FilePath, pd.FileExtension, pd.ContentType)).ToArray() ?? Array.Empty<PlanningDocumentDetailModel>();
 
-        return new PlanningModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.PlanTypeID, entity.StartDate, entity.EndDate, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, docDetails);
+        return new PlanningModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.AreaID, entity.PlanTypeID, entity.StartDate, entity.EndDate, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, docDetails);
     }
 
     public async Task<bool> Handle(DeletePlanningCommand request, CancellationToken cancellationToken)
@@ -223,7 +231,7 @@ internal sealed class PlanningHandlers :
             foreach (var pd in entity.PlanningDetail)
             {
                 pd.IsActive = false;
-                pd.LastModifiedBy = 0;
+                pd.LastModifiedBy = request.DeletedBy;
                 pd.LastModifiedDate = DateTime.UtcNow;
             }
         }
@@ -233,8 +241,8 @@ internal sealed class PlanningHandlers :
             foreach (var pd in entity.PlanningDocumentDetail)
             {
                 pd.IsActive = false;
-                pd.LastModifiedBy = 0;
-                pd.LastModifiedDate = DateTime.Now;
+                pd.LastModifiedBy = request.DeletedBy;
+                pd.LastModifiedDate = DateTime.UtcNow;
             }
         }
 
