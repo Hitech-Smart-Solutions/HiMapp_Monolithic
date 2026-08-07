@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("v1/execution/activities")]
 public sealed class ActivityController : ControllerBase
 {

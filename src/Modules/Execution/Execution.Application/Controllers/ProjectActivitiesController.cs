@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("v1/execution/project-activities")]
 public sealed class ProjectActivitiesController : ControllerBase
 {
