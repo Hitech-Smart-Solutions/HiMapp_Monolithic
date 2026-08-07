@@ -30,14 +30,24 @@ public sealed class ManpowersController : ControllerBase
     public async Task<IActionResult> GetByProjectID([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken) =>
        Ok(await _mediator.Send(new GetManpowerByProjectID(searchParams), cancellationToken));
 
-    [HttpPost]
+
+    [HttpGet("GetLastManpowerBySectionID/{sectionId:int}")]
+    public async Task<IActionResult> GetLastManpowerBySectionID(int sectionId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetLastManpowerBySectionIDQuery(sectionId), cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
+    }
+
+
+    [HttpPost("CreateManpower")]
     public async Task<IActionResult> Create([FromBody] CreateManpowerRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new CreateManpowerCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut("UpdateManpower/{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateManpowerRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new UpdateManpowerCommand(id, request), cancellationToken);
