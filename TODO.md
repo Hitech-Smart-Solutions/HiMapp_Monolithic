@@ -1,27 +1,24 @@
-# Approval Workflow Implementation Plan
+# TODO: Separate Activities Commands and Queries into Individual Files
 
-## Phase 1: Workflow Module - Models
-- [x] Create `src/Shared/Workflow/Models/IRequiresApproval.cs` - Marker interface
-- [x] Create `src/Shared/Workflow/Models/WorkflowConfiguration.cs` - Config for approval levels
-- [x] Create `src/Shared/Workflow/Models/WorkflowConstants.cs` - State/action constants
-- [x] Create `src/Shared/Workflow/Models/WorkflowActionRequest.cs` - Approval action DTO
+## Steps
+- [x] Create `Commands/CreateActivityCommand.cs`
+- [x] Create `Commands/UpdateActivityCommand.cs`
+- [x] Create `Commands/DeleteActivityCommand.cs`
+- [x] Create `Queries/GetAllActivitiesQuery.cs`
+- [x] Create `Queries/GetActivityByIdQuery.cs`
+- [x] Delete old consolidated `Commands/ActivityCommands.cs`
+- [x] Delete old consolidated `Queries/ActivityQueries.cs`
+- [x] Build solution to verify compilation
 
-## Phase 2: Workflow Module - Filter
-- [x] Create `src/Shared/Workflow/Filters/RequiresApprovalAttribute.cs` - Action filter attribute
+# TODO: Separate ProjectActivities Commands and Queries into Individual Files
 
-## Phase 3: Workflow Module - Controller & Enhanced Service
-- [x] Create `src/Shared/Workflow/Controllers/WorkflowController.cs` - Shared approval endpoints
-- [x] Update `src/Shared/Workflow/Services/IWorkflowService.cs` - Add query methods
-- [x] Update `src/Shared/Workflow/Services/InMemoryWorkflowService.cs` - Enhanced implementation
-- [x] Update `src/Shared/Workflow/DependencyInjection.cs` - Register filter
-
-## Phase 4: Execution Module Integration
-- [x] Update `Execution.Application.csproj` - Add Workflow reference
-- [x] Update `DailyLaborModels.cs` - Implement IRequiresApproval
-- [x] Update `DailyProgressModel.cs` - Implement IRequiresApproval
-- [x] Update `DailyLaborsController.cs` - Add [RequiresApproval]
-- [x] Update `DailyProgressController.cs` - Add [RequiresApproval]
-
-## Phase 5: API Host
-- [x] Update `Program.cs` - Register Workflow controllers assembly
-
+## Steps
+- [x] Create `Commands/CreateProjectActivityCommand.cs`
+- [x] Create `Commands/UpdateProjectActivityCommand.cs`
+- [x] Create `Commands/DeleteProjectActivityCommand.cs`
+- [x] Create `Queries/GetAllProjectActivitiesQuery.cs`
+- [x] Create `Queries/GetProjectActivityByIdQuery.cs`
+- [x] Create `Queries/GetProjectActivitiesByProjectIdQuery.cs`
+- [x] Delete old consolidated `Commands/ProjectActivityCommands.cs`
+- [x] Delete old consolidated `Queries/ProjectActivityQueries.cs`
+- [x] Build solution to verify compilation

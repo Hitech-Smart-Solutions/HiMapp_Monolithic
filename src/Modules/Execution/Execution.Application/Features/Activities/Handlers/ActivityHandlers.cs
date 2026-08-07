@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System;
 using Npgsql;
 using NpgsqlTypes;
+using Himapp.Execution.Application.Features.Activities.Models;
 
 namespace Himapp.Execution.Application.Features.Activities.Handlers;
 
@@ -72,23 +73,23 @@ internal sealed class ActivityHandlers :
 
     public async Task<bool> Handle(DeleteActivityCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Activity>()
-    .FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
+        var model = request.addTransactionActionHistoryDTO;
+        var entity = await _db.Set<Activity>().FirstOrDefaultAsync(a => a.ID == model.ProgramRowId, cancellationToken);
 
         if (entity is null) return false;
 
         // Mark child records inactive
         var pas = await _db.Set<ProjectActivity>()
-            .Where(x => x.ActivityID == request.Id)
+            .Where(x => x.ActivityID == model.ProgramRowId)
             .ToListAsync(cancellationToken);
 
         foreach (var pa in pas)
         {
-            pa.IsActive = false; // or pa.Enabled = false;
+            pa.IsActive = model.Actions == Actions.Activated ? true : false; // or pa.Enabled = false;
         }
 
         // Mark main entity inactive
-        entity.IsActive = false; // or entity.Enabled = false;
+        entity.IsActive = model.Actions == Actions.Activated ? true : false; // or entity.Enabled = false;
 
         await _db.SaveChangesAsync(cancellationToken);
         return true;

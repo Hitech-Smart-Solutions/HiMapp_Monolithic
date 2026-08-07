@@ -5,4 +5,3 @@ using System.Data;
 namespace Himapp.Execution.Application.Features.Activities.Queries;
 
 public sealed record GetAllActivitiesQuery(SearchParams SearchParams) : IRequest<DataSet>;
-public sealed record GetActivityByIdQuery(int Id) : IRequest<ActivityDto?>;
