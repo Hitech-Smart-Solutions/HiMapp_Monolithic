@@ -13,6 +13,7 @@ public sealed class ExecutionDbContext : DbContext, IExecutionDbContext
 
     // DbSets for execution domain entities
     public DbSet<Activity> Activities { get; set; } = null!;
+    public DbSet<ActivityCategoryDetails> ActivityCategoryDetails { get; set; } = null!;
     public DbSet<ProjectActivity> ProjectActivities { get; set; } = null!;
     public DbSet<Planning> Plannings { get; set; } = null!;
     public DbSet<PlanningDetail> PlanningDetails { get; set; } = null!;

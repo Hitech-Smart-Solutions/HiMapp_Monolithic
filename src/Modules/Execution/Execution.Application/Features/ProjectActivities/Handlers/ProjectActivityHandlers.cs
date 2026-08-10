@@ -47,6 +47,8 @@ internal sealed class ProjectActivityHandlers :
             };
 
             _db.Set<ProjectActivity>().Add(entity);
+            await AddActivityCategoryDetailsAsync(entity, r.SkilledLabourRate, r.UnSkilledLabourRate, r.OtherLabourRate,
+                r.CreatedBy, r.LastModifiedBy, cancellationToken);
             await _db.SaveChangesAsync(cancellationToken);
             return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
         }
@@ -60,7 +62,12 @@ internal sealed class ProjectActivityHandlers :
             entityExists.UnSkilledLabourRate = request.Request.UnSkilledLabourRate;
             entityExists.OtherLabourRate = request.Request.OtherLabourRate;
             entityExists.OutputRequired = request.Request.OutputRequired;
+            entityExists.LastModifiedBy = request.Request.LastModifiedBy;
             entityExists.LastModifiedDate = DateTimeOffset.UtcNow;
+
+            await UpdateActivityCategoryDetailsAsync(entityExists, request.Request.SkilledLabourRate,
+                request.Request.UnSkilledLabourRate, request.Request.OtherLabourRate,
+                request.Request.LastModifiedBy, cancellationToken);
 
             await _db.SaveChangesAsync(cancellationToken);
 
@@ -82,12 +89,102 @@ internal sealed class ProjectActivityHandlers :
         entity.UnSkilledLabourRate = request.Request.UnSkilledLabourRate;
         entity.OtherLabourRate = request.Request.OtherLabourRate;
         entity.OutputRequired = request.Request.OutputRequired;
+        entity.LastModifiedBy = request.Request.LastModifiedBy;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
+
+        await UpdateActivityCategoryDetailsAsync(entity, request.Request.SkilledLabourRate,
+            request.Request.UnSkilledLabourRate, request.Request.OtherLabourRate,
+            request.Request.LastModifiedBy, cancellationToken);
 
         await _db.SaveChangesAsync(cancellationToken);
 
         return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
+
+    private async Task AddActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate, decimal unskilledRate,
+        decimal otherRate, int? createdBy, int? lastModifiedBy, CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var activityName = await GetActivityNameAsync(projectActivity.ActivityID, cancellationToken);
+
+        foreach (var (categoryType, rate) in GetCategoryRates(skilledRate, unskilledRate, otherRate))
+        {
+            _db.Set<ActivityCategoryDetails>().Add(new ActivityCategoryDetails
+            {
+                UniqueID = Guid.NewGuid(),
+                ProjectID = projectActivity.ProjectID,
+                ActivityID = projectActivity.ActivityID,
+                CategoryTypeID = (int)categoryType,
+                Name = GetActivityCategoryDetailName(activityName, categoryType),
+                Rate = rate,
+                IsActive = true,
+                CreatedBy = createdBy,
+                CreatedDate = now,
+                LastModifiedBy = lastModifiedBy,
+                LastModifiedDate = now
+            });
+        }
+    }
+
+    private async Task UpdateActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate,
+        decimal unskilledRate, decimal otherRate, int? lastModifiedBy, CancellationToken cancellationToken)
+    {
+        var existingDetails = await _db.Set<ActivityCategoryDetails>()
+            .Where(detail => detail.ProjectID == projectActivity.ProjectID && detail.ActivityID == projectActivity.ActivityID)
+            .ToListAsync(cancellationToken);
+        var now = DateTimeOffset.UtcNow;
+        var activityName = await GetActivityNameAsync(projectActivity.ActivityID, cancellationToken);
+
+        foreach (var (categoryType, rate) in GetCategoryRates(skilledRate, unskilledRate, otherRate))
+        {
+            var detail = existingDetails.FirstOrDefault(x => x.CategoryTypeID == (int)categoryType);
+            if (detail is null)
+            {
+                _db.Set<ActivityCategoryDetails>().Add(new ActivityCategoryDetails
+                {
+                    UniqueID = Guid.NewGuid(),
+                    ProjectID = projectActivity.ProjectID,
+                    ActivityID = projectActivity.ActivityID,
+                    CategoryTypeID = (int)categoryType,
+                    Name = GetActivityCategoryDetailName(activityName, categoryType),
+                    Rate = rate,
+                    IsActive = true,
+                    CreatedBy = lastModifiedBy,
+                    CreatedDate = now,
+                    LastModifiedBy = lastModifiedBy,
+                    LastModifiedDate = now
+                });
+                continue;
+            }
+
+            detail.Name = GetActivityCategoryDetailName(activityName, categoryType);
+            detail.Rate = rate;
+            detail.IsActive = true;
+            detail.LastModifiedBy = lastModifiedBy;
+            detail.LastModifiedDate = now;
+        }
+    }
+
+    private static IEnumerable<(CategoryType CategoryType, decimal Rate)> GetCategoryRates(decimal skilledRate,
+        decimal unskilledRate, decimal otherRate)
+    {
+        yield return (CategoryType.Skilled, skilledRate);
+        yield return (CategoryType.Unskilled, unskilledRate);
+        yield return (CategoryType.Other, otherRate);
+    }
+
+    private async Task<string> GetActivityNameAsync(int activityId, CancellationToken cancellationToken)
+    {
+        var activityName = await _db.Set<Activity>()
+            .Where(activity => activity.ID == activityId)
+            .Select(activity => activity.ActivityName)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return activityName ?? throw new InvalidOperationException($"Activity {activityId} was not found.");
+    }
+
+    private static string GetActivityCategoryDetailName(string activityName, CategoryType categoryType) =>
+        $"{activityName} - {categoryType}";
 
     public async Task<bool> Handle(DeleteProjectActivityCommand request, CancellationToken cancellationToken)
     {
