@@ -18,7 +18,8 @@ internal sealed class ManpowerHandlers :
     IRequestHandler<CreateManpowerCommand, ManpowerModel>,
     IRequestHandler<UpdateManpowerCommand, ManpowerModel?>,
     IRequestHandler<DeleteManpowerCommand, bool>,
-    IRequestHandler<GetManpowerByProjectID, DataSet>
+    IRequestHandler<GetManpowerByProjectID, DataSet>,
+    IRequestHandler<GetLastManpowerBySectionIDQuery, ManpowerModel?>
 {
     private readonly IExecutionDbContext _db;
     public ManpowerHandlers(IExecutionDbContext db) => _db = db;
@@ -259,6 +260,46 @@ internal sealed class ManpowerHandlers :
         }
 
         return dsLocal;
+    }
+
+    public async Task<ManpowerModel?> Handle(GetLastManpowerBySectionIDQuery request, CancellationToken cancellationToken)
+    {
+        var manpower = await _db.Set<Domain.Entities.Manpower>().AsNoTracking().Include(x => x.ManpowerDetail).Where(
+            x => x.SectionID == request.SectionId
+            && x.IsActive)
+            .OrderByDescending(x => x.EntryDate).ThenByDescending(x => x.ID).FirstOrDefaultAsync(cancellationToken);
+
+        if (manpower == null)
+            return null;
+
+        var details = manpower.ManpowerDetail?
+            .Where(x => x.IsActive)
+            .Select(d => new ManpowerDetailModel(
+                d.ID,
+                d.UniqueID,
+                d.ContractorID,
+                d.ActivityID,
+                d.SkilledCount,
+                d.UnskilledCount,
+                d.OtherCount,
+                d.TotalCount))
+            .ToList()
+            ?? new List<ManpowerDetailModel>();
+
+        return new ManpowerModel(
+            manpower.ID,
+            manpower.UniqueID,
+            manpower.ProjectID,
+            manpower.SectionID,
+            manpower.EntryDate,
+            manpower.Remarks,
+            manpower.StateID,
+            manpower.IsActive,
+            manpower.CreatedBy,
+            manpower.CreatedDate,
+            manpower.LastModifiedBy,
+            manpower.LastModifiedDate,
+            details);
     }
 }
 

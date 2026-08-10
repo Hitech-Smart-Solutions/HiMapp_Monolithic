@@ -12,10 +12,11 @@ public class Planning
     public Guid UniqueID { get; set; }
 
     public int ProjectID { get; set; }
+    public int AreaID { get; set; }
     public int PlanTypeID { get; set; }
 
-    public DateTime StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly? EndDate { get; set; }
 
     public string? Remarks { get; set; }
     public int StatusID { get; set; }

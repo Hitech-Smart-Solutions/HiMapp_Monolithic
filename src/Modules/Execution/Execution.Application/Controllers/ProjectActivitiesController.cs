@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("v1/execution/project-activities")]
 public sealed class ProjectActivitiesController : ControllerBase
 {
@@ -27,6 +27,7 @@ public sealed class ProjectActivitiesController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProjectActivityRequest request, CancellationToken cancellationToken)
     {
@@ -48,6 +49,8 @@ public sealed class ProjectActivitiesController : ControllerBase
         return deleted ? Ok() : NotFound();
     }
 
+
+    [AllowAnonymous]
     [HttpGet("GetProjectActivitiesByProjectId/{projectid:int}")]
     public async Task<IActionResult> GetProjectActivitiesByProjectId(int projectid, CancellationToken cancellationToken)
     {

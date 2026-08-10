@@ -4,9 +4,10 @@ public sealed record PlanningModel(
     int Id,
     System.Guid UniqueId,
     int ProjectId,
+    int AreaID,
     int PlanTypeID,
-    System.DateTime StartDate,
-    System.DateTime? EndDate,
+    System.DateOnly StartDate,
+    System.DateOnly? EndDate,
     string? Remarks,
     int StatusID,
     bool IsActive,
@@ -18,5 +19,5 @@ public sealed record PlanningModel(
     IReadOnlyCollection<PlanningDocumentDetailModel>? DocumentDetails
 );
 
-public sealed record CreatePlanningRequest(int ProjectId, int PlanTypeID, System.DateTime StartDate, System.DateTime? EndDate, string? Remarks, int CreatedBy, List<PlanningDetailRequest>? Details = null, List<PlanningDocumentDetailRequest>? docDetails = null);
+public sealed record CreatePlanningRequest(int ProjectId, int AreaID, int PlanTypeID, System.DateOnly StartDate, System.DateOnly? EndDate, string? Remarks, int CreatedBy, List<PlanningDetailRequest>? Details = null, List<PlanningDocumentDetailRequest>? docDetails = null);
 public sealed record UpdatePlanningRequest(string? Remarks, int StatusID, bool IsActive, int LastModifiedBy, List<PlanningDetailRequest>? Details = null, List<PlanningDocumentDetailRequest>? docDetails = null);

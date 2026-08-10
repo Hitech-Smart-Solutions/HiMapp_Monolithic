@@ -3,6 +3,7 @@ using System;
 using Himapp.Execution.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     [DbContext(typeof(ExecutionDbContext))]
-    partial class ExecutionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260807052802_PlanningHeader_AreaID_V1")]
+    partial class PlanningHeader_AreaID_V1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -658,8 +661,8 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -679,8 +682,8 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
 
                     b.Property<int>("StatusID")
                         .HasColumnType("integer");
@@ -857,6 +860,52 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.HasKey("ID");
 
                     b.ToTable("ProjectActivities", "execution");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.RateMaster", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("ActivityID")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ProjectID")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("UOMID")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("RateMasters", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgress", b =>

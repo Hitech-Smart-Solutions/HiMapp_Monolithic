@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("v1/execution/plannings")]
 public sealed class PlanningsController : ControllerBase
 {
@@ -22,8 +22,8 @@ public sealed class PlanningsController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllPlanningsQuery(), cancellationToken));
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken) =>
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken) =>
         OkOrNotFound(await _mediator.Send(new GetPlanningByIdQuery(id), cancellationToken));
 
     [HttpPost]
@@ -33,17 +33,17 @@ public sealed class PlanningsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> Update(long id, [FromBody] UpdatePlanningRequest request, CancellationToken cancellationToken)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdatePlanningRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new UpdatePlanningCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    [HttpDelete("{id:int},{deletedBy:int}")]
+    public async Task<IActionResult> Delete(int id, int deletedBy, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeletePlanningCommand(id), cancellationToken);
+        var deleted = await _mediator.Send(new DeletePlanningCommand(id, deletedBy), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 
