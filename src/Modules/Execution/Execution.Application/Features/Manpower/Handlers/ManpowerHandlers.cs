@@ -264,10 +264,10 @@ internal sealed class ManpowerHandlers :
 
     public async Task<ManpowerModel?> Handle(GetLastManpowerBySectionIDQuery request, CancellationToken cancellationToken)
     {
-        var manpower = await _db.Set<Domain.Entities.Manpower>().AsNoTracking().Include(x => x.ManpowerDetail).Where(
-            x => x.SectionID == request.SectionId
-            && x.IsActive)
-            .OrderByDescending(x => x.EntryDate).ThenByDescending(x => x.ID).FirstOrDefaultAsync(cancellationToken);
+        var manpower = await _db.Set<Domain.Entities.Manpower>().AsNoTracking().Include(x => x.ManpowerDetail).Where(x => x.ProjectID == request.ProjectId && x.SectionID == request.SectionId && x.IsActive)
+            .OrderByDescending(x => x.EntryDate)
+            .ThenByDescending(x => x.ID)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (manpower == null)
             return null;

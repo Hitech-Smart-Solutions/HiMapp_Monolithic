@@ -1,16 +1,18 @@
+using Himapp.Execution.Application.Features;
+using Himapp.Execution.Application.Features.DailyLabor.Commands;
 using Himapp.Execution.Application.Features.DailyLabor.Models;
+using Himapp.Execution.Application.Features.DailyLabor.Queries;
+using Himapp.Execution.Application.Features.Manpower.Queries;
 using Himapp.Workflow.Filters;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MediatR;
-using Himapp.Execution.Application.Features.DailyLabor.Commands;
-using Himapp.Execution.Application.Features.DailyLabor.Queries;
 
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("v1/execution/daily-labors")]
 public sealed class DailyLaborsController : ControllerBase
 {
@@ -24,6 +26,19 @@ public sealed class DailyLaborsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken) =>
         OkOrNotFound(await _mediator.Send(new GetDailyLaborByIdQuery(id), cancellationToken));
+
+
+    [HttpGet("GetConsolidated")]
+    public async Task<IActionResult> GetConsolidated([FromQuery] int projectId, [FromQuery] DateOnly date, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetConsolidatedDailyLaborQuery(projectId,date),cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpGet("GetDailyLaborByProjectID")]
+    public async Task<IActionResult> GetByProjectID([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken) =>
+       Ok(await _mediator.Send(new GetDailyLaborByProjectID(searchParams), cancellationToken));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateDailyLaborRequest request, CancellationToken cancellationToken)

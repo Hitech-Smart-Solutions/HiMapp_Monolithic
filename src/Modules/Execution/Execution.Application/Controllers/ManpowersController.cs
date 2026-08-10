@@ -31,10 +31,10 @@ public sealed class ManpowersController : ControllerBase
        Ok(await _mediator.Send(new GetManpowerByProjectID(searchParams), cancellationToken));
 
 
-    [HttpGet("GetLastManpowerBySectionID/{sectionId:int}")]
-    public async Task<IActionResult> GetLastManpowerBySectionID(int sectionId, CancellationToken cancellationToken)
+    [HttpGet("GetLastManpowerBySectionID/{projectId:int}/{sectionId:int}")]
+    public async Task<IActionResult> GetLastManpowerBySectionID(int projectId, int sectionId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetLastManpowerBySectionIDQuery(sectionId), cancellationToken);
+        var result = await _mediator.Send(new GetLastManpowerBySectionIDQuery(projectId, sectionId), cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }

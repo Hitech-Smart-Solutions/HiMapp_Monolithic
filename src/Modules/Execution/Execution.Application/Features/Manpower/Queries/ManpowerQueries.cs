@@ -7,4 +7,4 @@ namespace Himapp.Execution.Application.Features.Manpower.Queries;
 public sealed record GetAllManpowersQuery : IRequest<IReadOnlyCollection<ManpowerModel>>;
 public sealed record GetManpowerByIdQuery(long Id) : IRequest<ManpowerModel?>;
 public sealed record GetManpowerByProjectID(SearchParamsProjectWise SearchParamsProjectWise) : IRequest<DataSet>;
-public sealed record GetLastManpowerBySectionIDQuery(int SectionId) : IRequest<ManpowerModel?>;
+public sealed record GetLastManpowerBySectionIDQuery(int ProjectId, int SectionId) : IRequest<ManpowerModel?>;

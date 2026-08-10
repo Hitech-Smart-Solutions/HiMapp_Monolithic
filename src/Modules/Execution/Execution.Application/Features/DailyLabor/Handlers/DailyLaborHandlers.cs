@@ -1,10 +1,15 @@
 using Himapp.Execution.Application.Features.DailyLabor.Commands;
 using Himapp.Execution.Application.Features.DailyLabor.Models;
 using Himapp.Execution.Application.Features.DailyLabor.Queries;
-using Himapp.Execution.Domain.Entities;
+using Himapp.Execution.Application.Features.Manpower.Queries;
 using Himapp.Execution.Contracts;
+using Himapp.Execution.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using Npgsql;
+using NpgsqlTypes;
+using System.Data;
 
 namespace Himapp.Execution.Application.Features.DailyLabor.Handlers;
 
@@ -13,7 +18,9 @@ internal sealed class DailyLaborHandlers :
     IRequestHandler<GetDailyLaborByIdQuery, DailyLaborModel?>,
     IRequestHandler<CreateDailyLaborCommand, DailyLaborModel>,
     IRequestHandler<UpdateDailyLaborCommand, DailyLaborModel?>,
-    IRequestHandler<DeleteDailyLaborCommand, bool>
+    IRequestHandler<DeleteDailyLaborCommand, bool>,
+    IRequestHandler<GetConsolidatedDailyLaborQuery, IReadOnlyCollection<DailyLaborConsolidatedModel>>,
+    IRequestHandler<GetDailyLaborByProjectID, DataSet>
 {
     private readonly IExecutionDbContext _db;
     public DailyLaborHandlers(IExecutionDbContext db) => _db = db;
@@ -60,7 +67,7 @@ internal sealed class DailyLaborHandlers :
             dd.Remarks,
             dd.Mat,
             dd.ContractorName,
-            dd.ProductivityID)).ToArray()
+            dd.ActivityID)).ToArray()
             ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(
@@ -87,7 +94,7 @@ internal sealed class DailyLaborHandlers :
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
-            DLRDate = r.ReportDate,
+            DLRDate = DateTime.SpecifyKind(r.ReportDate, DateTimeKind.Utc),
             Remarks = r.Remarks,
             StateID = (short?)r.Status,
             IsActive = true,
@@ -111,7 +118,7 @@ internal sealed class DailyLaborHandlers :
                     Remarks = d.Remarks,
                     Mat = d.Mat,
                     ContractorName = d.ContractorName,
-                    ProductivityID = d.ProductivityId,
+                    ActivityID = d.ActivityId,
                     IsActive = true,
                     CreatedBy = 0,
                     CreatedDate = DateTimeOffset.UtcNow,
@@ -127,7 +134,7 @@ internal sealed class DailyLaborHandlers :
         _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ProductivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(entity.ID, entity.UniqueID, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
@@ -166,7 +173,7 @@ internal sealed class DailyLaborHandlers :
         var r = request.Request;
 
         entity.ProjectID = r.ProjectId;
-        entity.DLRDate = r.ReportDate;
+        entity.DLRDate = DateTime.SpecifyKind(r.ReportDate,DateTimeKind.Utc);
         entity.Remarks = r.Remarks;
         entity.StateID = (short?)r.Status;
         entity.LastModifiedDate = DateTime.UtcNow;
@@ -192,7 +199,7 @@ internal sealed class DailyLaborHandlers :
                     Remarks = d.Remarks,
                     Mat = d.Mat,
                     ContractorName = d.ContractorName,
-                    ProductivityID = d.ProductivityId,
+                    ActivityID = d.ActivityId,
                     IsActive = true,
                     CreatedBy = 0,
                     CreatedDate = DateTimeOffset.UtcNow,
@@ -207,9 +214,108 @@ internal sealed class DailyLaborHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ProductivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(entity.ID, entity.UniqueID, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
+
+    public async Task<IReadOnlyCollection<DailyLaborConsolidatedModel>> Handle(GetConsolidatedDailyLaborQuery request, CancellationToken cancellationToken)
+    {
+        var result = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>()
+            .AsNoTracking()
+            .Where(m =>
+                m.ProjectID == request.ProjectId &&
+                m.EntryDate == request.Date &&
+                m.IsActive)
+            .SelectMany(m => m.ManpowerDetail!
+                .Where(md => md.IsActive)
+                .Select(md => new
+                {
+                    md.ContractorID,
+                    md.ActivityID,
+                    md.SkilledCount,
+                    md.UnskilledCount,
+                    md.OtherCount
+                }))
+            .GroupBy(x => new
+            {
+                x.ContractorID,
+                x.ActivityID
+            })
+            .Select(g => new DailyLaborConsolidatedModel(
+                g.Key.ContractorID,
+                g.Key.ActivityID,
+                g.Sum(x => x.SkilledCount),
+                g.Sum(x => x.UnskilledCount),
+                g.Sum(x => x.OtherCount),
+                g.Sum(x =>
+                    x.SkilledCount +
+                    x.UnskilledCount +
+                    x.OtherCount)
+            ))
+            .ToArrayAsync(cancellationToken);
+
+        return result;
+    }
+
+    public async Task<DataSet> Handle(GetDailyLaborByProjectID request, CancellationToken cancellationToken)
+    {
+        var p = request.SearchParamsProjectWise ?? new SearchParamsProjectWise();
+
+        // Prepare DataSet
+        var ds = new System.Data.DataSet("ActivitiesResult");
+
+        // Force Npgsql path: require the underlying DbContext to obtain connection string
+        var dbContext = _db as DbContext;
+        if (dbContext is null)
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+
+        var dsLocal = new DataSet("ActivitiesResult");
+        var connString = dbContext.Database.GetDbConnection().ConnectionString;
+
+        using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        // Rows table
+        using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uspgetdailylaborbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
+        {
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandTimeout = 1800;
+            cmd.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
+            cmd.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
+            cmd.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
+            cmd.Parameters.AddWithValue("@p_pageindex", NpgsqlDbType.Integer, p.PageIndex);
+            cmd.Parameters.AddWithValue("@p_pagesize", NpgsqlDbType.Integer, p.PageSize);
+            cmd.Parameters.AddWithValue("@p_sortcolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.SortColumn) ? (object)DBNull.Value : p.SortColumn);
+            cmd.Parameters.AddWithValue("@p_isactive", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.IsActive) ? (object)DBNull.Value : p.IsActive);
+
+            var da = new NpgsqlDataAdapter(cmd);
+            var dt = new DataTable("Rows");
+            da.Fill(dt);
+            dsLocal.Tables.Add(dt);
+        }
+
+        // Count table
+        using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetdailylaborcountbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
+        {
+            cmd2.CommandType = CommandType.Text;
+            cmd2.CommandTimeout = 1800;
+            cmd2.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
+            cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
+            cmd2.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
+            cmd2.Parameters.AddWithValue("@p_pageindex", NpgsqlDbType.Integer, p.PageIndex);
+            cmd2.Parameters.AddWithValue("@p_pagesize", NpgsqlDbType.Integer, p.PageSize);
+            cmd2.Parameters.AddWithValue("@p_sortcolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.SortColumn) ? (object)DBNull.Value : p.SortColumn);
+            cmd2.Parameters.AddWithValue("@p_isactive", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.IsActive) ? (object)DBNull.Value : p.IsActive);
+
+            var da2 = new NpgsqlDataAdapter(cmd2);
+            var dt2 = new DataTable("Count");
+            da2.Fill(dt2);
+            dsLocal.Tables.Add(dt2);
+        }
+
+        return dsLocal;
+    }
+
 }
 
