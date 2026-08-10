@@ -21,7 +21,8 @@ internal sealed class PlanningHandlers :
     IRequestHandler<UpdatePlanningCommand, PlanningModel?>,
     IRequestHandler<DeletePlanningCommand, bool>,
     IRequestHandler<GetPlanningListByProjectQuery, DataSet>,
-    IRequestHandler<BulkCreatePlanningCommand, IReadOnlyCollection<PlanningModel>>
+    IRequestHandler<BulkCreatePlanningCommand, IReadOnlyCollection<PlanningModel>>,
+    IRequestHandler<DownloadPlanningTemplateQuery, byte[]>
 {
     private readonly IExecutionDbContext _db;
     private readonly Himapp.Files.Services.IFileService _fileService;
@@ -36,76 +37,6 @@ internal sealed class PlanningHandlers :
             .AsNoTracking()
             .Select(p => new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.AreaID, p.PlanTypeID, p.StartDate, p.EndDate, p.Remarks, p.StatusID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, Array.Empty<PlanningDetailModel>(), Array.Empty<PlanningDocumentDetailModel>()))
             .ToArrayAsync(cancellationToken);
-    }
-
-    public async Task<IReadOnlyCollection<PlanningModel>> Handle(BulkCreatePlanningCommand request, CancellationToken cancellationToken)
-    {
-        var r = request.Request;
-
-        // Parse excel and validate
-        var parseResult = await _excelImporter.ParseAsync(r.ExcelFile, r.ProjectId, cancellationToken);
-        if (parseResult.Errors.Any())
-        {
-            throw new InvalidOperationException(string.Join("||", parseResult.Errors));
-        }
-
-        // Handle attachment via file service (register once and reuse for all plannings)
-        List<PlanningDocumentDetailRequest>? docDetails = null;
-        if (r.Attachment is not null && r.Attachment.Length > 0)
-        {
-            var fileAsset = await _fileService.RegisterAsync(r.Attachment.FileName, r.Attachment.ContentType ?? string.Empty, "planning.attachment", (int)r.Attachment.Length, cancellationToken);
-            docDetails = new List<PlanningDocumentDetailRequest>
-            {
-                new PlanningDocumentDetailRequest
-                {
-                    DocumentName = r.Attachment.FileName,
-                    FileName = fileAsset.FileName,
-                    FilePath = fileAsset.StorageKey,
-                    FileExtension = System.IO.Path.GetExtension(fileAsset.FileName),
-                    ContentType = r.Attachment.ContentType
-                }
-            };
-        }
-
-        // Group details by AreaId — only include positive TargetQuantity (defensive)
-        var groups = parseResult.Details
-            .Where(d => d.TargetQuantity > 0)
-            .GroupBy(d => d.AreaId)
-            .ToList();
-        var created = new List<PlanningModel>();
-
-        // Use a transaction to ensure all-or-nothing behavior
-        var dbContext = _db as DbContext;
-        if (dbContext is null)
-            throw new InvalidOperationException("IExecutionDbContext is not a DbContext. Cannot start transaction.");
-
-        await using var tx = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-        try
-        {
-            foreach (var g in groups)
-            {
-                var areaId = g.Key;
-                var detailsForArea = g.Where(d => d.TargetQuantity > 0).ToList();
-
-                if (detailsForArea.Count == 0)
-                {
-                    // nothing valid for this area
-                    continue;
-                }
-
-                var createReq = new CreatePlanningRequest(r.ProjectId, areaId, r.PlanTypeID, r.StartDate, r.EndDate, r.Remarks, r.CreatedBy, detailsForArea, docDetails);
-                var createdModel = await Handle(new CreatePlanningCommand(createReq), cancellationToken);
-                created.Add(createdModel);
-            }
-
-            await tx.CommitAsync(cancellationToken);
-            return created;
-        }
-        catch
-        {
-            await tx.RollbackAsync(cancellationToken);
-            throw;
-        }
     }
 
     public async Task<PlanningModel?> Handle(GetPlanningByIdQuery request, CancellationToken cancellationToken)
@@ -458,6 +389,76 @@ internal sealed class PlanningHandlers :
         #endregion
 
         return ds;
+    }
+
+    public async Task<IReadOnlyCollection<PlanningModel>> Handle(BulkCreatePlanningCommand request, CancellationToken cancellationToken)
+    {
+        var r = request.Request;
+
+        // Parse excel and validate
+        var parseResult = await _excelImporter.ParseAsync(r.ExcelFile, r.ProjectId, cancellationToken);
+        if (parseResult.Errors.Any())
+        {
+            throw new InvalidOperationException(string.Join("||", parseResult.Errors));
+        }
+
+        // Handle attachment via file service (register once and reuse for all plannings)
+        List<PlanningDocumentDetailRequest>? docDetails = null;
+        if (r.Attachment is not null && r.Attachment.Length > 0)
+        {
+            var fileAsset = await _fileService.RegisterAsync(r.Attachment.FileName, r.Attachment.ContentType ?? string.Empty, "planning.attachment", (int)r.Attachment.Length, cancellationToken);
+            docDetails = new List<PlanningDocumentDetailRequest>
+            {
+                new PlanningDocumentDetailRequest
+                {
+                    DocumentName = r.Attachment.FileName,
+                    FileName = fileAsset.FileName,
+                    FilePath = fileAsset.StorageKey,
+                    FileExtension = System.IO.Path.GetExtension(fileAsset.FileName),
+                    ContentType = r.Attachment.ContentType
+                }
+            };
+        }
+
+        // Group details by AreaId — only include positive TargetQuantity (defensive)
+        var groups = parseResult.Details
+            .Where(d => d.TargetQuantity > 0)
+            .GroupBy(d => d.AreaId)
+            .ToList();
+        var created = new List<PlanningModel>();
+
+        // Use a transaction to ensure all-or-nothing behavior
+        var dbContext = _db as DbContext;
+        if (dbContext is null)
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext. Cannot start transaction.");
+
+        await using var tx = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            foreach (var g in groups)
+            {
+                var areaId = g.Key;
+                var detailsForArea = g.Where(d => d.TargetQuantity > 0).ToList();
+
+                if (detailsForArea.Count == 0)
+                {
+                    // nothing valid for this area
+                    continue;
+                }
+
+                var createReq = new CreatePlanningRequest(r.ProjectId, areaId, r.PlanTypeID, r.StartDate, r.EndDate, r.Remarks, r.CreatedBy, detailsForArea, docDetails);
+                var createdModel = await Handle(new CreatePlanningCommand(createReq), cancellationToken);
+                created.Add(createdModel);
+            }
+
+            await tx.CommitAsync(cancellationToken);
+            return created;
+        }
+        catch
+        {
+            await tx.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     public async Task<byte[]> Handle(DownloadPlanningTemplateQuery request, CancellationToken cancellationToken)
