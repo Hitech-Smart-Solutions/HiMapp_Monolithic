@@ -41,8 +41,9 @@ internal sealed class ExecutionProjectConfigHandlers :
     }
 
     public async Task<ExecutionProjectConfigModel?> Handle(
-        UpdateExecutionProjectConfigCommand request,
-        CancellationToken cancellationToken)
+    UpdateExecutionProjectConfigCommand request,
+    CancellationToken cancellationToken)
+
     {
         var entity = await _db.Set<ExecutionProjectConfig>()
             .FirstOrDefaultAsync(config => config.ID == request.Id, cancellationToken);

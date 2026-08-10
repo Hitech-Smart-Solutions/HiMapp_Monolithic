@@ -15,5 +15,7 @@ namespace Himapp.Execution.Domain.Entities
         public DateTimeOffset CreatedDate { get; set; }
         public int LastModifiedBy { get; set; }
         public DateTimeOffset LastModifiedDate { get; set; }
+
+        public int MyProperty { get; set; }
     }
 }
