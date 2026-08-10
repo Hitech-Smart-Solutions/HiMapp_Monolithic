@@ -20,7 +20,7 @@ public sealed class ExecutionProjectConfigsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new CreateExecutionProjectConfigCommand(request), cancellationToken);
-        return CreatedAtAction(nameof(GetByProjectId), new { projectId = result.ProjectId }, result);
+        return CreatedAtAction(nameof(GetExecutionConfigByProjectID), new { projectId = result.ProjectId }, result);
     }
 
     [HttpPut("{id:int}")]
@@ -33,8 +33,8 @@ public sealed class ExecutionProjectConfigsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpGet("project/{projectId:int}")]
-    public async Task<IActionResult> GetByProjectId(int projectId, CancellationToken cancellationToken)
+    [HttpGet("GetExecutionConfigByProjectID/{projectId:int}")]
+    public async Task<IActionResult> GetExecutionConfigByProjectID(int projectId, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(
             new GetExecutionProjectConfigByProjectIdQuery(projectId),
