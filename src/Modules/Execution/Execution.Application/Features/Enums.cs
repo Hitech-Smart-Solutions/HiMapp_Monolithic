@@ -17,4 +17,10 @@ namespace Himapp.Execution.Application.Features
         // Approval Workflow
         Viewed = 506
     }
+    public enum CategoryType
+    {
+        Skilled = 1,
+        Unskilled = 2,
+        Other = 3
+    }
 }

@@ -3,6 +3,7 @@ using System;
 using Himapp.Execution.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     [DbContext(typeof(ExecutionDbContext))]
-    partial class ExecutionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260810062833_ExecutionMigrationV_6")]
+    partial class ExecutionMigrationV_6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -375,9 +378,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("ActivityID")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("CategoryID")
                         .HasColumnType("integer");
 
@@ -406,6 +406,9 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("Mat")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ProductivityID")
                         .HasColumnType("integer");
 
                     b.Property<string>("Remarks")

@@ -3,6 +3,7 @@ using Himapp.Execution.Application.Features.Planning.Commands;
 using Himapp.Execution.Application.Features.Planning.Models;
 using Himapp.Execution.Application.Features.Planning.Queries;
 using Himapp.SharedKernel.Abstractions;
+using Himapp.Execution.Application.Features.Planning.Services;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -66,6 +67,50 @@ public sealed class PlanningsController : ControllerBase
             return StatusCode(500, ex.Message);
         }
 
+    }
+
+
+    [HttpGet("download-template")]
+    public async Task<IActionResult> DownloadTemplate([FromQuery] int projectId, CancellationToken cancellationToken)
+    {
+        if (projectId <= 0) return BadRequest("ProjectId is required.");
+
+        try
+        {
+            var bytes = await _mediator.Send(new DownloadPlanningTemplateQuery(projectId), cancellationToken);
+            var fileName = $"Planning_Bulk_Upload_Template_{projectId}.xlsx";
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+
+    [HttpPost("bulk")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> BulkCreate([FromForm] BulkCreatePlanningRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _mediator.Send(new BulkCreatePlanningCommand(request), cancellationToken);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // validation errors from handler (parse errors)
+            var parts = ex.Message.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries);
+            return BadRequest(parts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
