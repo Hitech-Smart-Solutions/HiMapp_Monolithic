@@ -20,7 +20,7 @@ public class DailyLaborDetail
     public string? Remarks { get; set; }
     public int? Mat { get; set; }
     public string? ContractorName { get; set; }
-    public int? ProductivityID { get; set; }
+    public int? ActivityID { get; set; }
     [JsonIgnore]
     public virtual DailyLabor? DailyLabor { get; set; }
 }

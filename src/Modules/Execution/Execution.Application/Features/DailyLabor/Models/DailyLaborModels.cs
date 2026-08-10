@@ -13,9 +13,9 @@ public sealed class DailyLaborDetailModel
     public string? Remarks { get; init; }
     public int? Mat { get; init; }
     public string? ContractorName { get; init; }
-    public int? ProductivityId { get; init; }
+    public int? ActivityId { get; init; }
 
-    public DailyLaborDetailModel(int id, Guid uniqueId, int? contractorId, int? categoryId, int? skilled, int? unSkilled, string? remarks, int? mat, string? contractorName, int? productivityId)
+    public DailyLaborDetailModel(int id, Guid uniqueId, int? contractorId, int? categoryId, int? skilled, int? unSkilled, string? remarks, int? mat, string? contractorName, int? activityId)
     {
         Id = id;
         UniqueId = uniqueId;
@@ -26,7 +26,7 @@ public sealed class DailyLaborDetailModel
         Remarks = remarks;
         Mat = mat;
         ContractorName = contractorName;
-        ProductivityId = productivityId;
+        ActivityId = activityId;
     }
 }
 
