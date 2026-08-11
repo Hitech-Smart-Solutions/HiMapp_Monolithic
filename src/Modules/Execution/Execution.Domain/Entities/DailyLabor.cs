@@ -11,7 +11,7 @@ public class DailyLabor
     public Guid UniqueID { get; set; }
     public int ID { get; set; }
     public string? DLRCode { get; set; }
-    public DateTimeOffset DLRDate { get; set; }
+    public DateTime DLRDate { get; set; }
     public string? ConstraintsAndReasons { get; set; }
     public string? ProposedActionPlan { get; set; }
     public string? Remarks { get; set; }

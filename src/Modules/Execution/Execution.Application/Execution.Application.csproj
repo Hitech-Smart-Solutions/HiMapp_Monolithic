@@ -7,9 +7,15 @@
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="MediatR" Version="12.4.1" />
+		<PackageReference Include="ExcelDataReader" Version="3.7.0" />
+		<PackageReference Include="ExcelDataReader.DataSet" Version="3.7.0" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
+		<PackageReference Include="ClosedXML" Version="0.105.0" />
 		<ProjectReference Include="..\Execution.Contracts\Execution.Contracts.csproj" />
 		<ProjectReference Include="..\Execution.Domain\Execution.Domain.csproj" />
+		<ProjectReference Include="..\..\Admin\Admin.Contracts\Admin.Contracts.csproj" />
 		<ProjectReference Include="..\..\..\Shared\Workflow\Workflow.csproj" />
+		<ProjectReference Include="..\..\..\Shared\Files\Files.csproj" />
 	</ItemGroup>
 	<PropertyGroup>
 		<RootNamespace>Himapp.Execution.Application</RootNamespace>

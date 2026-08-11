@@ -11,7 +11,7 @@ public sealed class DailyLaborDetailRequest
     public string? Remarks { get; set; }
     public int? Mat { get; set; }
     public string? ContractorName { get; set; }
-    public int? ProductivityId { get; set; }
+    public int? ActivityId { get; set; }
 }
 
 public sealed class CreateDailyLaborRequest
@@ -20,7 +20,7 @@ public sealed class CreateDailyLaborRequest
     public int ProjectId { get; set; }
 
     [Required]
-    public DateTimeOffset ReportDate { get; set; }
+    public DateTime ReportDate { get; set; }
 
     public string? Remarks { get; set; }
 
@@ -38,7 +38,7 @@ public sealed class UpdateDailyLaborRequest
     public int ProjectId { get; set; }
 
     [Required]
-    public DateTimeOffset ReportDate { get; set; }
+    public DateTime ReportDate { get; set; }
 
     public string? Remarks { get; set; }
 
