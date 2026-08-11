@@ -14,8 +14,12 @@ internal sealed class DailyLaborConfiguration : IEntityTypeConfiguration<DailyLa
 
         builder.Property(x => x.UniqueID).IsRequired();
         builder.Property(x => x.DLRDate).HasColumnName("ReportDate");
+        builder.Property(x => x.DLRCode).HasMaxLength(50);
         builder.Property(x => x.Remarks).HasMaxLength(1000);
         builder.Property(x => x.StateID).HasColumnType("smallint");
+
+        // Ensure DLRCode is unique across the table to help enforce concurrency-safe generation
+        builder.HasIndex(x => x.DLRCode).IsUnique();
 
         // One-to-many: DailyLabor -> DailyLaborDetail
         // We choose Cascade delete here to ensure child details are removed when a header

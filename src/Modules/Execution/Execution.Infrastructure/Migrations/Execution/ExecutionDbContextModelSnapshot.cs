@@ -330,7 +330,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<string>("DLRCode")
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset>("DLRDate")
+                    b.Property<DateTime>("DLRDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ReportDate");
 

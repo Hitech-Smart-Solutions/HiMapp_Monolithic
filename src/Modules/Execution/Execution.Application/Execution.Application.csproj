@@ -13,6 +13,7 @@
 		<PackageReference Include="ClosedXML" Version="0.105.0" />
 		<ProjectReference Include="..\Execution.Contracts\Execution.Contracts.csproj" />
 		<ProjectReference Include="..\Execution.Domain\Execution.Domain.csproj" />
+		<ProjectReference Include="..\..\Admin\Admin.Contracts\Admin.Contracts.csproj" />
 		<ProjectReference Include="..\..\..\Shared\Workflow\Workflow.csproj" />
 		<ProjectReference Include="..\..\..\Shared\Files\Files.csproj" />
 	</ItemGroup>
