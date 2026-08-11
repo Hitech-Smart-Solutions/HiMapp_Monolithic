@@ -23,4 +23,10 @@ namespace Himapp.Execution.Application.Features
         Unskilled = 2,
         Other = 3
     }
+
+    public enum DailyLaborState : short
+    {
+        Draft = 1,
+        Submitted = 2
+    }
 }

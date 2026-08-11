@@ -23,6 +23,9 @@ public sealed class CreateDailyLaborRequest
     public DateTime ReportDate { get; set; }
 
     public string? Remarks { get; set; }
+    public string? ConstraintsAndReasons { get; set; }
+    public string? ProposedActionPlan { get; set; }
+    public int? CompanyID { get; set; }
 
     /// <summary>
     /// Status / State identifier. Use meaningful defaults in caller (e.g. Draft = 1).
