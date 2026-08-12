@@ -652,9 +652,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("IsDepartment")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("integer");
 
@@ -702,6 +699,9 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDepartment")
                         .HasColumnType("boolean");
 
                     b.Property<int>("LastModifiedBy")

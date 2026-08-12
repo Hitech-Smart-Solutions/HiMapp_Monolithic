@@ -655,8 +655,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("IsDepartment")
-                        .HasColumnType("boolean");
+                    // IsDepartment moved to ManpowerDetail
 
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("integer");
@@ -718,6 +717,9 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     b.Property<int>("OtherCount")
                         .HasColumnType("integer");
+
+                    b.Property<bool?>("IsDepartment")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("SkilledCount")
                         .HasColumnType("integer");

@@ -7,6 +7,7 @@ public sealed class ManpowerDetailRequest
     public int SkilledCount { get; set; }
     public int UnskilledCount { get; set; }
     public int OtherCount { get; set; }
+    public bool? IsDepartment { get; set; }
 }
 
 public sealed class ManpowerDetailModel
@@ -18,8 +19,9 @@ public sealed class ManpowerDetailModel
     public int SkilledCount { get; init; }
     public int UnskilledCount { get; init; }
     public int OtherCount { get; init; }
+    public bool? IsDepartment { get; init; }
     public int TotalCount { get; init; }
-    public ManpowerDetailModel(int id, Guid uniqueId, int contractorId, int activityId, int skilledCount, int unskilledCount, int otherCount, int totalCount)
+    public ManpowerDetailModel(int id, Guid uniqueId, int contractorId, int activityId, int skilledCount, int unskilledCount, int otherCount, bool? isDepartment, int totalCount)
     {
         Id = id;
         UniqueId = uniqueId;
@@ -28,6 +30,7 @@ public sealed class ManpowerDetailModel
         SkilledCount = skilledCount;
         UnskilledCount = unskilledCount;
         OtherCount = otherCount;
+        IsDepartment = isDepartment;
         TotalCount = totalCount;
     }
 }
@@ -46,11 +49,10 @@ public sealed class ManpowerModel
     public DateTimeOffset CreatedDate { get; init; }
     public int LastModifiedBy { get; init; }
     public DateTimeOffset LastModifiedDate { get; init; }
-    public bool? IsDepartment { get; init; }
 
     public IReadOnlyCollection<ManpowerDetailModel> Details { get; init; }
 
-    public ManpowerModel(int id, Guid uniqueId, int projectId, int sectionId, DateOnly entryDate, string? remarks, int stateId, bool isActive, int createdBy, DateTimeOffset createdDate, int lastModifiedBy, DateTimeOffset lastModifiedDate, bool? isDepartment, IReadOnlyCollection<ManpowerDetailModel> details)
+    public ManpowerModel(int id, Guid uniqueId, int projectId, int sectionId, DateOnly entryDate, string? remarks, int stateId, bool isActive, int createdBy, DateTimeOffset createdDate, int lastModifiedBy, DateTimeOffset lastModifiedDate, IReadOnlyCollection<ManpowerDetailModel> details)
     {
         Id = id;
         UniqueId = uniqueId;
@@ -64,7 +66,6 @@ public sealed class ManpowerModel
         CreatedDate = createdDate;
         LastModifiedBy = lastModifiedBy;
         LastModifiedDate = lastModifiedDate;
-        IsDepartment = isDepartment;
         Details = details ?? Array.Empty<ManpowerDetailModel>();
     }
 }
@@ -75,7 +76,6 @@ public sealed class CreateManpowerRequest
     public int SectionId { get; set; }
     public DateOnly EntryDate { get; set; }
     public string? Remarks { get; set; }
-    public bool? IsDepartment { get; set; }
 
     public int CreatedBy { get; init; }
     public int LastModifiedBy { get; init; }
@@ -87,7 +87,6 @@ public sealed class UpdateManpowerRequest
     public int SectionId { get; set; }
     public DateOnly EntryDate { get; set; }
     public string? Remarks { get; set; }
-    public bool? IsDepartment { get; set; }
     public int StateId { get; set; }
     public bool IsActive { get; set; }
 

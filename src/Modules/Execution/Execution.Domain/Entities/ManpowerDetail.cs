@@ -13,6 +13,7 @@ public class ManpowerDetail
     public int SkilledCount { get; set; }
     public int UnskilledCount { get; set; }
     public int OtherCount { get; set; }
+    public bool? IsDepartment { get; set; }
     // computed stored column in DB
     public int TotalCount { get; set; }
     public bool IsActive { get; set; }

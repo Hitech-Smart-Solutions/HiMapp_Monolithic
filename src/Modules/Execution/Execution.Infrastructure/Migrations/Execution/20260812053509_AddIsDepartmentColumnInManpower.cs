@@ -13,7 +13,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
             migrationBuilder.AddColumn<bool>(
                 name: "IsDepartment",
                 schema: "execution",
-                table: "Manpowers",
+                table: "ManpowerDetails",
                 type: "boolean",
                 nullable: true);
 
@@ -47,7 +47,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
             migrationBuilder.DropColumn(
                 name: "IsDepartment",
                 schema: "execution",
-                table: "Manpowers");
+                table: "ManpowerDetails");
 
             migrationBuilder.AlterColumn<string>(
                 name: "DLRCode",
