@@ -15,6 +15,7 @@ public class Manpower
     public string? Remarks { get; set; }
     public int StateID { get; set; } = 3;
     public bool IsActive { get; set; }
+    public bool? IsDepartment { get; set; }
     public int CreatedBy { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
     public int LastModifiedBy { get; set; }

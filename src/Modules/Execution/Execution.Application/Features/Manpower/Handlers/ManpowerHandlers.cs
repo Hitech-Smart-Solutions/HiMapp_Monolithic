@@ -41,6 +41,7 @@ internal sealed class ManpowerHandlers :
                 m.CreatedDate,
                 m.LastModifiedBy,
                 m.LastModifiedDate,
+                m.IsDepartment,
                 m.ManpowerDetail == null ? Array.Empty<ManpowerDetailModel>() : m.ManpowerDetail.Select(d => new ManpowerDetailModel(
                    d.ID,
                    d.UniqueID,
@@ -73,7 +74,7 @@ internal sealed class ManpowerHandlers :
             d.OtherCount,
             d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
 
-        return new ManpowerModel(m.ID, m.UniqueID, m.ProjectID, m.SectionID, m.EntryDate, m.Remarks, m.StateID, m.IsActive, m.CreatedBy, m.CreatedDate, m.LastModifiedBy, m.LastModifiedDate, details);
+        return new ManpowerModel(m.ID, m.UniqueID, m.ProjectID, m.SectionID, m.EntryDate, m.Remarks, m.StateID, m.IsActive, m.CreatedBy, m.CreatedDate, m.LastModifiedBy, m.LastModifiedDate, m.IsDepartment, details);
     }
 
     public async Task<ManpowerModel> Handle(CreateManpowerCommand request, CancellationToken cancellationToken)
@@ -87,6 +88,7 @@ internal sealed class ManpowerHandlers :
             SectionID = r.SectionId,
             EntryDate = r.EntryDate,
             Remarks = r.Remarks,
+            IsDepartment = r.IsDepartment,
             StateID = 3,
             IsActive = true,
             CreatedBy = r.CreatedBy,
@@ -125,7 +127,7 @@ internal sealed class ManpowerHandlers :
 
         var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, d.ActivityID, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
 
-        return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, entity.IsDepartment, details);
     }
 
     public async Task<ManpowerModel?> Handle(UpdateManpowerCommand request, CancellationToken cancellationToken)
@@ -137,6 +139,7 @@ internal sealed class ManpowerHandlers :
         entity.SectionID = r.SectionId;
         entity.EntryDate = r.EntryDate;
         entity.Remarks = r.Remarks;
+        entity.IsDepartment = r.IsDepartment;
         entity.StateID = r.StateId;
         entity.IsActive = r.IsActive;
         entity.LastModifiedBy = r.LastModifiedBy;
@@ -177,7 +180,7 @@ internal sealed class ManpowerHandlers :
 
         var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, d.ActivityID, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
 
-        return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, entity.IsDepartment, details);
     }
 
     public async Task<bool> Handle(DeleteManpowerCommand request, CancellationToken cancellationToken)
@@ -299,6 +302,7 @@ internal sealed class ManpowerHandlers :
             manpower.CreatedDate,
             manpower.LastModifiedBy,
             manpower.LastModifiedDate,
+            manpower.IsDepartment,
             details);
     }
 }

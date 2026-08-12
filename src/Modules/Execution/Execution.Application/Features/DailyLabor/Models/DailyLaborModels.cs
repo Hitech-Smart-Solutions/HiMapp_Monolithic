@@ -36,6 +36,7 @@ public sealed class DailyLaborModel : IRequiresApproval
     public Guid UniqueId { get; init; }
     public string? DLRCode { get; init; }
     public string? ConstraintsAndReasons { get; set; }
+    public bool? RemoveMenPower { get; init; }
     public string? ProposedActionPlan { get; set; }
     public int? CompanyId { get; init; }
     public int? ProjectId { get; init; }
@@ -54,13 +55,14 @@ public sealed class DailyLaborModel : IRequiresApproval
     public string EntityName => "DailyLabor";
     public int EntityId => Id;
 
-    public DailyLaborModel(int id, Guid uniqueId, string? dlrCode, int? companyId, int? projectId, DateTimeOffset reportDate, string? remarks, string? proposedActionPlan, string? constraintsAndReasons, short? status, bool isActive, int createdBy, DateTime createdDate, int lastModifiedBy, DateTime lastModifiedDate, IReadOnlyCollection<DailyLaborDetailModel> details)
+    public DailyLaborModel(int id, Guid uniqueId, string? dlrCode, int? companyId, int? projectId, DateTimeOffset reportDate, string? remarks, string? proposedActionPlan, string? constraintsAndReasons, bool? removeMenPower, short? status, bool isActive, int createdBy, DateTime createdDate, int lastModifiedBy, DateTime lastModifiedDate, IReadOnlyCollection<DailyLaborDetailModel> details)
     {
         Id = id;
         UniqueId = uniqueId;
         DLRCode = dlrCode;
         ProposedActionPlan = proposedActionPlan;
         ConstraintsAndReasons = constraintsAndReasons;
+        RemoveMenPower = removeMenPower;
         CompanyId = companyId;
         ProjectId = projectId;
         ReportDate = reportDate;

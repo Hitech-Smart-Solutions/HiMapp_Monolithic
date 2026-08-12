@@ -27,12 +27,16 @@ public sealed class CreateDailyLaborRequest
     public string? ProposedActionPlan { get; set; }
     public int? CompanyID { get; set; }
 
+    public bool? RemoveMenPower { get; set; }
+
+
     /// <summary>
     /// Status / State identifier. Use meaningful defaults in caller (e.g. Draft = 1).
     /// </summary>
     public int Status { get; set; } = 1;
-
     public List<DailyLaborDetailRequest>? Details { get; set; }
+
+    // ...existing properties...
 }
 
 public sealed class UpdateDailyLaborRequest
@@ -48,4 +52,5 @@ public sealed class UpdateDailyLaborRequest
     public int Status { get; set; } = 1;
 
     public List<DailyLaborDetailRequest>? Details { get; set; }
+    public bool? RemoveMenPower { get; set; }
 }

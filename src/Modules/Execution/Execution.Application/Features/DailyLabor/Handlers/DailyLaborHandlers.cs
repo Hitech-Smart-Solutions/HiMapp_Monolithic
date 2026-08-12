@@ -43,6 +43,7 @@ internal sealed class DailyLaborHandlers :
                 d.Remarks,
                 d.ProposedActionPlan,
                 d.ConstraintsAndReasons,
+                d.RemoveMenPower,
                 d.StateID,
                 d.IsActive,
                 d.CreatedBy,
@@ -85,6 +86,7 @@ internal sealed class DailyLaborHandlers :
             entity.Remarks,
             entity.ProposedActionPlan,
             entity.ConstraintsAndReasons,
+            entity.RemoveMenPower,
             entity.StateID,
             entity.IsActive,
             entity.CreatedBy,
@@ -109,6 +111,7 @@ internal sealed class DailyLaborHandlers :
             ProjectID = r.ProjectId,
             ConstraintsAndReasons = r.ConstraintsAndReasons,
             ProposedActionPlan = r.ProposedActionPlan,
+            RemoveMenPower = r.RemoveMenPower,
             CompanyID = r.CompanyID,
             DLRDate = DateTime.SpecifyKind(r.ReportDate, DateTimeKind.Utc),
             Remarks = r.Remarks,
@@ -201,6 +204,7 @@ internal sealed class DailyLaborHandlers :
                     ProjectID = projectId,
                     DLRDate = DateTime.SpecifyKind(r.ReportDate, DateTimeKind.Utc),
                     Remarks = r.Remarks,
+                    RemoveMenPower = r.RemoveMenPower,
                     StateID = (short)r.Status,
                     IsActive = true,
                     CreatedBy = 0,
@@ -214,7 +218,7 @@ internal sealed class DailyLaborHandlers :
 
         var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
-        return new DailyLaborModel(entity.ID, entity.UniqueID, entity.DLRCode, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.ConstraintsAndReasons, entity.ProposedActionPlan, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        return new DailyLaborModel(entity.ID, entity.UniqueID, entity.DLRCode, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.ProposedActionPlan, entity.ConstraintsAndReasons, entity.RemoveMenPower, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
     public async Task<bool> Handle(DeleteDailyLaborCommand request, CancellationToken cancellationToken)
     {
@@ -264,6 +268,7 @@ internal sealed class DailyLaborHandlers :
         entity.ProjectID = r.ProjectId;
         entity.DLRDate = DateTime.SpecifyKind(r.ReportDate, DateTimeKind.Utc);
         entity.Remarks = r.Remarks;
+        entity.RemoveMenPower = r.RemoveMenPower;
         entity.StateID = (short?)r.Status;
         entity.LastModifiedDate = DateTime.UtcNow;
 
@@ -305,7 +310,7 @@ internal sealed class DailyLaborHandlers :
 
         var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
-        return new DailyLaborModel(entity.ID, entity.UniqueID, entity.DLRCode, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.ProposedActionPlan, entity.ConstraintsAndReasons, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        return new DailyLaborModel(entity.ID, entity.UniqueID, entity.DLRCode, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.ProposedActionPlan, entity.ConstraintsAndReasons, entity.RemoveMenPower, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<IReadOnlyCollection<DailyLaborConsolidatedModel>> Handle(GetConsolidatedDailyLaborQuery request, CancellationToken cancellationToken)

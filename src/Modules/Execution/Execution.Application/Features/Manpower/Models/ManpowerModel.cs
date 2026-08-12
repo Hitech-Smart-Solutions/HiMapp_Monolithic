@@ -46,10 +46,11 @@ public sealed class ManpowerModel
     public DateTimeOffset CreatedDate { get; init; }
     public int LastModifiedBy { get; init; }
     public DateTimeOffset LastModifiedDate { get; init; }
+    public bool? IsDepartment { get; init; }
 
     public IReadOnlyCollection<ManpowerDetailModel> Details { get; init; }
 
-    public ManpowerModel(int id, Guid uniqueId, int projectId, int sectionId, DateOnly entryDate, string? remarks, int stateId, bool isActive, int createdBy, DateTimeOffset createdDate, int lastModifiedBy, DateTimeOffset lastModifiedDate, IReadOnlyCollection<ManpowerDetailModel> details)
+    public ManpowerModel(int id, Guid uniqueId, int projectId, int sectionId, DateOnly entryDate, string? remarks, int stateId, bool isActive, int createdBy, DateTimeOffset createdDate, int lastModifiedBy, DateTimeOffset lastModifiedDate, bool? isDepartment, IReadOnlyCollection<ManpowerDetailModel> details)
     {
         Id = id;
         UniqueId = uniqueId;
@@ -63,6 +64,7 @@ public sealed class ManpowerModel
         CreatedDate = createdDate;
         LastModifiedBy = lastModifiedBy;
         LastModifiedDate = lastModifiedDate;
+        IsDepartment = isDepartment;
         Details = details ?? Array.Empty<ManpowerDetailModel>();
     }
 }
@@ -73,6 +75,7 @@ public sealed class CreateManpowerRequest
     public int SectionId { get; set; }
     public DateOnly EntryDate { get; set; }
     public string? Remarks { get; set; }
+    public bool? IsDepartment { get; set; }
 
     public int CreatedBy { get; init; }
     public int LastModifiedBy { get; init; }
@@ -84,6 +87,7 @@ public sealed class UpdateManpowerRequest
     public int SectionId { get; set; }
     public DateOnly EntryDate { get; set; }
     public string? Remarks { get; set; }
+    public bool? IsDepartment { get; set; }
     public int StateId { get; set; }
     public bool IsActive { get; set; }
 
