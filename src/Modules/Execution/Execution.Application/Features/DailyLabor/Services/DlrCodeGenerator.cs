@@ -81,7 +81,7 @@ internal sealed class DlrCodeGenerator : IDlrCodeGenerator
             }
         }
 
-        var generated = $"DLR-({projectCode})-{nextNumber:D4}";
+        var generated = $"DLR-{projectCode}-{nextNumber:D4}";
         _logger.LogInformation("Generated DLRCode '{Code}' for ProjectId {ProjectId} (last: '{LastCode}')", generated, projectId, lastCode);
         return generated;
     }
