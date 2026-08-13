@@ -61,5 +61,12 @@ public sealed class DailyLaborsController : ControllerBase
         return deleted ? Ok() : NotFound();
     }
 
+    [HttpPut("SetActiveInActiveForDailyLabour")]
+    public async Task<IActionResult> SetActiveInActiveForDailyLabour(AddTransactionActionHistoryDTO dto, CancellationToken cancellationToken)
+    {
+        var deleted = await _mediator.Send(new DeleteDailyLaborActionCommand(dto), cancellationToken);
+        return deleted ? Ok() : NotFound();
+    }
+
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }

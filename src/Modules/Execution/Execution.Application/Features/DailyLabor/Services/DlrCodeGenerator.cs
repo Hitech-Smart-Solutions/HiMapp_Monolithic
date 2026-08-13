@@ -2,24 +2,23 @@ using Himapp.Execution.Contracts.References;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Services;
+namespace Himapp.Execution.Application.Features.DailyLabor.Services;
 
-internal sealed class DdlSlipCodeGenerator : IDdlSlipCodeGenerator
+internal sealed class DlrCodeGenerator : IDlrCodeGenerator
 {
     private readonly IExecutionDbContext _db;
-    private readonly IReferenceLookupService? _referenceLookup;
-    private readonly Microsoft.Extensions.Logging.ILogger<DdlSlipCodeGenerator> _logger;
+    private readonly Himapp.Execution.Contracts.References.IReferenceLookupService? _referenceLookup;
+    private readonly ILogger<DlrCodeGenerator> _logger;
 
-    public DdlSlipCodeGenerator(IExecutionDbContext db, IReferenceLookupService? referenceLookup = null, Microsoft.Extensions.Logging.ILogger<DdlSlipCodeGenerator>? logger = null)
+    public DlrCodeGenerator(IExecutionDbContext db, Himapp.Execution.Contracts.References.IReferenceLookupService? referenceLookup = null, ILogger<DlrCodeGenerator>? logger = null)
     {
         _db = db;
         _referenceLookup = referenceLookup;
-        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DdlSlipCodeGenerator>.Instance;
+        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DlrCodeGenerator>.Instance;
     }
 
-    public async Task<string> GenerateDDLSlipCodeAsync(int projectId, CancellationToken cancellationToken = default)
+    public async Task<string> GenerateDLRCodeAsync(int projectId, CancellationToken cancellationToken = default)
     {
-        // Try to obtain project code from the reference lookup service if available
         string? projectCode = null;
         if (_referenceLookup is not null)
         {
@@ -28,7 +27,6 @@ internal sealed class DdlSlipCodeGenerator : IDdlSlipCodeGenerator
             _logger.LogDebug("PublicSchema lookup for ProjectId {ProjectId} returned ProjectCode '{ProjectCode}'", projectId, projectCode);
         }
 
-        // Fallback: try to read ProjectCode directly from public.ProjectMaster using DB connection
         if (string.IsNullOrEmpty(projectCode))
         {
             try
@@ -54,42 +52,37 @@ internal sealed class DdlSlipCodeGenerator : IDdlSlipCodeGenerator
             }
         }
 
-        // If still null, leave projectCode empty -- generator will return empty string
-
-        // Get last DDLSlipCode for project from Execution DB
-        var lastLogCode = await _db.Set<Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip>()
+        var lastCode = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>()
             .AsNoTracking()
             .Where(l => l.ProjectID == projectId)
             .OrderByDescending(l => l.ID)
-            .Select(l => l.DDLSlipCode)
+            .Select(l => l.DLRCode)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (string.IsNullOrEmpty(projectCode))
         {
-            // If project code is unavailable, we cannot generate a meaningful code
-            _logger.LogWarning("Cannot generate DDLSlipCode because ProjectCode was not found for ProjectId {ProjectId}", projectId);
+            _logger.LogWarning("Cannot generate DLRCode because ProjectCode was not found for ProjectId {ProjectId}", projectId);
             return string.Empty;
         }
 
         int nextNumber = 1;
-        if (!string.IsNullOrEmpty(lastLogCode))
+        if (!string.IsNullOrEmpty(lastCode))
         {
-            // Expecting format: DDLS-(ProjectCode)-0001
-            var prefix = $"DDLS-{projectCode}-";
-            var lastCode = lastLogCode.Replace(prefix, "");
-            if (int.TryParse(lastCode, out var lastNumber))
+            // Expecting format: DLR-(ProjectCode)-0001
+            var prefix = $"DLR-{projectCode}-";
+            var lastNumberPart = lastCode.Replace(prefix, "");
+            if (int.TryParse(lastNumberPart, out var lastNumber))
             {
                 nextNumber = lastNumber + 1;
             }
             else
             {
-                _logger.LogWarning("Unable to parse last DDLSlipCode '{LastLogCode}' for ProjectId {ProjectId}", lastLogCode, projectId);
+                _logger.LogWarning("Unable to parse last DLRCode '{LastCode}' for ProjectId {ProjectId}", lastCode, projectId);
             }
         }
 
-        // Format: DDLS-(ProjectCode)-0001 (4 digits)
-        var generated = $"DDLS-({projectCode})-{nextNumber:D4}";
-        _logger.LogInformation("Generated DDLSlipCode '{Code}' for ProjectId {ProjectId} (last: '{LastLogCode}')", generated, projectId, lastLogCode);
+        var generated = $"DLR-({projectCode})-{nextNumber:D4}";
+        _logger.LogInformation("Generated DLRCode '{Code}' for ProjectId {ProjectId} (last: '{LastCode}')", generated, projectId, lastCode);
         return generated;
     }
 }

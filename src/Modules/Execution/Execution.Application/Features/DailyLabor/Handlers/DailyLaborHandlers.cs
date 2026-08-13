@@ -20,12 +20,14 @@ internal sealed class DailyLaborHandlers :
     IRequestHandler<CreateDailyLaborCommand, DailyLaborModel>,
     IRequestHandler<UpdateDailyLaborCommand, DailyLaborModel?>,
     IRequestHandler<DeleteDailyLaborCommand, bool>,
+    IRequestHandler<DeleteDailyLaborActionCommand, bool>,
     IRequestHandler<GetConsolidatedDailyLaborQuery, IReadOnlyCollection<DailyLaborConsolidatedModel>>,
     IRequestHandler<GetDailyLaborByProjectID, DataSet>
 {
     private readonly IExecutionDbContext _db;
     private readonly IProjectDirectory _projectDirectory;
-    public DailyLaborHandlers(IExecutionDbContext db, IProjectDirectory projectDirectory) => (_db, _projectDirectory) = (db, projectDirectory);
+    private readonly Himapp.Execution.Contracts.References.IDlrCodeGenerator _codeGenerator;
+    public DailyLaborHandlers(IExecutionDbContext db, IProjectDirectory projectDirectory, Himapp.Execution.Contracts.References.IDlrCodeGenerator codeGenerator) => (_db, _projectDirectory, _codeGenerator) = (db, projectDirectory, codeGenerator);
 
     public async Task<IReadOnlyCollection<DailyLaborModel>> Handle(GetAllDailyLaborsQuery request, CancellationToken cancellationToken)
     {
@@ -52,6 +54,30 @@ internal sealed class DailyLaborHandlers :
                 d.LastModifiedDate,
                 Array.Empty<DailyLaborDetailModel>()))
             .ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<bool> Handle(DeleteDailyLaborActionCommand request, CancellationToken cancellationToken)
+    {
+        var model = request.addTransactionActionHistoryDTO;
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().FirstOrDefaultAsync(a => a.ID == model.ProgramRowId, cancellationToken);
+
+        if (entity is null) return false;
+
+        // Mark child detail records active/inactive
+        var details = await _db.Set<Himapp.Execution.Domain.Entities.DailyLaborDetail>()
+            .Where(x => x.DailyLabourID == model.ProgramRowId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var d in details)
+        {
+            d.IsActive = model.Actions == Actions.Activated ? true : false;
+        }
+
+        // Mark main entity active/inactive
+        entity.IsActive = model.Actions == Actions.Activated ? true : false;
+
+        await _db.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     public async Task<DailyLaborModel?> Handle(GetDailyLaborByIdQuery request, CancellationToken cancellationToken)
@@ -123,98 +149,41 @@ internal sealed class DailyLaborHandlers :
             LastModifiedDate = DateTime.UtcNow
         };
 
-        // Generate DLRCode using project code fetched from Admin module
+        // Generate DLRCode using shared DLR code generator service
         var projectId = r.ProjectId;
-        var project = await _projectDirectory.FindAsync(projectId, cancellationToken);
-        if (project is null || string.IsNullOrWhiteSpace(project.Code))
+        var generatedCode = await _codeGenerator.GenerateDLRCodeAsync(projectId, cancellationToken);
+        entity.DLRCode = string.IsNullOrWhiteSpace(generatedCode) ? null : generatedCode;
+
+        // Add details (if any)
+        if (r.Details?.Any() == true)
         {
-            throw new InvalidOperationException($"Project not found or has no code for id {projectId}");
-        }
-
-        // Attempt generation with retries to handle concurrent inserts that may cause unique-constraint violations
-        const int maxAttempts = 5;
-        int attempt = 0;
-        while (true)
-        {
-            attempt++;
-            // compute next sequence number by looking for last DLRCode for this project
-            var prefix = $"DLR-{project.Code}-";
-
-            var last = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>()
-                .AsNoTracking()
-                .Where(d => d.IsActive && d.ProjectID == projectId && d.DLRCode != null && d.DLRCode.StartsWith(prefix))
-                .OrderByDescending(d => d.ID)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            int next = 1;
-            if (last != null)
+            foreach (var d in r.Details)
             {
-                var suffix = last.DLRCode!.Substring(prefix.Length);
-                if (!int.TryParse(suffix, out var parsed)) parsed = 0;
-                next = parsed + 1;
-            }
-
-            entity.DLRCode = $"{prefix}{next:D4}";
-
-            // Add details (if any) then try to save. If save fails with unique-violation, retry.
-            if (r.Details?.Any() == true)
-            {
-                foreach (var d in r.Details)
-                {
-                    var detail = new Himapp.Execution.Domain.Entities.DailyLaborDetail
-                    {
-                        UniqueID = Guid.NewGuid(),
-                        ContractorID = d.ContractorId,
-                        CategoryID = d.CategoryId,
-                        Skilled = d.Skilled,
-                        UnSkilled = d.UnSkilled,
-                        Remarks = d.Remarks,
-                        Mat = d.Mat,
-                        ContractorName = d.ContractorName,
-                        ActivityID = d.ActivityId,
-                        IsActive = true,
-                        CreatedBy = 0,
-                        CreatedDate = DateTimeOffset.UtcNow,
-                        LastModifiedBy = 0,
-                        LastModifiedDate = DateTimeOffset.UtcNow,
-                        DailyLabor = entity
-                    };
-
-                    entity.DailyLaborDetail?.Add(detail);
-                }
-            }
-
-            _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().Add(entity);
-            try
-            {
-                await _db.SaveChangesAsync(cancellationToken);
-                break; // success
-            }
-            catch (DbUpdateException ex) when (ex.InnerException is PostgresException px && px.SqlState == "23505")
-            {
-                // unique violation - likely DLRCode was taken by concurrent transaction; retry unless out of attempts
-                if (attempt >= maxAttempts) throw;
-
-                // remove tracked entity and try again
-                var entry = _db is DbContext ctx ? ctx.Entry(entity) : null;
-                if (entry != null) entry.State = EntityState.Detached;
-                entity = new Himapp.Execution.Domain.Entities.DailyLabor
+                var detail = new Himapp.Execution.Domain.Entities.DailyLaborDetail
                 {
                     UniqueID = Guid.NewGuid(),
-                    ProjectID = projectId,
-                    DLRDate = DateTime.SpecifyKind(r.ReportDate, DateTimeKind.Utc),
-                    Remarks = r.Remarks,
-                    RemoveMenPower = r.RemoveMenPower,
-                    StateID = (short)r.Status,
+                    ContractorID = d.ContractorId,
+                    CategoryID = d.CategoryId,
+                    Skilled = d.Skilled,
+                    UnSkilled = d.UnSkilled,
+                    Remarks = d.Remarks,
+                    Mat = d.Mat,
+                    ContractorName = d.ContractorName,
+                    ActivityID = d.ActivityId,
                     IsActive = true,
                     CreatedBy = 0,
-                    CreatedDate = DateTime.UtcNow,
+                    CreatedDate = DateTimeOffset.UtcNow,
                     LastModifiedBy = 0,
-                    LastModifiedDate = DateTime.UtcNow
+                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    DailyLabor = entity
                 };
-                // loop and retry
+
+                entity.DailyLaborDetail?.Add(detail);
             }
         }
+
+        _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().Add(entity);
+        await _db.SaveChangesAsync(cancellationToken);
 
         var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 

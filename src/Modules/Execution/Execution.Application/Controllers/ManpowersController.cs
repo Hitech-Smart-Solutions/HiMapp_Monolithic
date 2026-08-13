@@ -61,5 +61,12 @@ public sealed class ManpowersController : ControllerBase
         return deleted ? Ok() : NotFound();
     }
 
+    [HttpPut("SetActiveInActiveForManpower")]
+    public async Task<IActionResult> SetActiveInActiveForManpower(AddTransactionActionHistoryDTO dto, CancellationToken cancellationToken)
+    {
+        var deleted = await _mediator.Send(new DeleteManpowerActionCommand(dto), cancellationToken);
+        return deleted ? Ok() : NotFound();
+    }
+
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }

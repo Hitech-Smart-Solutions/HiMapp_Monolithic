@@ -18,6 +18,7 @@ internal sealed class ManpowerHandlers :
     IRequestHandler<CreateManpowerCommand, ManpowerModel>,
     IRequestHandler<UpdateManpowerCommand, ManpowerModel?>,
     IRequestHandler<DeleteManpowerCommand, bool>,
+    IRequestHandler<DeleteManpowerActionCommand, bool>,
     IRequestHandler<GetManpowerByProjectID, DataSet>,
     IRequestHandler<GetLastManpowerBySectionIDQuery, ManpowerModel?>
 {
@@ -202,6 +203,28 @@ internal sealed class ManpowerHandlers :
                 dd.LastModifiedDate = DateTimeOffset.UtcNow;
             }
         }
+
+        await _db.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(DeleteManpowerActionCommand request, CancellationToken cancellationToken)
+    {
+        var model = request.addTransactionActionHistoryDTO;
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == model.ProgramRowId, cancellationToken);
+        if (entity is null) return false;
+
+        // Mark child details active/inactive
+        if (entity.ManpowerDetail != null)
+        {
+            foreach (var dd in entity.ManpowerDetail)
+            {
+                dd.IsActive = model.Actions == Actions.Activated ? true : false;
+            }
+        }
+
+        // Mark main entity active/inactive
+        entity.IsActive = model.Actions == Actions.Activated ? true : false;
 
         await _db.SaveChangesAsync(cancellationToken);
         return true;
