@@ -19,6 +19,12 @@ public static class DependencyInjection
         services.AddScoped<IPlanningSectionService, PlanningSectionService>();
         services.AddScoped<IExcelPlanningImporter, ExcelPlanningImporter>();
 
+        // DDL Slip code generator
+        services.AddScoped<Himapp.Execution.Contracts.References.IDdlSlipCodeGenerator, Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Services.DdlSlipCodeGenerator>();
+
+        // Public schema project lookup (reads ProjectMaster from public schema using DB connection)
+        services.AddScoped<Himapp.Execution.Contracts.References.IReferenceLookupService, Himapp.Execution.Application.Lookups.PublicSchemaReferenceLookup>();
+
         return services;
     }
 }
