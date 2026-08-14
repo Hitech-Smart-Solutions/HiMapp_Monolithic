@@ -36,7 +36,8 @@
     <ProjectReference Include="src\Modules\Store\Store.Infrastructure\Store.Infrastructure.csproj" />
     <ProjectReference Include="src\Shared\SharedKernel\SharedKernel.csproj" />
     <ProjectReference Include="src\Shared\Notifications\Notifications.csproj" />
-    <ProjectReference Include="src\Shared\Workflow\Workflow.csproj" />
+    <ProjectReference Include="src\Shared\Workflow.Application\Workflow.Application.csproj" />
+    <ProjectReference Include="src\Shared\Workflow.Infrastructure\Workflow.Infrastructure.csproj" />
     <ProjectReference Include="src\Shared\Files\Files.csproj" />
     <ProjectReference Include="src\Shared\Integrations.D365\Integrations.D365.csproj" />
     <ProjectReference Include="src\Shared\Audit\Audit.csproj" />

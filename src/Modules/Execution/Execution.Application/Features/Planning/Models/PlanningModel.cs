@@ -20,4 +20,4 @@ public sealed record PlanningModel(
 );
 
 public sealed record CreatePlanningRequest(int ProjectId, int AreaID, int PlanTypeID, System.DateOnly StartDate, System.DateOnly? EndDate, string? Remarks, int CreatedBy, List<PlanningDetailRequest>? Details = null, List<PlanningDocumentDetailRequest>? docDetails = null);
-public sealed record UpdatePlanningRequest(string? Remarks, int StatusID, bool IsActive, int LastModifiedBy, List<PlanningDetailRequest>? Details = null, List<PlanningDocumentDetailRequest>? docDetails = null);
+public sealed record UpdatePlanningRequest(int Id, string? Remarks, int StatusID, bool IsActive, int LastModifiedBy, List<PlanningDetailRequest>? Details = null, List<PlanningDocumentDetailRequest>? docDetails = null);

@@ -94,7 +94,7 @@ internal sealed class PlanningHandlers :
         {
             foreach (var d in r.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.PlanningDetail
+                var detail = new PlanningDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     AreaID = d.AreaId,
@@ -117,7 +117,7 @@ internal sealed class PlanningHandlers :
         {
             foreach (var d in r.docDetails)
             {
-                var docDetail = new Himapp.Execution.Domain.Entities.PlanningDocumentDetail
+                var docDetail = new PlanningDocumentDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     DocumentName = d.DocumentName,
@@ -165,7 +165,7 @@ internal sealed class PlanningHandlers :
         // Remove existing details and add new ones
         if (entity.PlanningDetail != null && entity.PlanningDetail.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.PlanningDetail>().RemoveRange(entity.PlanningDetail);
+            _db.Set<PlanningDetail>().RemoveRange(entity.PlanningDetail);
             entity.PlanningDetail.Clear();
         }
 
@@ -173,7 +173,7 @@ internal sealed class PlanningHandlers :
         {
             foreach (var d in request.Request.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.PlanningDetail
+                var detail = new PlanningDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     AreaID = d.AreaId,
@@ -182,6 +182,8 @@ internal sealed class PlanningHandlers :
                     UOMID = d.UomId,
                     Remarks = d.Remarks,
                     IsActive = true,
+                    CreatedBy = LastModifiedBy,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = LastModifiedBy,
                     LastModifiedDate = DateTime.UtcNow
                 };
@@ -193,7 +195,7 @@ internal sealed class PlanningHandlers :
         // Remove existing document details and add new ones
         if (entity.PlanningDocumentDetail != null && entity.PlanningDocumentDetail.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.PlanningDocumentDetail>().RemoveRange(entity.PlanningDocumentDetail);
+            _db.Set<PlanningDocumentDetail>().RemoveRange(entity.PlanningDocumentDetail);
             entity.PlanningDocumentDetail.Clear();
         }
 
@@ -201,7 +203,7 @@ internal sealed class PlanningHandlers :
         {
             foreach (var d in request.Request.docDetails)
             {
-                var docDetail = new Himapp.Execution.Domain.Entities.PlanningDocumentDetail
+                var docDetail = new PlanningDocumentDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     DocumentName = d.DocumentName,
@@ -210,6 +212,8 @@ internal sealed class PlanningHandlers :
                     FileExtension = d.FileExtension,
                     ContentType = d.ContentType,
                     IsActive = true,
+                    CreatedBy = LastModifiedBy,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = LastModifiedBy,
                     LastModifiedDate = DateTime.UtcNow
                 };
@@ -235,17 +239,19 @@ internal sealed class PlanningHandlers :
             .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (entity is null) return false;
 
+        bool isActive = request.actionHistory.Actions == Actions.Activated;
+
         // Soft delete header and child details
-        entity.IsActive = false;
-        entity.LastModifiedBy = 0;
+        entity.IsActive = isActive;
+        entity.LastModifiedBy = request.actionHistory.UserId;
         entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.PlanningDetail != null)
         {
             foreach (var pd in entity.PlanningDetail)
             {
-                pd.IsActive = false;
-                pd.LastModifiedBy = request.DeletedBy;
+                pd.IsActive = isActive;
+                pd.LastModifiedBy = request.actionHistory.UserId;
                 pd.LastModifiedDate = DateTime.UtcNow;
             }
         }
@@ -254,8 +260,8 @@ internal sealed class PlanningHandlers :
         {
             foreach (var pd in entity.PlanningDocumentDetail)
             {
-                pd.IsActive = false;
-                pd.LastModifiedBy = request.DeletedBy;
+                pd.IsActive = isActive;
+                pd.LastModifiedBy = request.actionHistory.UserId;
                 pd.LastModifiedDate = DateTime.UtcNow;
             }
         }
