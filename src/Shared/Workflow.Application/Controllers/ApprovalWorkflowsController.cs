@@ -44,17 +44,17 @@ public sealed class ApprovalWorkflowsController : ControllerBase
         return deleted ? Ok() : NotFound();
     }
 
-    [HttpGet("GetApprovalWorkflowByProject")]
-    public async Task<IActionResult> GetWorkflowListByProject([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken)
+    [HttpGet("GetApprovalWorkflowByCompany")]
+    public async Task<IActionResult> GetWorkflowListByCompany([FromQuery] SearchParams searchParams, CancellationToken cancellationToken)
     {
-        if (searchParams.ProjectID <= 0)
+        if (searchParams is null)
         {
-            return BadRequest("ProjectID is required.");
+            return BadRequest("Search parameters are required.");
         }
 
         try
         {
-            var result = await _mediator.Send(new GetWorkflowListByProjectQuery(searchParams), cancellationToken);
+            var result = await _mediator.Send(new GetWorkflowListByCompanyQuery(searchParams), cancellationToken);
             return Ok(result);
         }
         catch (Exception ex)

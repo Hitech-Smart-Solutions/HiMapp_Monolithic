@@ -243,8 +243,8 @@ internal sealed class PlanningHandlers :
         bool isActive = request.actionHistory.Actions == Actions.Activated;
 
         // Soft delete header and child details
-        entity.IsActive = false;
-        entity.LastModifiedBy = 0;
+        entity.IsActive = isActive;
+        entity.LastModifiedBy = request.actionHistory.UserId;
         entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.PlanningDetail != null)

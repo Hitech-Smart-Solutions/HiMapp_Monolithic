@@ -17,7 +17,7 @@ internal sealed class CentralUserRoleMappingHandler :
     IRequestHandler<CreateCentralUserRoleMappingCommand, CentralUserRoleMappingDto>,
     IRequestHandler<UpdateCentralUserRoleMappingCommand, CentralUserRoleMappingDto?>,
     IRequestHandler<DeleteCentralUserRoleMappingCommand, bool>,
-    IRequestHandler<GetRoleMappingListByProjectQuery, DataSet>
+    IRequestHandler<GetRoleMappingListByCompanyQuery, DataSet>
 {
     private readonly IWorkflowDbContext _db;
 
@@ -195,7 +195,7 @@ internal sealed class CentralUserRoleMappingHandler :
             x.LastModifiedBy,
             x.LastModifiedDate)).ToArray() ?? Array.Empty<CentralUserRoleMappingDetailDto>());
 
-    public async Task<DataSet> Handle(GetRoleMappingListByProjectQuery request, CancellationToken cancellationToken)
+    public async Task<DataSet> Handle(GetRoleMappingListByCompanyQuery request, CancellationToken cancellationToken)
     {
         DataSet ds = new DataSet();
 
@@ -211,8 +211,8 @@ internal sealed class CentralUserRoleMappingHandler :
             await connection.OpenAsync(cancellationToken);
 
             using var cmd = new NpgsqlCommand(
-                @"SELECT * FROM execution.uspgetcentralrolemappingbyprojectid(
-                @p_projectid,
+                @"SELECT * FROM execution.uspgetcentralrolemappingbycompanyid(
+                @p_companyid,
                 @p_filtercolumn,
                 @p_filtervalue,
                 @p_pageindex,
@@ -222,8 +222,8 @@ internal sealed class CentralUserRoleMappingHandler :
                 connection);
 
             cmd.Parameters.AddWithValue(
-                "@p_projectid",
-                request.SearchParams.ProjectID);
+                "@p_companyid",
+                request.SearchParams.CompanyID);
 
             cmd.Parameters.AddWithValue(
                 "@p_filtercolumn",
@@ -270,8 +270,8 @@ internal sealed class CentralUserRoleMappingHandler :
             await connection.OpenAsync(cancellationToken);
 
             using var cmd = new NpgsqlCommand(
-                @"SELECT * FROM execution.uspgetcentralrolemappingcountbyprojectid(
-                @p_projectid,
+                @"SELECT * FROM execution.uspgetcentralrolemappingcountbycompanyid(
+                @p_companyid,
                 @p_filtercolumn,
                 @p_filtervalue,
                 @p_pageindex,
@@ -281,8 +281,8 @@ internal sealed class CentralUserRoleMappingHandler :
                 connection);
 
             cmd.Parameters.AddWithValue(
-                "@p_projectid",
-                request.SearchParams.ProjectID);
+                "@p_companyid",
+                request.SearchParams.CompanyID);
 
             cmd.Parameters.AddWithValue(
                 "@p_filtercolumn",

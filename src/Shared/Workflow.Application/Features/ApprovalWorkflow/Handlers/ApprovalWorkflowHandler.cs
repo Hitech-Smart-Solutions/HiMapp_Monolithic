@@ -15,7 +15,7 @@ internal sealed class ApprovalWorkflowHandler :
     IRequestHandler<CreateApprovalWorkflowCommand, ApprovalWorkflowDto>,
     IRequestHandler<UpdateApprovalWorkflowCommand, ApprovalWorkflowDto?>,
     IRequestHandler<DeleteApprovalWorkflowCommand, bool>,
-    IRequestHandler<GetWorkflowListByProjectQuery, DataSet>
+    IRequestHandler<GetWorkflowListByCompanyQuery, DataSet>
 {
     private readonly IWorkflowDbContext _db;
 
@@ -281,7 +281,7 @@ internal sealed class ApprovalWorkflowHandler :
             x.LastModifiedBy,
             x.LastModifiedDate)).ToArray() ?? Array.Empty<ApprovalWorkflowRoleDetailDto>());
 
-    public async Task<DataSet> Handle(GetWorkflowListByProjectQuery request, CancellationToken cancellationToken)
+    public async Task<DataSet> Handle(GetWorkflowListByCompanyQuery request, CancellationToken cancellationToken)
     {
         DataSet ds = new DataSet();
 
@@ -297,8 +297,8 @@ internal sealed class ApprovalWorkflowHandler :
             await connection.OpenAsync(cancellationToken);
 
             using var cmd = new NpgsqlCommand(
-                @"SELECT * FROM execution.uspgetcentralworkflowbyprojectid(
-                @p_projectid,
+                @"SELECT * FROM execution.uspgetcentralworkflowbycompanyid(
+                @p_companyid,
                 @p_filtercolumn,
                 @p_filtervalue,
                 @p_pageindex,
@@ -308,8 +308,8 @@ internal sealed class ApprovalWorkflowHandler :
                 connection);
 
             cmd.Parameters.AddWithValue(
-                "@p_projectid",
-                request.SearchParams.ProjectID);
+                "@p_companyid",
+                request.SearchParams.CompanyID);
 
             cmd.Parameters.AddWithValue(
                 "@p_filtercolumn",
@@ -356,8 +356,8 @@ internal sealed class ApprovalWorkflowHandler :
             await connection.OpenAsync(cancellationToken);
 
             using var cmd = new NpgsqlCommand(
-                @"SELECT * FROM execution.uspgetcentralworkflowcountbyprojectid(
-                @p_projectid,
+                @"SELECT * FROM execution.uspgetcentralworkflowcountbycompanyid(
+                @p_companyid,
                 @p_filtercolumn,
                 @p_filtervalue,
                 @p_pageindex,
@@ -367,8 +367,8 @@ internal sealed class ApprovalWorkflowHandler :
                 connection);
 
             cmd.Parameters.AddWithValue(
-                "@p_projectid",
-                request.SearchParams.ProjectID);
+                "@p_companyid",
+                request.SearchParams.CompanyID);
 
             cmd.Parameters.AddWithValue(
                 "@p_filtercolumn",

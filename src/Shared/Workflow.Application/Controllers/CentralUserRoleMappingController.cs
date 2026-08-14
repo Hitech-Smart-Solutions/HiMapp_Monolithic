@@ -44,17 +44,17 @@ public sealed class CentralUserRoleMappingController : ControllerBase
         return deleted ? Ok() : NotFound();
     }
 
-    [HttpGet("GetRoleListByProject")]
-    public async Task<IActionResult> GetRoleListByProject([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken)
+    [HttpGet("GetRoleListByCompany")]
+    public async Task<IActionResult> GetRoleListByCompany([FromQuery] SearchParams searchParams, CancellationToken cancellationToken)
     {
-        if (searchParams.ProjectID <= 0)
+        if (searchParams is null)
         {
-            return BadRequest("ProjectID is required.");
+            return BadRequest("Search parameters are required.");
         }
 
         try
         {
-            var result = await _mediator.Send(new GetRoleMappingListByProjectQuery(searchParams), cancellationToken);
+            var result = await _mediator.Send(new GetRoleMappingListByCompanyQuery(searchParams), cancellationToken);
             return Ok(result);
         }
         catch (Exception ex)
