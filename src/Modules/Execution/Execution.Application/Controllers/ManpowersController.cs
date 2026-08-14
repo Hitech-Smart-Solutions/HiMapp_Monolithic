@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("v1/execution/manpowers")]
 public sealed class ManpowersController : ControllerBase
 {
@@ -30,7 +30,6 @@ public sealed class ManpowersController : ControllerBase
     public async Task<IActionResult> GetByProjectID([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken) =>
        Ok(await _mediator.Send(new GetManpowerByProjectID(searchParams), cancellationToken));
 
-
     [HttpGet("GetLastManpowerBySectionID/{projectId:int}/{sectionId:int}")]
     public async Task<IActionResult> GetLastManpowerBySectionID(int projectId, int sectionId, CancellationToken cancellationToken)
     {
@@ -39,14 +38,13 @@ public sealed class ManpowersController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-
     [HttpPost("CreateManpower")]
     public async Task<IActionResult> Create([FromBody] CreateManpowerRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new CreateManpowerCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
-
+    
     [HttpPut("UpdateManpower/{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateManpowerRequest request, CancellationToken cancellationToken)
     {
@@ -54,13 +52,14 @@ public sealed class ManpowersController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _mediator.Send(new DeleteManpowerCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
-
+     
     [HttpPut("SetActiveInActiveForManpower")]
     public async Task<IActionResult> SetActiveInActiveForManpower(AddTransactionActionHistoryDTO dto, CancellationToken cancellationToken)
     {

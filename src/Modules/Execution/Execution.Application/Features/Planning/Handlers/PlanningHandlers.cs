@@ -237,10 +237,10 @@ internal sealed class PlanningHandlers :
         var entity = await _db.Set<PlanningEntity>()
             .Include(d => d.PlanningDetail)
             .Include(x => x.PlanningDocumentDetail)
-            .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.ID == request.dtoInactive.ProgramRowId, cancellationToken);
         if (entity is null) return false;
 
-        bool isActive = request.actionHistory.Actions == Actions.Activated;
+        bool isActive = request.dtoInactive.Actions == Actions.Activated;
 
         // Soft delete header and child details
         entity.IsActive = isActive;
@@ -252,7 +252,7 @@ internal sealed class PlanningHandlers :
             foreach (var pd in entity.PlanningDetail)
             {
                 pd.IsActive = isActive;
-                pd.LastModifiedBy = request.actionHistory.UserId;
+                pd.LastModifiedBy = request.dtoInactive.UserId;
                 pd.LastModifiedDate = DateTime.UtcNow;
             }
         }
@@ -262,7 +262,7 @@ internal sealed class PlanningHandlers :
             foreach (var pd in entity.PlanningDocumentDetail)
             {
                 pd.IsActive = isActive;
-                pd.LastModifiedBy = request.actionHistory.UserId;
+                pd.LastModifiedBy = request.dtoInactive.UserId;
                 pd.LastModifiedDate = DateTime.UtcNow;
             }
         }
