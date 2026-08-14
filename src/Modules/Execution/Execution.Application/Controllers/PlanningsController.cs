@@ -69,19 +69,19 @@ public sealed class PlanningsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, [FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
+    [HttpPut("SetActiveInActivePlanning")]
+    public async Task<IActionResult> SetActiveInActivePlanning([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
         if (dtoInactive == null)
         {
             return BadRequest("Delete request is required.");
         }
-        else if (dtoInactive.ProgramRowId != id)
+        else if (dtoInactive.ProgramRowId != dtoInactive.ProgramRowId)
         {
             return BadRequest("Planning ID does not match.");
         }
 
-        var deleted = await _mediator.Send(new DeletePlanningCommand(id, dtoInactive), cancellationToken);
+        var deleted = await _mediator.Send(new DeletePlanningCommand(dtoInactive), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 
