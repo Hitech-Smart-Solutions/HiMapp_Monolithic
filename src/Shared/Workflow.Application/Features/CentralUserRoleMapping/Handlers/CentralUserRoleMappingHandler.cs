@@ -56,13 +56,13 @@ internal sealed class CentralUserRoleMappingHandler :
     {
         var r = command.Request;
 
-        if (string.IsNullOrWhiteSpace(r.RoleCode))
-            throw new InvalidOperationException("RoleCode is required.");
+        // Generate RoleCode automatically
+        var roleCode = await GenerateNextRoleCodeAsync(cancellationToken);
 
         var entity = new CentralUserRoleMappingEntity
         {
             UniqueID = Guid.NewGuid(),
-            RoleCode = r.RoleCode,
+            RoleCode = roleCode,
             RoleName = r.RoleName,
             StatusID = r.StatusId,
             IsActive = true,
@@ -95,6 +95,30 @@ internal sealed class CentralUserRoleMappingHandler :
         await _db.SaveChangesAsync(cancellationToken);
 
         return Map(entity);
+    }
+
+    private async Task<string> GenerateNextRoleCodeAsync(CancellationToken cancellationToken)
+    {
+        var lastRoleCode = await _db.Set<CentralUserRoleMappingEntity>()
+            .AsNoTracking()
+            .Where(x => x.RoleCode.StartsWith("ROLE-"))
+            .OrderByDescending(x => x.ID)
+            .Select(x => x.RoleCode)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(lastRoleCode))
+        {
+            return "ROLE-000001";
+        }
+
+        var numericPart = lastRoleCode["ROLE-".Length..];
+
+        if (!int.TryParse(numericPart, out var lastNumber))
+        {
+            return "ROLE-000001";
+        }
+
+        return $"ROLE-{lastNumber + 1:D6}";
     }
 
     public async Task<CentralUserRoleMappingDto?> Handle(UpdateCentralUserRoleMappingCommand command, CancellationToken cancellationToken)
