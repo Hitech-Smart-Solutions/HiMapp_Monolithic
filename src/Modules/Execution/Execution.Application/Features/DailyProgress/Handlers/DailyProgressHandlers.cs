@@ -3,6 +3,7 @@ using Himapp.Execution.Application.Features.DailyProgress.Commands;
 using Himapp.Execution.Application.Features.DailyProgress.Queries;
 using Himapp.Execution.Domain.Entities;
 using Himapp.Execution.Contracts;
+using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,10 @@ internal sealed class DailyProgressHandlers :
     IRequestHandler<DeleteDailyProgressCommand, bool>
 {
     private readonly IExecutionDbContext _db;
-    public DailyProgressHandlers(IExecutionDbContext db) => _db = db;
+    private readonly ICurrentUser _currentUser;
+    public DailyProgressHandlers(IExecutionDbContext db, ICurrentUser currentUser) => (_db, _currentUser) = (db, currentUser);
+
+    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
 
     public async Task<IReadOnlyCollection<DailyProgressModel>> Handle(GetAllDailyProgressQuery request, CancellationToken cancellationToken)
     {
@@ -52,6 +56,7 @@ internal sealed class DailyProgressHandlers :
     public async Task<DailyProgressModel> Handle(CreateDailyProgressCommand request, CancellationToken cancellationToken)
     {
         var r = request.Request;
+        var userId = CurrentUserId;
         var entity = new Himapp.Execution.Domain.Entities.DailyProgress
         {
             UniqueID = Guid.NewGuid(),
@@ -63,9 +68,9 @@ internal sealed class DailyProgressHandlers :
             TotalAmount = 0m,
             Status = "DRAFT",
             IsActive = true,
-            CreatedBy = 0,
+            CreatedBy = userId,
             CreatedDate = DateTimeOffset.UtcNow,
-            LastModifiedBy = 0,
+            LastModifiedBy = userId,
             LastModifiedDate = DateTimeOffset.UtcNow
         };
 
@@ -83,9 +88,9 @@ internal sealed class DailyProgressHandlers :
                     PlanQuantity = d.PlanQuantity,
                     Remarks = d.Remarks,
                     IsActive = true,
-                    CreatedBy = 0,
+                    CreatedBy = userId,
                     CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = 0,
+                    LastModifiedBy = userId,
                     LastModifiedDate = DateTimeOffset.UtcNow
                 };
 
@@ -104,6 +109,7 @@ internal sealed class DailyProgressHandlers :
 
     public async Task<DailyProgressModel?> Handle(UpdateDailyProgressCommand request, CancellationToken cancellationToken)
     {
+        var userId = CurrentUserId;
         var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
             .Include(d => d.DailyProgressDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
@@ -114,7 +120,7 @@ internal sealed class DailyProgressHandlers :
         entity.Remarks = request.Request.Remarks ?? entity.Remarks;
         entity.Status = request.Request.Status;
         entity.IsActive = request.Request.IsActive;
-        entity.LastModifiedBy = 0;
+        entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         // Remove existing details and add new ones
@@ -138,9 +144,9 @@ internal sealed class DailyProgressHandlers :
                     PlanQuantity = d.PlanQuantity,
                     Remarks = d.Remarks,
                     IsActive = true,
-                    CreatedBy = 0,
+                    CreatedBy = userId,
                     CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = 0,
+                    LastModifiedBy = userId,
                     LastModifiedDate = DateTimeOffset.UtcNow
                 };
 
@@ -157,6 +163,7 @@ internal sealed class DailyProgressHandlers :
 
     public async Task<bool> Handle(DeleteDailyProgressCommand request, CancellationToken cancellationToken)
     {
+        var userId = CurrentUserId;
         var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
             .Include(d => d.DailyProgressDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
@@ -164,7 +171,7 @@ internal sealed class DailyProgressHandlers :
 
         // Soft delete header and child details
         entity.IsActive = false;
-        entity.LastModifiedBy = 0;
+        entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         if (entity.DailyProgressDetail != null)
@@ -172,7 +179,7 @@ internal sealed class DailyProgressHandlers :
             foreach (var dd in entity.DailyProgressDetail)
             {
                 dd.IsActive = false;
-                dd.LastModifiedBy = 0;
+                dd.LastModifiedBy = userId;
                 dd.LastModifiedDate = DateTimeOffset.UtcNow;
             }
         }

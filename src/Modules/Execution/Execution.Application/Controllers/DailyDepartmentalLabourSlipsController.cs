@@ -10,7 +10,7 @@ using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Commands
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize]
 [RequiresApproval]
 [Route("v1/execution/daily-departmental-labour-slips")]
 public sealed class DailyDepartmentalLabourSlipsController : ControllerBase

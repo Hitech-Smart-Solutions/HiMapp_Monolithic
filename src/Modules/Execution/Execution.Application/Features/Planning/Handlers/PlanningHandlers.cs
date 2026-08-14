@@ -10,8 +10,9 @@ using Himapp.Execution.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
- using System.Data;
+using System.Data;
 using System.Linq;
+using PlanningEntity = Himapp.Execution.Domain.Entities.Planning;
 
 namespace Himapp.Execution.Application.Features.Planning.Handlers;
 
@@ -34,7 +35,7 @@ internal sealed class PlanningHandlers :
 
     public async Task<IReadOnlyCollection<PlanningModel>> Handle(GetAllPlanningsQuery request, CancellationToken cancellationToken)
     {
-        return await _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+        return await _db.Set<PlanningEntity>()
             .AsNoTracking()
             .Select(p => new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.AreaID, p.PlanTypeID, p.StartDate, p.EndDate, p.Remarks, p.StatusID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, Array.Empty<PlanningDetailModel>(), Array.Empty<PlanningDocumentDetailModel>()))
             .ToArrayAsync(cancellationToken);
@@ -42,7 +43,7 @@ internal sealed class PlanningHandlers :
 
     public async Task<PlanningModel?> Handle(GetPlanningByIdQuery request, CancellationToken cancellationToken)
     {
-        var p = await _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+        var p = await _db.Set<PlanningEntity>()
             .AsNoTracking()
             .Include(x => x.PlanningDetail)
             .Include(x => x.PlanningDocumentDetail)
@@ -73,7 +74,7 @@ internal sealed class PlanningHandlers :
     public async Task<PlanningModel> Handle(CreatePlanningCommand request, CancellationToken cancellationToken)
     {
         var r = request.Request;
-        var entity = new Himapp.Execution.Domain.Entities.Planning
+        var entity = new PlanningEntity
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
@@ -136,7 +137,7 @@ internal sealed class PlanningHandlers :
             }
         }
 
-        _db.Set<Himapp.Execution.Domain.Entities.Planning>().Add(entity);
+        _db.Set<PlanningEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
         var details = entity.PlanningDetail?.Select(pd => new PlanningDetailModel(pd.ID, pd.UniqueID, pd.AreaID, pd.ActivityID, pd.TargetQuantity, pd.UOMID, pd.Remarks)).ToArray() ?? Array.Empty<PlanningDetailModel>();
@@ -148,7 +149,7 @@ internal sealed class PlanningHandlers :
 
     public async Task<PlanningModel?> Handle(UpdatePlanningCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+        var entity = await _db.Set<PlanningEntity>()
             .Include(d => d.PlanningDetail)
             .Include(x => x.PlanningDocumentDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
@@ -193,7 +194,7 @@ internal sealed class PlanningHandlers :
         // Remove existing document details and add new ones
         if (entity.PlanningDocumentDetail != null && entity.PlanningDocumentDetail.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.PlanningDocumentDetail>().RemoveRange(entity.PlanningDocumentDetail);
+            _db.Set<PlanningDocumentDetail>().RemoveRange(entity.PlanningDocumentDetail);
             entity.PlanningDocumentDetail.Clear();
         }
 
@@ -201,7 +202,7 @@ internal sealed class PlanningHandlers :
         {
             foreach (var d in request.Request.docDetails)
             {
-                var docDetail = new Himapp.Execution.Domain.Entities.PlanningDocumentDetail
+                var docDetail = new PlanningDocumentDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     DocumentName = d.DocumentName,
@@ -229,7 +230,7 @@ internal sealed class PlanningHandlers :
 
     public async Task<bool> Handle(DeletePlanningCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+        var entity = await _db.Set<PlanningEntity>()
             .Include(d => d.PlanningDetail)
             .Include(x => x.PlanningDocumentDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
@@ -237,7 +238,7 @@ internal sealed class PlanningHandlers :
 
         // Soft delete header and child details
         entity.IsActive = false;
-        entity.LastModifiedBy = 0;
+        entity.LastModifiedBy = request.DeletedBy;
         entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.PlanningDetail != null)

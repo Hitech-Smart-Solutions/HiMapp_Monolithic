@@ -38,11 +38,12 @@ public static class DefaultWorkflowConfigurations
                 })
         };
 
+    public static bool TryGetFor(string entityName, out WorkflowConfiguration? configuration) =>
+        Defaults.TryGetValue(entityName, out configuration);
+
     public static WorkflowConfiguration GetFor(string entityName) =>
-        Defaults.TryGetValue(entityName, out var config)
-            ? config
-            : new WorkflowConfiguration(
-                EntityName: entityName,
-                Levels: new[] { new WorkflowLevel(1, "L1 - Default Approver", "Approver") });
+        TryGetFor(entityName, out var configuration)
+            ? configuration
+            : throw new ArgumentOutOfRangeException(nameof(entityName), entityName, "No workflow configuration exists for this entity.");
 }
 

@@ -22,8 +22,8 @@ public sealed class DailyProgressController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllDailyProgressQuery(), cancellationToken));
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken) =>
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken) =>
         OkOrNotFound(await _mediator.Send(new GetDailyProgressByIdQuery(id), cancellationToken));
 
     [HttpPost]
@@ -33,15 +33,15 @@ public sealed class DailyProgressController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> Update(long id, [FromBody] UpdateDailyProgressRequest request, CancellationToken cancellationToken)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateDailyProgressRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new UpdateDailyProgressCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _mediator.Send(new DeleteDailyProgressCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();

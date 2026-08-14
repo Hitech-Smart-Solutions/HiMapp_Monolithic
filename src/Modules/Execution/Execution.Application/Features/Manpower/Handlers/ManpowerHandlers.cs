@@ -4,6 +4,7 @@ using Himapp.Execution.Application.Features.Manpower.Models;
 using Himapp.Execution.Application.Features.Manpower.Queries;
 using Himapp.Execution.Contracts;
 using Himapp.Execution.Domain.Entities;
+using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -23,7 +24,10 @@ internal sealed class ManpowerHandlers :
     IRequestHandler<GetLastManpowerBySectionIDQuery, ManpowerModel?>
 {
     private readonly IExecutionDbContext _db;
-    public ManpowerHandlers(IExecutionDbContext db) => _db = db;
+    private readonly ICurrentUser _currentUser;
+    public ManpowerHandlers(IExecutionDbContext db, ICurrentUser currentUser) => (_db, _currentUser) = (db, currentUser);
+
+    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
 
     public async Task<IReadOnlyCollection<ManpowerModel>> Handle(GetAllManpowersQuery request, CancellationToken cancellationToken)
     {
@@ -187,11 +191,12 @@ internal sealed class ManpowerHandlers :
 
     public async Task<bool> Handle(DeleteManpowerCommand request, CancellationToken cancellationToken)
     {
+        var userId = CurrentUserId;
         var entity = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;
 
         entity.IsActive = false;
-        entity.LastModifiedBy = 0;
+        entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         if (entity.ManpowerDetail != null)
@@ -199,7 +204,7 @@ internal sealed class ManpowerHandlers :
             foreach (var dd in entity.ManpowerDetail)
             {
                 dd.IsActive = false;
-                dd.LastModifiedBy = 0;
+                dd.LastModifiedBy = userId;
                 dd.LastModifiedDate = DateTimeOffset.UtcNow;
             }
         }
@@ -252,7 +257,7 @@ internal sealed class ManpowerHandlers :
         using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uspgetmanpowerbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd.CommandType = CommandType.Text;
-            cmd.CommandTimeout = 1800;
+            cmd.CommandTimeout = 30;
             cmd.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
@@ -271,7 +276,7 @@ internal sealed class ManpowerHandlers :
         using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetmanpowercountbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd2.CommandType = CommandType.Text;
-            cmd2.CommandTimeout = 1800;
+            cmd2.CommandTimeout = 30;
             cmd2.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd2.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);

@@ -4,6 +4,7 @@ using Himapp.Execution.Application.Features.DailyLabor.Queries;
 using Himapp.Execution.Application.Features.Manpower.Queries;
 using Himapp.Execution.Contracts;
 using Himapp.Execution.Domain.Entities;
+using Himapp.SharedKernel.Abstractions;
 using Himapp.Admin.Contracts.Projects;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,10 @@ internal sealed class DailyLaborHandlers :
     private readonly IExecutionDbContext _db;
     private readonly IProjectDirectory _projectDirectory;
     private readonly Himapp.Execution.Contracts.References.IDlrCodeGenerator _codeGenerator;
-    public DailyLaborHandlers(IExecutionDbContext db, IProjectDirectory projectDirectory, Himapp.Execution.Contracts.References.IDlrCodeGenerator codeGenerator) => (_db, _projectDirectory, _codeGenerator) = (db, projectDirectory, codeGenerator);
+    private readonly ICurrentUser _currentUser;
+    public DailyLaborHandlers(IExecutionDbContext db, IProjectDirectory projectDirectory, Himapp.Execution.Contracts.References.IDlrCodeGenerator codeGenerator, ICurrentUser currentUser) => (_db, _projectDirectory, _codeGenerator, _currentUser) = (db, projectDirectory, codeGenerator, currentUser);
+
+    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
 
     public async Task<IReadOnlyCollection<DailyLaborModel>> Handle(GetAllDailyLaborsQuery request, CancellationToken cancellationToken)
     {
@@ -125,6 +129,7 @@ internal sealed class DailyLaborHandlers :
     public async Task<DailyLaborModel> Handle(CreateDailyLaborCommand request, CancellationToken cancellationToken)
     {
         var r = request.Request;
+        var userId = CurrentUserId;
 
         if (!Enum.IsDefined(typeof(DailyLaborState), (short)r.Status))
         {
@@ -143,9 +148,9 @@ internal sealed class DailyLaborHandlers :
             Remarks = r.Remarks,
             StateID = (short)r.Status,
             IsActive = true,
-            CreatedBy = 0,
+            CreatedBy = userId,
             CreatedDate = DateTime.UtcNow,
-            LastModifiedBy = 0,
+            LastModifiedBy = userId,
             LastModifiedDate = DateTime.UtcNow
         };
 
@@ -171,9 +176,9 @@ internal sealed class DailyLaborHandlers :
                     ContractorName = d.ContractorName,
                     ActivityID = d.ActivityId,
                     IsActive = true,
-                    CreatedBy = 0,
+                    CreatedBy = userId,
                     CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = 0,
+                    LastModifiedBy = userId,
                     LastModifiedDate = DateTimeOffset.UtcNow,
                     DailyLabor = entity
                 };
@@ -191,12 +196,13 @@ internal sealed class DailyLaborHandlers :
     }
     public async Task<bool> Handle(DeleteDailyLaborCommand request, CancellationToken cancellationToken)
     {
+        var userId = CurrentUserId;
         var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().Include(d => d.DailyLaborDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;
 
         // Soft delete header and child details
         entity.IsActive = false;
-        entity.LastModifiedBy = 0;
+        entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.DailyLaborDetail != null)
@@ -204,7 +210,7 @@ internal sealed class DailyLaborHandlers :
             foreach (var dd in entity.DailyLaborDetail)
             {
                 dd.IsActive = false;
-                dd.LastModifiedBy = 0;
+                dd.LastModifiedBy = userId;
                 dd.LastModifiedDate = DateTimeOffset.UtcNow;
             }
         }
@@ -215,6 +221,7 @@ internal sealed class DailyLaborHandlers :
 
     public async Task<DailyLaborModel?> Handle(UpdateDailyLaborCommand request, CancellationToken cancellationToken)
     {
+        var userId = CurrentUserId;
         var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>()
             .Include(d => d.DailyLaborDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
@@ -239,6 +246,7 @@ internal sealed class DailyLaborHandlers :
         entity.Remarks = r.Remarks;
         entity.RemoveMenPower = r.RemoveMenPower;
         entity.StateID = (short?)r.Status;
+        entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTime.UtcNow;
 
         // Remove existing details (physically) and add new ones
@@ -264,9 +272,9 @@ internal sealed class DailyLaborHandlers :
                     ContractorName = d.ContractorName,
                     ActivityID = d.ActivityId,
                     IsActive = true,
-                    CreatedBy = 0,
+                    CreatedBy = userId,
                     CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = 0,
+                    LastModifiedBy = userId,
                     LastModifiedDate = DateTimeOffset.UtcNow,
                     DailyLabor = entity
                 };
@@ -343,7 +351,7 @@ internal sealed class DailyLaborHandlers :
         using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uspgetdailylaborbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd.CommandType = CommandType.Text;
-            cmd.CommandTimeout = 1800;
+            cmd.CommandTimeout = 30;
             cmd.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
@@ -362,7 +370,7 @@ internal sealed class DailyLaborHandlers :
         using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetdailylaborcountbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd2.CommandType = CommandType.Text;
-            cmd2.CommandTimeout = 1800;
+            cmd2.CommandTimeout = 30;
             cmd2.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd2.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);

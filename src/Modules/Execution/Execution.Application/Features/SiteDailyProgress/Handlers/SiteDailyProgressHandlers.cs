@@ -3,6 +3,7 @@ using Himapp.Execution.Application.Features.SiteDailyProgress.Commands;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
 using Himapp.Execution.Domain.Entities;
 using Himapp.Execution.Contracts;
+using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,10 @@ internal sealed class SiteDailyProgressHandlers :
     IRequestHandler<DeleteSiteDailyProgressCommand, bool>
 {
     private readonly IExecutionDbContext _db;
-    public SiteDailyProgressHandlers(IExecutionDbContext db) => _db = db;
+    private readonly ICurrentUser _currentUser;
+    public SiteDailyProgressHandlers(IExecutionDbContext db, ICurrentUser currentUser) => (_db, _currentUser) = (db, currentUser);
+
+    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
 
     public async Task<IEnumerable<SiteDailyProgressModel>> Handle(GetAllSiteDailyProgressesQuery request, CancellationToken cancellationToken)
     {
@@ -53,6 +57,7 @@ internal sealed class SiteDailyProgressHandlers :
     public async Task<SiteDailyProgressModel> Handle(CreateSiteDailyProgressCommand request, CancellationToken cancellationToken)
     {
         var r = request.Request;
+        var userId = CurrentUserId;
 
         var entity = new Himapp.Execution.Domain.Entities.SiteDailyProgress
         {
@@ -65,9 +70,9 @@ internal sealed class SiteDailyProgressHandlers :
             Remarks = r.Remarks,
             TotalAmount = 0m,
             IsActive = true,
-            CreatedBy = 0,
+            CreatedBy = userId,
             CreatedDate = DateTimeOffset.UtcNow,
-            LastModifiedBy = 0,
+            LastModifiedBy = userId,
             LastModifiedDate = DateTimeOffset.UtcNow
         };
 
@@ -85,9 +90,9 @@ internal sealed class SiteDailyProgressHandlers :
                     PlanQuantity = d.PlanQuantity,
                     Remarks = d.Remarks,
                     IsActive = true,
-                    CreatedBy = 0,
+                    CreatedBy = userId,
                     CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = 0,
+                    LastModifiedBy = userId,
                     LastModifiedDate = DateTimeOffset.UtcNow
                 };
 
@@ -105,6 +110,7 @@ internal sealed class SiteDailyProgressHandlers :
 
     public async Task<SiteDailyProgressModel?> Handle(UpdateSiteDailyProgressCommand request, CancellationToken cancellationToken)
     {
+        var userId = CurrentUserId;
         var entity = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>()
             .Include(d => d.SiteDailyProgressDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
@@ -115,7 +121,7 @@ internal sealed class SiteDailyProgressHandlers :
         entity.ProjectID = r.ProjectId;
         entity.ReportDate = r.ReportDate.HasValue ? DateOnly.FromDateTime(r.ReportDate.Value.UtcDateTime) : entity.ReportDate;
         entity.Remarks = r.Remarks ?? entity.Remarks;
-        entity.LastModifiedBy = 0;
+        entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         // Remove existing details and add new ones
@@ -139,9 +145,9 @@ internal sealed class SiteDailyProgressHandlers :
                     PlanQuantity = d.PlanQuantity,
                     Remarks = d.Remarks,
                     IsActive = true,
-                    CreatedBy = 0,
+                    CreatedBy = userId,
                     CreatedDate = DateTimeOffset.UtcNow,
-                    LastModifiedBy = 0,
+                    LastModifiedBy = userId,
                     LastModifiedDate = DateTimeOffset.UtcNow
                 };
 
@@ -158,6 +164,7 @@ internal sealed class SiteDailyProgressHandlers :
 
     public async Task<bool> Handle(DeleteSiteDailyProgressCommand request, CancellationToken cancellationToken)
     {
+        var userId = CurrentUserId;
         var entity = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>()
             .Include(d => d.SiteDailyProgressDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
@@ -165,7 +172,7 @@ internal sealed class SiteDailyProgressHandlers :
 
         // Soft delete header and child details
         entity.IsActive = false;
-        entity.LastModifiedBy = 0;
+        entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
         if (entity.SiteDailyProgressDetail != null)
@@ -173,7 +180,7 @@ internal sealed class SiteDailyProgressHandlers :
             foreach (var dd in entity.SiteDailyProgressDetail)
             {
                 dd.IsActive = false;
-                dd.LastModifiedBy = 0;
+                dd.LastModifiedBy = userId;
                 dd.LastModifiedDate = DateTimeOffset.UtcNow;
             }
         }

@@ -12,12 +12,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize]
 [Route("v1/execution/plannings")]
 public sealed class PlanningsController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public PlanningsController(IMediator mediator) => _mediator = mediator;
+    private readonly ICurrentUser _currentUser;
+    public PlanningsController(IMediator mediator, ICurrentUser currentUser) => (_mediator, _currentUser) = (mediator, currentUser);
 
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
@@ -41,10 +42,11 @@ public sealed class PlanningsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:int},{deletedBy:int}")]
-    public async Task<IActionResult> Delete(int id, int deletedBy, CancellationToken cancellationToken)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeletePlanningCommand(id, deletedBy), cancellationToken);
+        if (_currentUser.UserId is not int userId) return Unauthorized();
+        var deleted = await _mediator.Send(new DeletePlanningCommand(id, userId), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 
@@ -62,9 +64,9 @@ public sealed class PlanningsController : ControllerBase
             var result = await _mediator.Send(new GetPlanningListByProjectQuery(searchParams), cancellationToken);
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, ex.Message);
+            return StatusCode(500, "An unexpected error occurred.");
         }
 
     }
@@ -85,9 +87,9 @@ public sealed class PlanningsController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, ex.Message);
+            return StatusCode(500, "An unexpected error occurred.");
         }
     }
 
@@ -107,9 +109,9 @@ public sealed class PlanningsController : ControllerBase
             var parts = ex.Message.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries);
             return BadRequest(parts);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, ex.Message);
+            return StatusCode(500, "An unexpected error occurred.");
         }
     }
 

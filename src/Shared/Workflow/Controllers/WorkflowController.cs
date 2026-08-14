@@ -35,6 +35,7 @@ public sealed class WorkflowController : ControllerBase
     [HttpGet("{entityName}/{entityId:int}")]
     public async Task<IActionResult> GetStatus(string entityName, int entityId, CancellationToken cancellationToken)
     {
+        if (!DefaultWorkflowConfigurations.TryGetFor(entityName, out _)) return BadRequest(new { Message = "Unknown workflow entity." });
         var instance = await _workflowService.GetByEntityAsync(entityName, entityId, cancellationToken);
         if (instance is null)
             return NotFound(new { Message = $"No workflow found for {entityName}#{entityId}." });
@@ -109,6 +110,8 @@ public sealed class WorkflowController : ControllerBase
     [HttpPost("{entityName}/{entityId:int}/submit")]
     public async Task<IActionResult> Submit(string entityName, int entityId, CancellationToken cancellationToken)
     {
+        if (!DefaultWorkflowConfigurations.TryGetFor(entityName, out _)) return BadRequest(new { Message = "Unknown workflow entity." });
+        if (_currentUser.UserId is not int userId) return Unauthorized();
         var existing = await _workflowService.GetByEntityAsync(entityName, entityId, cancellationToken);
         if (existing is not null)
         {
@@ -116,7 +119,7 @@ public sealed class WorkflowController : ControllerBase
         }
 
         var instance = await _workflowService.StartAsync(
-            entityName, entityName, entityId, _currentUser.UserId ?? 0, cancellationToken);
+            entityName, entityName, entityId, userId, cancellationToken);
 
         return Ok(new
         {
@@ -130,11 +133,13 @@ public sealed class WorkflowController : ControllerBase
 
     private async Task<IActionResult> ExecuteAction(string entityName, int entityId, string action, string? comment, CancellationToken cancellationToken)
     {
+        if (!DefaultWorkflowConfigurations.TryGetFor(entityName, out _)) return BadRequest(new { Message = "Unknown workflow entity." });
+        if (_currentUser.UserId is not int userId) return Unauthorized();
         var instance = await _workflowService.GetByEntityAsync(entityName, entityId, cancellationToken);
         if (instance is null)
             return NotFound(new { Message = $"No workflow found for {entityName}#{entityId}. Create one via POST .../submit first." });
 
-        instance = await _workflowService.FireAsync(instance.Id, action, _currentUser.UserId ?? 0, comment, cancellationToken);
+        instance = await _workflowService.FireAsync(instance.Id, action, userId, comment, cancellationToken);
 
         return Ok(new
         {
