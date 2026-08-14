@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Himapp.Notifications.Models;
-using Himapp.Workflow.Models;
 using Himapp.Audit.Models;
 using Himapp.Execution.Domain.Entities;
 
@@ -13,9 +12,6 @@ public sealed class HimappDbContext : DbContext
     public DbSet<OutboxEvent> OutboxEvents => Set<OutboxEvent>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<NotificationDeliveryLog> NotificationDeliveryLogs => Set<NotificationDeliveryLog>();
-
-    public DbSet<WorkflowInstance> WorkflowInstances => Set<WorkflowInstance>();
-    public DbSet<WorkflowApprovalHistory> WorkflowApprovalHistories => Set<WorkflowApprovalHistory>();
 
     public DbSet<AuditEvent> AuditEvents => Set<AuditEvent>();
 
@@ -59,21 +55,6 @@ public sealed class HimappDbContext : DbContext
         {
             b.ToTable("notification_delivery_logs");
             b.HasKey(x => x.OutboxEventId);
-        });
-
-        modelBuilder.Entity<WorkflowInstance>(b =>
-        {
-            b.ToTable("workflow_instances");
-            b.HasKey(x => x.Id);
-            b.Property(x => x.WorkflowType).IsRequired();
-            b.Property(x => x.EntityName).IsRequired();
-            b.HasMany(x => x.History).WithOne(x => x.WorkflowInstance).HasForeignKey(x => x.WorkflowInstanceId);
-        });
-
-        modelBuilder.Entity<WorkflowApprovalHistory>(b =>
-        {
-            b.ToTable("workflow_approval_history");
-            b.HasKey(x => x.Id);
         });
 
         modelBuilder.Entity<AuditEvent>(b =>

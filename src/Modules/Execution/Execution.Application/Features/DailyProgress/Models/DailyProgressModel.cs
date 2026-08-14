@@ -1,5 +1,3 @@
-using Himapp.Workflow.Models;
-
 namespace Himapp.Execution.Application.Features.DailyProgress.Models;
 
 public sealed record DailyProgressModel(
@@ -19,11 +17,7 @@ public sealed record DailyProgressModel(
     int? LastModifiedBy,
     System.DateTimeOffset LastModifiedDate,
     IReadOnlyCollection<DailyProgressDetailModel> Details
-) : IRequiresApproval
-{
-    public string EntityName => "DailyProgress";
-    public int EntityId => Id;
-}
+);
 
 public sealed record CreateDailyProgressRequest(int ProjectId, System.DateOnly ReportDate, string? Hindrances, string? NextDayPlan, string? Remarks, List<DailyProgressDetailRequest>? Details = null);
 public sealed record UpdateDailyProgressRequest(string? Hindrances, string? NextDayPlan, string? Remarks, string Status, bool IsActive, List<DailyProgressDetailRequest>? Details = null);

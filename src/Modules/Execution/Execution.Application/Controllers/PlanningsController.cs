@@ -31,6 +31,23 @@ public sealed class PlanningsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePlanningRequest request, CancellationToken cancellationToken)
     {
+        if (request == null)
+        {
+            return BadRequest("Create request is required.");
+        }
+        else if (request.StartDate == default)
+        {
+            return BadRequest("Start date is required.");
+        }
+        else if (request.EndDate == default)
+        {
+            return BadRequest("End date is required.");
+        }
+        else if (request.StartDate > request.EndDate)
+        {
+            return BadRequest("Start date cannot be later than end date.");
+        }
+
         var result = await _mediator.Send(new CreatePlanningCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
@@ -38,15 +55,23 @@ public sealed class PlanningsController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdatePlanningRequest request, CancellationToken cancellationToken)
     {
+        if (request == null)
+        {
+            return BadRequest("Update request is required.");
+        }
+        else if (request.Id != id)
+        {
+            return BadRequest("Planning ID does not match.");
+        }
+
         var result = await _mediator.Send(new UpdatePlanningCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpDelete("{id:int},{deletedBy:int}")]
+    public async Task<IActionResult> Delete(int id, int deletedBy, CancellationToken cancellationToken)
     {
-        if (_currentUser.UserId is not int userId) return Unauthorized();
-        var deleted = await _mediator.Send(new DeletePlanningCommand(id, userId), cancellationToken);
+        var deleted = await _mediator.Send(new DeletePlanningCommand(id, deletedBy), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 
@@ -98,6 +123,31 @@ public sealed class PlanningsController : ControllerBase
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> BulkCreate([FromForm] BulkCreatePlanningRequest request, CancellationToken cancellationToken)
     {
+        if (request == null)
+        {
+            return BadRequest("Upload request is required.");
+        }
+        else if (request.ProjectId <= 0)
+        {
+            return BadRequest("ProjectID is required.");
+        }
+        else if (request.ExcelFile == null)
+        {
+            return BadRequest("Excel file is required.");
+        }
+        else if (request.StartDate == default || request.StartDate == DateOnly.MinValue)
+        {
+            return BadRequest("Start date is required.");
+        }
+        else if (request.EndDate == default || request.EndDate == DateOnly.MinValue)
+        {
+            return BadRequest("End date is required.");
+        }
+        else if (request.StartDate > request.EndDate)
+        {
+            return BadRequest("Start date cannot be later than end date.");
+        }
+
         try
         {
             var result = await _mediator.Send(new BulkCreatePlanningCommand(request), cancellationToken);

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>net10.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<RootNamespace>Himapp.Workflow.Contracts</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="ApprovalWorkflows\" />
+  </ItemGroup>
+
+  <!-- Rely on SDK default Compile items -->
+
+</Project>

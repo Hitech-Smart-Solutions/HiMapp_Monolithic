@@ -1,5 +1,4 @@
 using Himapp.Execution.Application.Features.SiteDailyProgress.Models;
-using Himapp.Workflow.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
@@ -10,7 +9,6 @@ namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
 [Authorize]
-[RequiresApproval]
 [Route("v1/execution/site-daily-progresses")]
 public sealed class SiteDailyProgressesController : ControllerBase
 {

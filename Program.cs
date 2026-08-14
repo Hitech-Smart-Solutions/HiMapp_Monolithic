@@ -19,8 +19,8 @@ using Himapp.SharedKernel.Logging;
 using Himapp.Store.Application;
 // Store.Contracts moved to Store.Application
 using Himapp.Store.Infrastructure;
-using Himapp.Workflow;
-using Himapp.Workflow.Controllers;
+using Himapp.Workflow.Application;
+using Himapp.Workflow.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,7 +37,7 @@ builder.Logging.AddSharedLogging(builder.Configuration);
 // Core services
 builder.Services.AddAuthorization();
 builder.Services.AddControllers()
-    .AddApplicationPart(typeof(Himapp.Workflow.DependencyInjection).Assembly)
+    .AddApplicationPart(typeof(Himapp.Workflow.Application.DependencyInjection).Assembly)
     .AddAuditActionFilter().AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
@@ -77,7 +77,7 @@ builder.Services.AddSwaggerGen();
 // Shared Services
 builder.Services
     .AddHimappNotifications()
-    .AddHimappWorkflow()
+    .AddWorkflowModule()
     .AddHimappFiles()
     .AddD365Integration()
     .AddAuditLogging(builder.Configuration); // 🔥 Registers audit services (DbContext, Channel, Background consumer)
@@ -95,6 +95,7 @@ builder.Services
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
     .AddDbContext<StoreDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
+    .AddWorkflowInfrastructure(builder.Configuration)
 
     // Register shared kernel services (Outbox, logging helpers, etc.) will be added from SharedKernel.DependencyInjection
     .AddAdminModule()
