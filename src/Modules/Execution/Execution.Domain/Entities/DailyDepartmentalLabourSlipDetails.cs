@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Himapp.Execution.Domain.Entities
@@ -41,6 +42,7 @@ namespace Himapp.Execution.Domain.Entities
 
         public bool? IsLumSumWork { get; set; } = false;
 
+        [ForeignKey("DDLSlipID")]
         public virtual DailyDepartmentalLabourSlip? DailyDepartmentalLabourSlip { get; set; }
     }
 }

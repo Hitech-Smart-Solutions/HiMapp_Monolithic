@@ -15,10 +15,7 @@ namespace Himapp.Execution.Domain.Entities
         public int ID { get; set; }
         public Guid UniqueID { get; set; }
 
-        public int? CompanyID { get; set; }
-        public int? LocationID { get; set; }
         public int? ProjectID { get; set; }
-        public int? FinancialYearID { get; set; }
 
         public string? DDLSlipCode { get; set; }
         public DateTime? SlipDate { get; set; }

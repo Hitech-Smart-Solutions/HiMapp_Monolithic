@@ -134,9 +134,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("CompanyID")
-                        .HasColumnType("integer");
-
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
@@ -158,9 +155,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<string>("DocumentPath")
                         .HasColumnType("text");
 
-                    b.Property<int?>("FinancialYearID")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -175,9 +169,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     b.Property<DateTime>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("LocationID")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("Mat")
                         .HasColumnType("integer");
@@ -246,9 +237,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int?>("DDLSlipID")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("DailyDepartmentalLabourSlipID")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("DebitPartyID")
                         .HasColumnType("integer");
 
@@ -302,7 +290,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     b.HasKey("ID");
 
-                    b.HasIndex("DailyDepartmentalLabourSlipID");
+                    b.HasIndex("DDLSlipID");
 
                     b.ToTable("DailyDepartmentalLabourSlipDetails", "execution");
                 });
@@ -652,9 +640,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<bool?>("IsDepartment")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("integer");
 
@@ -702,6 +687,9 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsDepartment")
                         .HasColumnType("boolean");
 
                     b.Property<int>("LastModifiedBy")
@@ -1115,7 +1103,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.HasOne("Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip", "DailyDepartmentalLabourSlip")
                         .WithMany("DailyDepartmentalLabourSlipDetails")
-                        .HasForeignKey("DailyDepartmentalLabourSlipID");
+                        .HasForeignKey("DDLSlipID");
 
                     b.Navigation("DailyDepartmentalLabourSlip");
                 });

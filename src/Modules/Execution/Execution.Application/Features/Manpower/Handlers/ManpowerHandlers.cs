@@ -18,6 +18,7 @@ internal sealed class ManpowerHandlers :
     IRequestHandler<CreateManpowerCommand, ManpowerModel>,
     IRequestHandler<UpdateManpowerCommand, ManpowerModel?>,
     IRequestHandler<DeleteManpowerCommand, bool>,
+    IRequestHandler<DeleteManpowerActionCommand, bool>,
     IRequestHandler<GetManpowerByProjectID, DataSet>,
     IRequestHandler<GetLastManpowerBySectionIDQuery, ManpowerModel?>
 {
@@ -41,7 +42,6 @@ internal sealed class ManpowerHandlers :
                 m.CreatedDate,
                 m.LastModifiedBy,
                 m.LastModifiedDate,
-                m.IsDepartment,
                 m.ManpowerDetail == null ? Array.Empty<ManpowerDetailModel>() : m.ManpowerDetail.Select(d => new ManpowerDetailModel(
                    d.ID,
                    d.UniqueID,
@@ -50,6 +50,7 @@ internal sealed class ManpowerHandlers :
                    d.SkilledCount,
                    d.UnskilledCount,
                    d.OtherCount,
+                   d.IsDepartment,
                    d.TotalCount
                    )).ToList()
         ))
@@ -72,9 +73,10 @@ internal sealed class ManpowerHandlers :
             d.SkilledCount,
             d.UnskilledCount,
             d.OtherCount,
+            d.IsDepartment,
             d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
 
-        return new ManpowerModel(m.ID, m.UniqueID, m.ProjectID, m.SectionID, m.EntryDate, m.Remarks, m.StateID, m.IsActive, m.CreatedBy, m.CreatedDate, m.LastModifiedBy, m.LastModifiedDate, m.IsDepartment, details);
+        return new ManpowerModel(m.ID, m.UniqueID, m.ProjectID, m.SectionID, m.EntryDate, m.Remarks, m.StateID, m.IsActive, m.CreatedBy, m.CreatedDate, m.LastModifiedBy, m.LastModifiedDate, details);
     }
 
     public async Task<ManpowerModel> Handle(CreateManpowerCommand request, CancellationToken cancellationToken)
@@ -88,7 +90,6 @@ internal sealed class ManpowerHandlers :
             SectionID = r.SectionId,
             EntryDate = r.EntryDate,
             Remarks = r.Remarks,
-            IsDepartment = r.IsDepartment,
             StateID = 3,
             IsActive = true,
             CreatedBy = r.CreatedBy,
@@ -110,6 +111,7 @@ internal sealed class ManpowerHandlers :
                     UnskilledCount = d.UnskilledCount,
                     OtherCount = d.OtherCount,
                     TotalCount = d.SkilledCount + d.UnskilledCount + d.OtherCount,
+                    IsDepartment = d.IsDepartment,
                     IsActive = true,
                     CreatedBy = r.CreatedBy,
                     CreatedDate = DateTimeOffset.UtcNow,
@@ -125,9 +127,9 @@ internal sealed class ManpowerHandlers :
         _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, d.ActivityID, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
+        var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, d.ActivityID, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.IsDepartment, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
 
-        return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, entity.IsDepartment, details);
+        return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<ManpowerModel?> Handle(UpdateManpowerCommand request, CancellationToken cancellationToken)
@@ -139,7 +141,6 @@ internal sealed class ManpowerHandlers :
         entity.SectionID = r.SectionId;
         entity.EntryDate = r.EntryDate;
         entity.Remarks = r.Remarks;
-        entity.IsDepartment = r.IsDepartment;
         entity.StateID = r.StateId;
         entity.IsActive = r.IsActive;
         entity.LastModifiedBy = r.LastModifiedBy;
@@ -164,6 +165,7 @@ internal sealed class ManpowerHandlers :
                     UnskilledCount = d.UnskilledCount,
                     OtherCount = d.OtherCount,
                     TotalCount = d.SkilledCount + d.UnskilledCount + d.OtherCount,
+                    IsDepartment = d.IsDepartment,
                     IsActive = true,
                     CreatedBy = r.LastModifiedBy,
                     CreatedDate = DateTimeOffset.UtcNow,
@@ -178,9 +180,9 @@ internal sealed class ManpowerHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, d.ActivityID, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
+        var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, d.ActivityID, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.IsDepartment, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
 
-        return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, entity.IsDepartment, details);
+        return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<bool> Handle(DeleteManpowerCommand request, CancellationToken cancellationToken)
@@ -201,6 +203,28 @@ internal sealed class ManpowerHandlers :
                 dd.LastModifiedDate = DateTimeOffset.UtcNow;
             }
         }
+
+        await _db.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> Handle(DeleteManpowerActionCommand request, CancellationToken cancellationToken)
+    {
+        var model = request.addTransactionActionHistoryDTO;
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == model.ProgramRowId, cancellationToken);
+        if (entity is null) return false;
+
+        // Mark child details active/inactive
+        if (entity.ManpowerDetail != null)
+        {
+            foreach (var dd in entity.ManpowerDetail)
+            {
+                dd.IsActive = model.Actions == Actions.Activated ? true : false;
+            }
+        }
+
+        // Mark main entity active/inactive
+        entity.IsActive = model.Actions == Actions.Activated ? true : false;
 
         await _db.SaveChangesAsync(cancellationToken);
         return true;
@@ -275,35 +299,35 @@ internal sealed class ManpowerHandlers :
         if (manpower == null)
             return null;
 
-        var details = manpower.ManpowerDetail?
-            .Where(x => x.IsActive)
-            .Select(d => new ManpowerDetailModel(
-                d.ID,
-                d.UniqueID,
-                d.ContractorID,
-                d.ActivityID,
-                d.SkilledCount,
-                d.UnskilledCount,
-                d.OtherCount,
-                d.TotalCount))
-            .ToList()
-            ?? new List<ManpowerDetailModel>();
+    var details = manpower.ManpowerDetail?
+        .Where(x => x.IsActive)
+        .Select(d => new ManpowerDetailModel(
+            d.ID,
+            d.UniqueID,
+            d.ContractorID,
+            d.ActivityID,
+            d.SkilledCount,
+            d.UnskilledCount,
+            d.OtherCount,
+            d.IsDepartment,
+            d.TotalCount))
+        .ToList()
+        ?? new List<ManpowerDetailModel>();
 
-        return new ManpowerModel(
-            manpower.ID,
-            manpower.UniqueID,
-            manpower.ProjectID,
-            manpower.SectionID,
-            manpower.EntryDate,
-            manpower.Remarks,
-            manpower.StateID,
-            manpower.IsActive,
-            manpower.CreatedBy,
-            manpower.CreatedDate,
-            manpower.LastModifiedBy,
-            manpower.LastModifiedDate,
-            manpower.IsDepartment,
-            details);
+    return new ManpowerModel(
+        manpower.ID,
+        manpower.UniqueID,
+        manpower.ProjectID,
+        manpower.SectionID,
+        manpower.EntryDate,
+        manpower.Remarks,
+        manpower.StateID,
+        manpower.IsActive,
+        manpower.CreatedBy,
+        manpower.CreatedDate,
+        manpower.LastModifiedBy,
+        manpower.LastModifiedDate,
+        details);
     }
 }
 

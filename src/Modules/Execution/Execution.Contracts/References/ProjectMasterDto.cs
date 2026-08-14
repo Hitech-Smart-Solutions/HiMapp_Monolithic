@@ -1,0 +1,31 @@
+namespace Himapp.Execution.Contracts.References;
+
+public sealed record ProjectMasterDto(
+    System.Guid UniqueId,
+    int Id,
+    string ProjectName,
+    string ProjectCode,
+    string ClientName,
+    decimal ProjectValue,
+    int CompanyId,
+    int LocationId,
+    string? Address,
+    string? ProjectDescription,
+    string? Website,
+    string ContactNumber,
+    string? EmailId,
+    int? ProjectTypeId,
+    System.DateTime? StartDate,
+    System.DateTime? EndDate,
+    int? ProjectHeadID,
+    int? SalesManagerID,
+    int? StoreInchargeID,
+    int? ProjectManagerID,
+    int? ContractTypeID,
+    int StatusId,
+    bool IsActive,
+    int CreatedBy,
+    System.DateTime CreatedDate,
+    int LastModifiedBy,
+    System.DateTime LastModifiedDate
+);

@@ -2,13 +2,15 @@ using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Queries;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Commands;
 
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
+//[Authorize]
+[RequiresApproval]
 [Route("v1/execution/daily-departmental-labour-slips")]
 public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
 {
@@ -41,6 +43,13 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _mediator.Send(new DeleteDailyDepartmentalLabourSlipCommand(id), cancellationToken);
+        return deleted ? Ok() : NotFound();
+    }
+
+    [HttpPut("SetActiveInActiveForDDLS")]
+    public async Task<IActionResult> SetActiveInActiveForDDLS(AddTransactionActionHistoryDTO dto, CancellationToken cancellationToken)
+    {
+        var deleted = await _mediator.Send(new DeleteDDLSCommand(dto), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 

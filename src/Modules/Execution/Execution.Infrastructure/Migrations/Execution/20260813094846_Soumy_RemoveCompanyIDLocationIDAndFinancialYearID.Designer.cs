@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     [DbContext(typeof(ExecutionDbContext))]
-    [Migration("20260812053509_AddIsDepartmentColumnInManpower")]
-    partial class AddIsDepartmentColumnInManpower
+    [Migration("20260813094846_Soumy_RemoveCompanyIDLocationIDAndFinancialYearID")]
+    partial class Soumy_RemoveCompanyIDLocationIDAndFinancialYearID
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -137,9 +137,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("CompanyID")
-                        .HasColumnType("integer");
-
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
@@ -161,9 +158,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<string>("DocumentPath")
                         .HasColumnType("text");
 
-                    b.Property<int?>("FinancialYearID")
-                        .HasColumnType("integer");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -178,9 +172,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     b.Property<DateTime>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("LocationID")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("Mat")
                         .HasColumnType("integer");
@@ -249,9 +240,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int?>("DDLSlipID")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("DailyDepartmentalLabourSlipID")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("DebitPartyID")
                         .HasColumnType("integer");
 
@@ -305,7 +293,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     b.HasKey("ID");
 
-                    b.HasIndex("DailyDepartmentalLabourSlipID");
+                    b.HasIndex("DDLSlipID");
 
                     b.ToTable("DailyDepartmentalLabourSlipDetails", "execution");
                 });
@@ -655,8 +643,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    // IsDepartment moved to ManpowerDetail
-
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("integer");
 
@@ -706,6 +692,9 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool?>("IsDepartment")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("integer");
 
@@ -717,9 +706,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     b.Property<int>("OtherCount")
                         .HasColumnType("integer");
-
-                    b.Property<bool?>("IsDepartment")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("SkilledCount")
                         .HasColumnType("integer");
@@ -1120,7 +1106,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.HasOne("Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip", "DailyDepartmentalLabourSlip")
                         .WithMany("DailyDepartmentalLabourSlipDetails")
-                        .HasForeignKey("DailyDepartmentalLabourSlipID");
+                        .HasForeignKey("DDLSlipID");
 
                     b.Navigation("DailyDepartmentalLabourSlip");
                 });
