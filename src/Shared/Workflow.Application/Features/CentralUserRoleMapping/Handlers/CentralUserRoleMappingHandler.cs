@@ -211,7 +211,7 @@ internal sealed class CentralUserRoleMappingHandler :
             await connection.OpenAsync(cancellationToken);
 
             using var cmd = new NpgsqlCommand(
-                @"SELECT * FROM execution.uspgetexecutionplanningbyprojectid(
+                @"SELECT * FROM execution.uspgetcentralrolemappingbyprojectid(
                 @p_projectid,
                 @p_filtercolumn,
                 @p_filtervalue,
@@ -270,7 +270,7 @@ internal sealed class CentralUserRoleMappingHandler :
             await connection.OpenAsync(cancellationToken);
 
             using var cmd = new NpgsqlCommand(
-                @"SELECT * FROM execution.uspgetexecutionplanningcountbyprojectid(
+                @"SELECT * FROM execution.uspgetcentralrolemappingcountbyprojectid(
                 @p_projectid,
                 @p_filtercolumn,
                 @p_filtervalue,
