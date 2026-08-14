@@ -244,7 +244,7 @@ internal sealed class PlanningHandlers :
 
         // Soft delete header and child details
         entity.IsActive = isActive;
-        entity.LastModifiedBy = request.actionHistory.UserId;
+        entity.LastModifiedBy = request.dtoInactive.UserId;
         entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.PlanningDetail != null)

@@ -1,9 +1,10 @@
+using DocumentFormat.OpenXml.Office2016.Excel;
 using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.Planning.Commands;
 using Himapp.Execution.Application.Features.Planning.Models;
 using Himapp.Execution.Application.Features.Planning.Queries;
-using Himapp.SharedKernel.Abstractions;
 using Himapp.Execution.Application.Features.Planning.Services;
+using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -69,9 +70,18 @@ public sealed class PlanningsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, [FromBody] AddTransactionActionHistoryDTO actionHistory, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(int id, [FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeletePlanningCommand(id, actionHistory), cancellationToken);
+        if (dtoInactive == null)
+        {
+            return BadRequest("Delete request is required.");
+        }
+        else if (dtoInactive.ProgramRowId != id)
+        {
+            return BadRequest("Planning ID does not match.");
+        }
+
+        var deleted = await _mediator.Send(new DeletePlanningCommand(id, dtoInactive), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 
