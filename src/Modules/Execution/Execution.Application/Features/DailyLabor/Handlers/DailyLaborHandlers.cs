@@ -23,7 +23,7 @@ internal sealed class DailyLaborHandlers :
     IRequestHandler<DeleteDailyLaborCommand, bool>,
     IRequestHandler<DeleteDailyLaborActionCommand, bool>,
     IRequestHandler<GetConsolidatedDailyLaborQuery, IReadOnlyCollection<DailyLaborConsolidatedModel>>,
-    IRequestHandler<GetDailyLaborByProjectID, PagedResult<DailyLaborModel>>
+    IRequestHandler<GetDailyLaborByProjectID, DataSet>
 {
     private readonly IExecutionDbContext _db;
     private readonly IProjectDirectory _projectDirectory;
@@ -329,17 +329,63 @@ internal sealed class DailyLaborHandlers :
         return result;
     }
 
-    public async Task<PagedResult<DailyLaborModel>> Handle(GetDailyLaborByProjectID request, CancellationToken cancellationToken)
+    public async Task<DataSet> Handle(GetDailyLaborByProjectID request, CancellationToken cancellationToken)
     {
         var p = request.SearchParamsProjectWise ?? new SearchParamsProjectWise();
-        var query = _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().AsNoTracking().Where(x => x.ProjectID == p.ProjectID);
-        if (bool.TryParse(p.IsActive, out var isActive)) query = query.Where(x => x.IsActive == isActive);
-        var totalCount = await query.CountAsync(cancellationToken);
-        var pageSize = p.PageSize > 0 ? p.PageSize : totalCount;
-        var items = await query.OrderBy(x => x.ID).Skip(Math.Max(p.PageIndex, 0) * pageSize).Take(pageSize)
-            .Select(x => new DailyLaborModel(x.ID, x.UniqueID, x.DLRCode, x.CompanyID, x.ProjectID, x.DLRDate, x.Remarks, x.ProposedActionPlan, x.ConstraintsAndReasons, x.RemoveMenPower, x.StateID, x.IsActive, x.CreatedBy, x.CreatedDate, x.LastModifiedBy, x.LastModifiedDate, Array.Empty<DailyLaborDetailModel>()))
-            .ToArrayAsync(cancellationToken);
-        return new PagedResult<DailyLaborModel>(items, totalCount);
+
+        // Prepare DataSet
+        var ds = new System.Data.DataSet("ActivitiesResult");
+
+        // Force Npgsql path: require the underlying DbContext to obtain connection string
+        var dbContext = _db as DbContext;
+        if (dbContext is null)
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+
+        var dsLocal = new DataSet("ActivitiesResult");
+        var connString = dbContext.Database.GetDbConnection().ConnectionString;
+
+        using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        // Rows table
+        using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uspgetdailylaborbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
+        {
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandTimeout = 30;
+            cmd.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
+            cmd.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
+            cmd.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
+            cmd.Parameters.AddWithValue("@p_pageindex", NpgsqlDbType.Integer, p.PageIndex);
+            cmd.Parameters.AddWithValue("@p_pagesize", NpgsqlDbType.Integer, p.PageSize);
+            cmd.Parameters.AddWithValue("@p_sortcolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.SortColumn) ? (object)DBNull.Value : p.SortColumn);
+            cmd.Parameters.AddWithValue("@p_isactive", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.IsActive) ? (object)DBNull.Value : p.IsActive);
+
+            var da = new NpgsqlDataAdapter(cmd);
+            var dt = new DataTable("Rows");
+            da.Fill(dt);
+            dsLocal.Tables.Add(dt);
+        }
+
+        // Count table
+        using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetdailylaborcountbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
+        {
+            cmd2.CommandType = CommandType.Text;
+            cmd2.CommandTimeout = 30;
+            cmd2.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
+            cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
+            cmd2.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
+            cmd2.Parameters.AddWithValue("@p_pageindex", NpgsqlDbType.Integer, p.PageIndex);
+            cmd2.Parameters.AddWithValue("@p_pagesize", NpgsqlDbType.Integer, p.PageSize);
+            cmd2.Parameters.AddWithValue("@p_sortcolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.SortColumn) ? (object)DBNull.Value : p.SortColumn);
+            cmd2.Parameters.AddWithValue("@p_isactive", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.IsActive) ? (object)DBNull.Value : p.IsActive);
+
+            var da2 = new NpgsqlDataAdapter(cmd2);
+            var dt2 = new DataTable("Count");
+            da2.Fill(dt2);
+            dsLocal.Tables.Add(dt2);
+        }
+
+        return dsLocal;
     }
 
 }
