@@ -10,7 +10,7 @@ namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
 [Authorize]
-[RequiresApproval]
+//[RequiresApproval]
 [Route("v1/execution/daily-departmental-labour-slips")]
 public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
 {

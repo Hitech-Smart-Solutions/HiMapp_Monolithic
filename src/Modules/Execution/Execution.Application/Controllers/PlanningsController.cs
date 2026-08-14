@@ -69,9 +69,9 @@ public sealed class PlanningsController : ControllerBase
     }
 
     [HttpDelete("{id:int},{deletedBy:int}")]
-    public async Task<IActionResult> Delete(int id, int deletedBy, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeletePlanningCommand(id, deletedBy), cancellationToken);
+        var deleted = await _mediator.Send(new DeletePlanningCommand(dtoInactive), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 
