@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("v1/execution/manpowers")]
 public sealed class ManpowersController : ControllerBase
 {
@@ -59,7 +59,7 @@ public sealed class ManpowersController : ControllerBase
         var deleted = await _mediator.Send(new DeleteManpowerCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
-
+     
     [HttpPut("SetActiveInActiveForManpower")]
     public async Task<IActionResult> SetActiveInActiveForManpower(AddTransactionActionHistoryDTO dto, CancellationToken cancellationToken)
     {

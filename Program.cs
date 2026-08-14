@@ -72,7 +72,10 @@ builder.Services.AddAuthentication(options =>
 
 // Swagger (VERY IMPORTANT)
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.CustomSchemaIds(type => type.FullName);
+});
 
 // Shared Services
 builder.Services
