@@ -57,7 +57,7 @@ internal sealed class CentralUserRoleMappingHandler :
         var r = command.Request;
 
         // Generate RoleCode automatically
-        var roleCode = await GenerateNextRoleCodeAsync(cancellationToken);
+        var roleCode = await GenerateNextRoleCodeAsync(cancellationToken); 
 
         var entity = new CentralUserRoleMappingEntity
         {
