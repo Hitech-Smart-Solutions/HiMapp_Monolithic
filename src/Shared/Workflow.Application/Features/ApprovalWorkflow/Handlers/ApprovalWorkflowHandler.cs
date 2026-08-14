@@ -297,7 +297,7 @@ internal sealed class ApprovalWorkflowHandler :
             await connection.OpenAsync(cancellationToken);
 
             using var cmd = new NpgsqlCommand(
-                @"SELECT * FROM execution.uspgetcentralworkflowbycompanyid(
+                @"SELECT * FROM execution.uspgetcentralapprovalworkflowbycompanyid(
                 @p_companyid,
                 @p_filtercolumn,
                 @p_filtervalue,
@@ -356,7 +356,7 @@ internal sealed class ApprovalWorkflowHandler :
             await connection.OpenAsync(cancellationToken);
 
             using var cmd = new NpgsqlCommand(
-                @"SELECT * FROM execution.uspgetcentralworkflowcountbycompanyid(
+                @"SELECT * FROM execution.uspgetcentralapprovalworkflowcountbycompanyid(
                 @p_companyid,
                 @p_filtercolumn,
                 @p_filtervalue,
