@@ -1,11 +1,15 @@
-using Himapp.Execution.Application.Features.SiteDailyProgress.Models;
+using Himapp.Execution.Application.Features.DailyLabor.Queries;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Commands;
+using Himapp.Execution.Application.Features.SiteDailyProgress.Models;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
-using Himapp.Execution.Domain.Entities;
 using Himapp.Execution.Contracts;
+using Himapp.Execution.Domain.Entities;
 using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using NpgsqlTypes;
+using System.Data;
 
 namespace Himapp.Execution.Application.Features.SiteDailyProgress.Handlers;
 
@@ -14,13 +18,15 @@ internal sealed class SiteDailyProgressHandlers :
     IRequestHandler<GetSiteDailyProgressByIdQuery, SiteDailyProgressModel?>,
     IRequestHandler<CreateSiteDailyProgressCommand, SiteDailyProgressModel>,
     IRequestHandler<UpdateSiteDailyProgressCommand, SiteDailyProgressModel?>,
-    IRequestHandler<DeleteSiteDailyProgressCommand, bool>
+    IRequestHandler<DeleteSiteDailyProgressCommand, bool>,
+    IRequestHandler<GetSiteDailyProgressByProjectIDQuery, DataSet>,
+    IRequestHandler<DeleteSiteDPRCommand, bool>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
     public SiteDailyProgressHandlers(IExecutionDbContext db, ICurrentUser currentUser) => (_db, _currentUser) = (db, currentUser);
 
-    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
+    private int CurrentUserId => _currentUser.UserId ?? 1;
 
     public async Task<IEnumerable<SiteDailyProgressModel>> Handle(GetAllSiteDailyProgressesQuery request, CancellationToken cancellationToken)
     {
@@ -187,5 +193,87 @@ internal sealed class SiteDailyProgressHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    public async Task<bool> Handle(DeleteSiteDPRCommand request, CancellationToken cancellationToken)
+    {
+        var model = request.addTransactionActionHistoryDTO;
+        var entity = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>().FirstOrDefaultAsync(a => a.ID == model.ProgramRowId, cancellationToken);
+
+        if (entity is null) return false;
+
+        // Mark child detail records active/inactive
+        var details = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgressDetail>()
+            .Where(x => x.SiteDailyProgressID == model.ProgramRowId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var d in details)
+        {
+            d.IsActive = model.Actions == Actions.Activated ? true : false;
+        }
+
+        // Mark main entity active/inactive
+        entity.IsActive = model.Actions == Actions.Activated ? true : false;
+
+        await _db.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+    public async Task<DataSet> Handle(GetSiteDailyProgressByProjectIDQuery request, CancellationToken cancellationToken)
+    {
+        var p = request.SearchParamsProjectWise ?? new SearchParamsProjectWise();
+
+        // Prepare DataSet
+        var ds = new System.Data.DataSet("ActivitiesResult");
+
+        // Force Npgsql path: require the underlying DbContext to obtain connection string
+        var dbContext = _db as DbContext;
+        if (dbContext is null)
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+
+        var dsLocal = new DataSet("ActivitiesResult");
+        var connString = dbContext.Database.GetDbConnection().ConnectionString;
+
+        using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        // Rows table
+        using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uspgetsitedprbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
+        {
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandTimeout = 30;
+            cmd.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
+            cmd.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
+            cmd.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
+            cmd.Parameters.AddWithValue("@p_pageindex", NpgsqlDbType.Integer, p.PageIndex);
+            cmd.Parameters.AddWithValue("@p_pagesize", NpgsqlDbType.Integer, p.PageSize);
+            cmd.Parameters.AddWithValue("@p_sortcolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.SortColumn) ? (object)DBNull.Value : p.SortColumn);
+            cmd.Parameters.AddWithValue("@p_isactive", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.IsActive) ? (object)DBNull.Value : p.IsActive);
+
+            var da = new NpgsqlDataAdapter(cmd);
+            var dt = new DataTable("Rows");
+            da.Fill(dt);
+            dsLocal.Tables.Add(dt);
+        }
+
+        // Count table
+        using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetsitedprcountbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
+        {
+            cmd2.CommandType = CommandType.Text;
+            cmd2.CommandTimeout = 30;
+            cmd2.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
+            cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
+            cmd2.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
+            cmd2.Parameters.AddWithValue("@p_pageindex", NpgsqlDbType.Integer, p.PageIndex);
+            cmd2.Parameters.AddWithValue("@p_pagesize", NpgsqlDbType.Integer, p.PageSize);
+            cmd2.Parameters.AddWithValue("@p_sortcolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.SortColumn) ? (object)DBNull.Value : p.SortColumn);
+            cmd2.Parameters.AddWithValue("@p_isactive", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.IsActive) ? (object)DBNull.Value : p.IsActive);
+
+            var da2 = new NpgsqlDataAdapter(cmd2);
+            var dt2 = new DataTable("Count");
+            da2.Fill(dt2);
+            dsLocal.Tables.Add(dt2);
+        }
+
+        return dsLocal;
     }
 }

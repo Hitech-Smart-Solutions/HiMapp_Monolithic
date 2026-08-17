@@ -53,5 +53,12 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
         return deleted ? Ok() : NotFound();
     }
 
+    [HttpGet("GetDailyDepartmentalLabourSlipsByProjectID")]
+    public async Task<IActionResult> GetDailyDepartmentalLabourSlipsByProjectID([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDailyDepartmentalLabourSlipsByProjectID(searchParams), cancellationToken);
+        return Ok(result);
+    }
+
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }

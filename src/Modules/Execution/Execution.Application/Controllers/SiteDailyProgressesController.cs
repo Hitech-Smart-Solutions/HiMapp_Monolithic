@@ -1,9 +1,11 @@
+using Himapp.Execution.Application.Features;
+using Himapp.Execution.Application.Features.DailyLabor.Commands;
+using Himapp.Execution.Application.Features.SiteDailyProgress.Commands;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Models;
+using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MediatR;
-using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
-using Himapp.Execution.Application.Features.SiteDailyProgress.Commands;
 
 namespace Himapp.Execution.Application.Controllers;
 
@@ -42,6 +44,20 @@ public sealed class SiteDailyProgressesController : ControllerBase
     {
         var deleted = await _mediator.Send(new DeleteSiteDailyProgressCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();
+    }
+
+    [HttpPut("SetActiveInActiveForSiteDPR")]
+    public async Task<IActionResult> SetActiveInActiveForSiteDPR(AddTransactionActionHistoryDTO dto, CancellationToken cancellationToken)
+    {
+        var deleted = await _mediator.Send(new DeleteSiteDPRCommand(dto), cancellationToken);
+        return deleted ? Ok() : NotFound();
+    }
+
+    [HttpGet("GetSiteDailyProgressByProjectID")]
+    public async Task<IActionResult> GetSiteDailyProgressByProjectID([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetSiteDailyProgressByProjectIDQuery(searchParams), cancellationToken);
+        return Ok(result);
     }
 
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
