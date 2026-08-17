@@ -7,6 +7,7 @@ public class SiteDailyProgress
     {
         SiteDailyProgressDetail = new HashSet<SiteDailyProgressDetail>();
         SiteDailyProgressPhoto = new HashSet<SiteDailyProgressPhoto>();
+        SiteDailyProgressHindrance = new HashSet<SiteDailyProgressHindrance>();
     }
     public int ID { get; set; }
     public Guid UniqueID { get; set; }
@@ -15,9 +16,6 @@ public class SiteDailyProgress
 
     public int SectionID { get; set; }
     public DateOnly ReportDate { get; set; }
-
-    public string? Hindrances { get; set; }
-    public string? HindranceAudioUrl { get; set; }
     public string? NextDayPlan { get; set; }
     public string? Remarks { get; set; }
 
@@ -32,5 +30,6 @@ public class SiteDailyProgress
 
     public virtual ICollection<SiteDailyProgressDetail> SiteDailyProgressDetail { get; set; }
     public virtual ICollection<SiteDailyProgressPhoto> SiteDailyProgressPhoto { get; set; }
+    public virtual ICollection<SiteDailyProgressHindrance> SiteDailyProgressHindrance { get; set; }
 }
 

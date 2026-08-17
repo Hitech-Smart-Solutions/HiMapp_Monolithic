@@ -33,7 +33,8 @@ internal sealed class SiteDailyProgressHandlers :
         return await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>()
             .AsNoTracking()
             .Where(d => d.IsActive)
-            .Select(d => new SiteDailyProgressModel(d.ID, d.ProjectID, d.ReportDate, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, Array.Empty<SiteDailyProgressDetailModel>()))
+            .Select(d => new SiteDailyProgressModel(d.ID, d.ProjectID, d.ReportDate, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, Array.Empty<SiteDailyProgressDetailModel>(),
+            Array.Empty<SiteDailyProgressHindranceModel>(), Array.Empty<SiteDailyProgressPhotoModel>()))
             .ToArrayAsync(cancellationToken);
     }
 
@@ -42,6 +43,8 @@ internal sealed class SiteDailyProgressHandlers :
         var d = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>()
             .AsNoTracking()
             .Include(x => x.SiteDailyProgressDetail)
+            .Include(x => x.SiteDailyProgressHindrance)
+            .Include(x => x.SiteDailyProgressPhoto)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (d is null) return null;
 
@@ -57,7 +60,15 @@ internal sealed class SiteDailyProgressHandlers :
             dd.Variance,
             dd.Remarks)).ToArray() ?? Array.Empty<SiteDailyProgressDetailModel>();
 
-        return new SiteDailyProgressModel(d.ID, d.ProjectID, d.ReportDate, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details);
+        var hindrances = d.SiteDailyProgressHindrance?.Select(h => new SiteDailyProgressHindranceModel(
+            h.ID,
+            h.UniqueID,
+            h.Hindrance,
+            h.AudioUrl)).ToArray() ?? Array.Empty<SiteDailyProgressHindranceModel>();
+
+        var photos = d.SiteDailyProgressPhoto.Where(p => p.IsActive).Select(p => new SiteDailyProgressPhotoModel(p.ID, p.UniqueID, p.PhotoUrl, p.Caption)).ToArray();
+
+        return new SiteDailyProgressModel(d.ID, d.ProjectID, d.ReportDate, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details, hindrances, photos);
     }
 
     public async Task<SiteDailyProgressModel> Handle(CreateSiteDailyProgressCommand request, CancellationToken cancellationToken)
@@ -71,9 +82,8 @@ internal sealed class SiteDailyProgressHandlers :
             ProjectID = r.ProjectId,
             SectionID = 0,
             ReportDate = r.ReportDate.HasValue ? DateOnly.FromDateTime(r.ReportDate.Value.UtcDateTime) : DateOnly.FromDateTime(DateTime.UtcNow),
-            Hindrances = r.Remarks,
-            NextDayPlan = null,
             Remarks = r.Remarks,
+            NextDayPlan = null,
             TotalAmount = 0m,
             IsActive = true,
             CreatedBy = userId,
@@ -106,12 +116,64 @@ internal sealed class SiteDailyProgressHandlers :
             }
         }
 
+        if (r.Hindrances?.Any() == true)
+        {
+            foreach (var h in r.Hindrances)
+            {
+                var hindrance = new Himapp.Execution.Domain.Entities.SiteDailyProgressHindrance
+                {
+                    UniqueID = Guid.NewGuid(),
+                    Hindrance = h.Hindrance,
+
+                    IsActive = true,
+                    CreatedBy = userId,
+                    CreatedDate = DateTimeOffset.UtcNow,
+                    LastModifiedBy = userId,
+                    LastModifiedDate = DateTimeOffset.UtcNow
+                };
+
+                entity.SiteDailyProgressHindrance.Add(hindrance);
+            }
+        }
+
+        if (r.Photos?.Any() == true)
+        {
+            foreach (var p in r.Photos)
+            {
+                var photo = new Himapp.Execution.Domain.Entities.SiteDailyProgressPhoto
+                {
+                    UniqueID = Guid.NewGuid(),
+                    PhotoUrl = p.PhotoUrl,
+                    Caption = p.Caption,
+
+                    IsActive = true,
+                    CreatedBy = userId,
+                    CreatedDate = DateTimeOffset.UtcNow,
+                    LastModifiedBy = userId,
+                    LastModifiedDate = DateTimeOffset.UtcNow
+                };
+
+                entity.SiteDailyProgressPhoto.Add(photo);
+            }
+        }
+
         _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.SiteDailyProgressDetail?.Select(dd => new SiteDailyProgressDetailModel(dd.ID, dd.UniqueId, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<SiteDailyProgressDetailModel>();
 
-        return new SiteDailyProgressModel(entity.ID, entity.ProjectID, entity.ReportDate, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+
+        var details = entity.SiteDailyProgressDetail?.Select(dd => new SiteDailyProgressDetailModel(dd.ID, dd.UniqueId, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray()
+            ?? Array.Empty<SiteDailyProgressDetailModel>();
+
+        var hindrances = entity.SiteDailyProgressHindrance.Select(h => new SiteDailyProgressHindranceModel(h.ID, h.UniqueID, h.Hindrance, h.AudioUrl)).ToArray();
+
+        var photos = entity.SiteDailyProgressPhoto?.Select(p => new SiteDailyProgressPhotoModel(
+            p.ID,
+            p.UniqueID,
+            p.PhotoUrl,
+            p.Caption)).ToArray() ?? Array.Empty<SiteDailyProgressPhotoModel>();
+
+        return new SiteDailyProgressModel(entity.ID, entity.ProjectID, entity.ReportDate, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, hindrances, photos);
     }
 
     public async Task<SiteDailyProgressModel?> Handle(UpdateSiteDailyProgressCommand request, CancellationToken cancellationToken)
@@ -119,7 +181,8 @@ internal sealed class SiteDailyProgressHandlers :
         var userId = CurrentUserId;
         var entity = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>()
             .Include(d => d.SiteDailyProgressDetail)
-            .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+            .Include(d => d.SiteDailyProgressHindrance)
+            .Include(d => d.SiteDailyProgressPhoto).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return null;
 
         var r = request.Request;
@@ -130,12 +193,21 @@ internal sealed class SiteDailyProgressHandlers :
         entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
 
-        // Remove existing details and add new ones
+        // ---------------------------------------------------------
+        // Remove existing Details
+        // ---------------------------------------------------------
+
         if (entity.SiteDailyProgressDetail != null && entity.SiteDailyProgressDetail.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgressDetail>().RemoveRange(entity.SiteDailyProgressDetail);
+            _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgressDetail>()
+                .RemoveRange(entity.SiteDailyProgressDetail);
+
             entity.SiteDailyProgressDetail.Clear();
         }
+
+        // ---------------------------------------------------------
+        // Add new Details
+        // ---------------------------------------------------------
 
         if (r.Details?.Any() == true)
         {
@@ -150,6 +222,7 @@ internal sealed class SiteDailyProgressHandlers :
                     Rate = d.Rate,
                     PlanQuantity = d.PlanQuantity,
                     Remarks = d.Remarks,
+
                     IsActive = true,
                     CreatedBy = userId,
                     CreatedDate = DateTimeOffset.UtcNow,
@@ -161,11 +234,82 @@ internal sealed class SiteDailyProgressHandlers :
             }
         }
 
+        // ---------------------------------------------------------
+        // Remove existing Hindrances
+        // ---------------------------------------------------------
+
+        if (entity.SiteDailyProgressHindrance != null && entity.SiteDailyProgressHindrance.Any())
+        {
+            _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgressHindrance>().RemoveRange(entity.SiteDailyProgressHindrance);
+
+            entity.SiteDailyProgressHindrance.Clear();
+        }
+
+        // ---------------------------------------------------------
+        // Add new Hindrances
+        // ---------------------------------------------------------
+
+        if (r.Hindrances?.Any() == true)
+        {
+            foreach (var h in r.Hindrances)
+            {
+                var hindrance = new Himapp.Execution.Domain.Entities.SiteDailyProgressHindrance
+                {
+                    UniqueID = Guid.NewGuid(),
+                    Hindrance = h.Hindrance,
+                    AudioUrl = h.AudioUrl,
+                    IsActive = true,
+                    CreatedBy = userId,
+                    CreatedDate = DateTimeOffset.UtcNow,
+                    LastModifiedBy = userId,
+                    LastModifiedDate = DateTimeOffset.UtcNow
+                };
+
+                entity.SiteDailyProgressHindrance?.Add(hindrance);
+            }
+        }
+
+        if (entity.SiteDailyProgressPhoto != null &&
+    entity.SiteDailyProgressPhoto.Any())
+        {
+            _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgressPhoto>()
+                .RemoveRange(entity.SiteDailyProgressPhoto);
+
+            entity.SiteDailyProgressPhoto.Clear();
+        }
+
+        if (r.Photos?.Any() == true)
+        {
+            foreach (var p in r.Photos)
+            {
+                var photo = new Himapp.Execution.Domain.Entities.SiteDailyProgressPhoto
+                {
+                    UniqueID = Guid.NewGuid(),
+                    PhotoUrl = p.PhotoUrl,
+                    Caption = p.Caption,
+
+                    IsActive = true,
+                    CreatedBy = userId,
+                    CreatedDate = DateTimeOffset.UtcNow,
+                    LastModifiedBy = userId,
+                    LastModifiedDate = DateTimeOffset.UtcNow
+                };
+
+                entity.SiteDailyProgressPhoto?.Add(photo);
+            }
+        }
+
+
+
         await _db.SaveChangesAsync(cancellationToken);
 
         var details = entity.SiteDailyProgressDetail?.Select(dd => new SiteDailyProgressDetailModel(dd.ID, dd.UniqueId, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<SiteDailyProgressDetailModel>();
 
-        return new SiteDailyProgressModel(entity.ID, entity.ProjectID, entity.ReportDate, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        var hindrances = entity.SiteDailyProgressHindrance?.Select(h => new SiteDailyProgressHindranceModel(h.ID, h.UniqueID, h.Hindrance, h.AudioUrl)).ToArray() ?? Array.Empty<SiteDailyProgressHindranceModel>();
+
+        var photos = entity.SiteDailyProgressPhoto?.Select(p => new SiteDailyProgressPhotoModel(p.ID, p.UniqueID, p.PhotoUrl, p.Caption)).ToArray() ?? Array.Empty<SiteDailyProgressPhotoModel>();
+
+        return new SiteDailyProgressModel(entity.ID, entity.ProjectID, entity.ReportDate, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, hindrances, photos);
     }
 
     public async Task<bool> Handle(DeleteSiteDailyProgressCommand request, CancellationToken cancellationToken)
