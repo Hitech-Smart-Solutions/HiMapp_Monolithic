@@ -154,6 +154,7 @@ app.Use(async (context, next) =>
 #region 🔹 Middleware
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseCors("AllowAllOrigins");
 app.UseAuthentication();
 app.UseAuthorization();

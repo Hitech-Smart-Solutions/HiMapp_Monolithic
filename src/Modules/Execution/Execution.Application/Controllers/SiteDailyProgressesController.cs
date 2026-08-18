@@ -25,7 +25,7 @@ public sealed class SiteDailyProgressesController : ControllerBase
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken) =>
         OkOrNotFound(await _mediator.Send(new GetSiteDailyProgressByIdQuery(id), cancellationToken));
 
-    
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateSiteDailyProgressRequest request, CancellationToken cancellationToken)
     {
@@ -60,6 +60,23 @@ public sealed class SiteDailyProgressesController : ControllerBase
         var result = await _mediator.Send(new GetSiteDailyProgressByProjectIDQuery(searchParams), cancellationToken);
         return Ok(result);
     }
+
+    [AllowAnonymous]
+    [HttpGet("GetActivityWiseQuantityBySectionID")]
+    public async Task<IActionResult> GetActivityWiseQuantityBySectionID([FromQuery] int areaID, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new GetActivityWiseQuantityBySectionIDQuery
+            {
+                AreaID = areaID
+            },
+            cancellationToken);
+
+        return Ok(result);
+    }
+
+
+
 
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }
