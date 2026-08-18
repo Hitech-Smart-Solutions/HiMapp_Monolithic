@@ -29,6 +29,7 @@ internal sealed class ApprovalWorkflowHandler :
                 w.ID,
                 w.UniqueID,
                 w.ApprovalWorkflowCode,
+                w.ApprovalWorkflowName,
                 w.ApprovalWorkflowDate,
                 w.ProgramID,
                 w.CompanyID,
@@ -59,13 +60,17 @@ internal sealed class ApprovalWorkflowHandler :
     {
         var r = command.Request;
 
-        if (string.IsNullOrWhiteSpace(r.ApprovalWorkflowCode))
-            throw new InvalidOperationException("ApprovalWorkflowCode is required.");
+        if (string.IsNullOrWhiteSpace(r.ApprovalWorkflowName))
+            throw new InvalidOperationException("ApprovalWorkflowName is required.");
+
+        // Generate ApprovalWorkflowCode automatically
+        var approvalWorkflowCode = await GenerateNextApprovalWorkflowCodeAsync(cancellationToken);
 
         var entity = new CentralApprovalWorkflow
         {
             UniqueID = Guid.NewGuid(),
-            ApprovalWorkflowCode = r.ApprovalWorkflowCode,
+            ApprovalWorkflowCode = approvalWorkflowCode,
+            ApprovalWorkflowName = r.ApprovalWorkflowName,
             ApprovalWorkflowDate = r.ApprovalWorkflowDate,
             ProgramID = r.ProgramId,
             CompanyID = r.CompanyId,
@@ -125,6 +130,30 @@ internal sealed class ApprovalWorkflowHandler :
         return Map(entity);
     }
 
+    private async Task<string> GenerateNextApprovalWorkflowCodeAsync(CancellationToken cancellationToken)
+    {
+        var lastRoleCode = await _db.Set<CentralApprovalWorkflow>()
+            .AsNoTracking()
+            .Where(x => x.ApprovalWorkflowCode.StartsWith("WF-"))
+            .OrderByDescending(x => x.ID)
+            .Select(x => x.ApprovalWorkflowCode)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(lastRoleCode))
+        {
+            return "WF-000001";
+        }
+
+        var numericPart = lastRoleCode["WF-".Length..];
+
+        if (!int.TryParse(numericPart, out var lastNumber))
+        {
+            return "WF-000001";
+        }
+
+        return $"WF-{lastNumber + 1:D6}";
+    }
+
     public async Task<ApprovalWorkflowDto?> Handle(UpdateApprovalWorkflowCommand command, CancellationToken cancellationToken)
     {
         var entity = await _db.Set<CentralApprovalWorkflow>()
@@ -137,10 +166,11 @@ internal sealed class ApprovalWorkflowHandler :
         var r = command.Request;
         var lastModifiedBy = r.LastModifiedBy;
 
-        if (string.IsNullOrWhiteSpace(r.ApprovalWorkflowCode))
-            throw new InvalidOperationException("ApprovalWorkflowCode is required.");
+        if (string.IsNullOrWhiteSpace(r.ApprovalWorkflowName))
+            throw new InvalidOperationException("ApprovalWorkflowName is required.");
 
-        entity.ApprovalWorkflowCode = r.ApprovalWorkflowCode;
+        //entity.ApprovalWorkflowCode = r.ApprovalWorkflowCode;
+        entity.ApprovalWorkflowName = r.ApprovalWorkflowName;
         entity.ApprovalWorkflowDate = r.ApprovalWorkflowDate;
         entity.ProgramID = r.ProgramId;
         entity.CompanyID = r.CompanyId;
@@ -245,6 +275,7 @@ internal sealed class ApprovalWorkflowHandler :
         entity.ID,
         entity.UniqueID,
         entity.ApprovalWorkflowCode,
+        entity.ApprovalWorkflowName,
         entity.ApprovalWorkflowDate,
         entity.ProgramID,
         entity.CompanyID,

@@ -4,6 +4,7 @@ public sealed record ApprovalWorkflowDto(
     int Id,
     Guid UniqueId,
     string ApprovalWorkflowCode,
+    string ApprovalWorkflowName,
     DateTime? ApprovalWorkflowDate,
     int ProgramId,
     int? CompanyId,

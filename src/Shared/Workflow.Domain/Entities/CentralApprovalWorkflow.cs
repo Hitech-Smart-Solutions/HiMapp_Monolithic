@@ -14,6 +14,8 @@ public class CentralApprovalWorkflow
 
     public string ApprovalWorkflowCode { get; set; } = string.Empty;
 
+    public string ApprovalWorkflowName { get; set; }
+
     public DateTime? ApprovalWorkflowDate { get; set; }
 
     public int ProgramID { get; set; }

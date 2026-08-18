@@ -56,8 +56,11 @@ internal sealed class CentralUserRoleMappingHandler :
     {
         var r = command.Request;
 
+        if (string.IsNullOrWhiteSpace(r.RoleName))
+            throw new InvalidOperationException("RoleName is required.");
+
         // Generate RoleCode automatically
-        var roleCode = await GenerateNextRoleCodeAsync(cancellationToken); 
+        var roleCode = await GenerateNextRoleCodeAsync(cancellationToken);
 
         var entity = new CentralUserRoleMappingEntity
         {
@@ -132,8 +135,8 @@ internal sealed class CentralUserRoleMappingHandler :
         var r = command.Request;
         var lastModifiedBy = r.LastModifiedBy;
 
-        if (string.IsNullOrWhiteSpace(r.RoleCode))
-            throw new InvalidOperationException("RoleCode is required.");
+        if (string.IsNullOrWhiteSpace(r.RoleName))
+            throw new InvalidOperationException("RoleName is required.");
 
         entity.RoleName = r.RoleName;
         entity.StatusID = r.StatusId;
