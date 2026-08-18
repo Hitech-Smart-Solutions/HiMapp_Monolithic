@@ -14,13 +14,17 @@ public class CentralApprovalWorkflow
 
     public string ApprovalWorkflowCode { get; set; } = string.Empty;
 
+    public string ApprovalWorkflowName { get; set; }
+
     public DateTime? ApprovalWorkflowDate { get; set; }
 
     public int ProgramID { get; set; }
 
     public int? CompanyID { get; set; }
 
-    public int? LocationID { get; set; }
+    public int LocationID { get; set; }
+
+    public int? WorkflowTypeID { get; set; }
 
     public int? StatusID { get; set; }
 

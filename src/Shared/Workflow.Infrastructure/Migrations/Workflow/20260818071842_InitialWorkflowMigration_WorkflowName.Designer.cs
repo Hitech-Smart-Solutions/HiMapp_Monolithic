@@ -3,6 +3,7 @@ using System;
 using Himapp.Workflow.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.Workflow.Infrastructure.Migrations.Workflow
 {
     [DbContext(typeof(WorkflowDbContext))]
-    partial class WorkflowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260818071842_InitialWorkflowMigration_WorkflowName")]
+    partial class InitialWorkflowMigration_WorkflowName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +66,7 @@ namespace Himapp.Workflow.Infrastructure.Migrations.Workflow
                     b.Property<DateTime>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("LocationID")
+                    b.Property<int?>("LocationID")
                         .HasColumnType("integer");
 
                     b.Property<int>("ProgramID")
@@ -76,9 +79,6 @@ namespace Himapp.Workflow.Infrastructure.Migrations.Workflow
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("gen_random_uuid()");
-
-                    b.Property<int?>("WorkflowTypeID")
-                        .HasColumnType("integer");
 
                     b.HasKey("ID");
 
