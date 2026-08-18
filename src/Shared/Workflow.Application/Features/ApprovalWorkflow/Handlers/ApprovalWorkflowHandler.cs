@@ -34,6 +34,7 @@ internal sealed class ApprovalWorkflowHandler :
                 w.ProgramID,
                 w.CompanyID,
                 w.LocationID,
+                w.WorkflowTypeID,
                 w.StatusID,
                 w.IsActive,
                 w.CreatedBy,
@@ -75,6 +76,7 @@ internal sealed class ApprovalWorkflowHandler :
             ProgramID = r.ProgramId,
             CompanyID = r.CompanyId,
             LocationID = r.LocationId,
+            WorkflowTypeID = r.WorkflowTypeId,
             StatusID = r.StatusId,
             IsActive = true,
             CreatedBy = r.CreatedBy,
@@ -175,6 +177,7 @@ internal sealed class ApprovalWorkflowHandler :
         entity.ProgramID = r.ProgramId;
         entity.CompanyID = r.CompanyId;
         entity.LocationID = r.LocationId;
+        entity.WorkflowTypeID = r.WorkflowTypeId;
         entity.StatusID = r.StatusId;
         entity.IsActive = r.IsActive;
         entity.LastModifiedBy = lastModifiedBy;
@@ -280,6 +283,7 @@ internal sealed class ApprovalWorkflowHandler :
         entity.ProgramID,
         entity.CompanyID,
         entity.LocationID,
+        entity.WorkflowTypeID,
         entity.StatusID,
         entity.IsActive,
         entity.CreatedBy,

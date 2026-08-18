@@ -22,7 +22,9 @@ public class CentralApprovalWorkflow
 
     public int? CompanyID { get; set; }
 
-    public int? LocationID { get; set; }
+    public int LocationID { get; set; }
+
+    public int? WorkflowTypeID { get; set; }
 
     public int? StatusID { get; set; }
 
