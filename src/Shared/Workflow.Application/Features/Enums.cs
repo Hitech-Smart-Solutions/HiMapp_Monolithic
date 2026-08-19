@@ -17,4 +17,15 @@ namespace Himapp.Workflow.Application.Features
         // Approval Workflow
         Viewed = 506
     }
+
+    public enum ApprovalWorkflowStatus
+    {
+        Draft = 1,
+        AwaitingApproval = 2,
+        Approved = 3,
+        DisApproved = 4,
+        OnHold = 5,
+        ActionNotRequired = 6,
+        Revised = 7
+    }
 }
