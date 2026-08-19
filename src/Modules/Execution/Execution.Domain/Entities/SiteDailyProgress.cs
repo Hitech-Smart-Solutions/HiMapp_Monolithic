@@ -14,7 +14,7 @@ public class SiteDailyProgress
 
     public int ProjectID { get; set; }
 
-    public int SectionID { get; set; }
+    public int? SectionID { get; set; }
     public DateOnly ReportDate { get; set; }
     public string? NextDayPlan { get; set; }
     public string? Remarks { get; set; }

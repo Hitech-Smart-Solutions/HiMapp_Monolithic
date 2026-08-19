@@ -11,6 +11,10 @@ public sealed class CreateSiteDailyProgressRequest
 
     public string? Remarks { get; set; }
 
+    public int? SectionID { get; set; }
+
+    public string? NextDayPlan { get; set; }
+
     public List<SiteDailyProgressDetailRequest>? Details { get; set; }
 
     public List<SiteDailyProgressHindranceRequest>? Hindrances { get; set; }
@@ -26,6 +30,10 @@ public sealed class UpdateSiteDailyProgressRequest
     public DateTimeOffset? ReportDate { get; set; }
 
     public string? Remarks { get; set; }
+
+    public int? SectionID { get; set; }
+
+    public string? NextDayPlan { get; set; }
 
     public List<SiteDailyProgressDetailRequest>? Details { get; set; }
 
@@ -46,6 +54,9 @@ public sealed class SiteDailyProgressModel
     public int? CreatedBy { get; init; }
     public DateTimeOffset CreatedDate { get; init; }
 
+    public int? SectionID { get; init; }
+
+    public string? NextDayPlan { get; set; }
     public int? LastModifiedBy { get; init; }
     public DateTimeOffset LastModifiedDate { get; init; }
 
@@ -65,6 +76,8 @@ public sealed class SiteDailyProgressModel
         DateTimeOffset createdDate,
         int? lastModifiedBy,
         DateTimeOffset lastModifiedDate,
+        int? sectionId,
+        string? nextDayPlan,
         IReadOnlyCollection<SiteDailyProgressDetailModel> details,
         IReadOnlyCollection<SiteDailyProgressHindranceModel> hindrances,
         IReadOnlyCollection<SiteDailyProgressPhotoModel> photos)
@@ -78,7 +91,8 @@ public sealed class SiteDailyProgressModel
         CreatedDate = createdDate;
         LastModifiedBy = lastModifiedBy;
         LastModifiedDate = lastModifiedDate;
-
+        SectionID = sectionId;
+        NextDayPlan = nextDayPlan;
         Details = details ?? Array.Empty<SiteDailyProgressDetailModel>();
         Hindrances = hindrances ?? Array.Empty<SiteDailyProgressHindranceModel>();
         Photos = photos ?? Array.Empty<SiteDailyProgressPhotoModel>();
