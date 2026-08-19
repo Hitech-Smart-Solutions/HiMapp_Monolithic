@@ -47,15 +47,17 @@ internal sealed class ManpowerHandlers :
                 m.LastModifiedBy,
                 m.LastModifiedDate,
                 m.ManpowerDetail == null ? Array.Empty<ManpowerDetailModel>() : m.ManpowerDetail.Select(d => new ManpowerDetailModel(
-                   d.ID,
-                   d.UniqueID,
-                   d.ContractorID,
-                   d.ActivityID,
-                   d.SkilledCount,
-                   d.UnskilledCount,
-                   d.OtherCount,
-                   d.IsDepartment,
-                   d.TotalCount
+                    d.ID,
+                    d.UniqueID,
+                    d.ContractorID,
+                    string.Empty,
+                    d.ActivityID,
+                    string.Empty,
+                    d.SkilledCount,
+                    d.UnskilledCount,
+                    d.OtherCount,
+                    d.IsDepartment,
+                    d.TotalCount
                    )).ToList()
         ))
         .ToArrayAsync(cancellationToken);
@@ -71,14 +73,16 @@ internal sealed class ManpowerHandlers :
 
         var details = m.ManpowerDetail?.Select(d => new ManpowerDetailModel(
             d.ID,
-            d.UniqueID,
-            d.ContractorID,
-            d.ActivityID,
-            d.SkilledCount,
-            d.UnskilledCount,
-            d.OtherCount,
-            d.IsDepartment,
-            d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
+                    d.UniqueID,
+                    d.ContractorID,
+                    string.Empty,
+                    d.ActivityID,
+                    string.Empty,
+                    d.SkilledCount,
+                    d.UnskilledCount,
+                    d.OtherCount,
+                    d.IsDepartment,
+                    d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
 
         return new ManpowerModel(m.ID, m.UniqueID, m.ProjectID, m.SectionID, m.EntryDate, m.Remarks, m.StateID, m.IsActive, m.CreatedBy, m.CreatedDate, m.LastModifiedBy, m.LastModifiedDate, details);
     }
@@ -131,7 +135,7 @@ internal sealed class ManpowerHandlers :
         _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, d.ActivityID, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.IsDepartment, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
+        var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, string.Empty, d.ActivityID, string.Empty, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.IsDepartment, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
 
         return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
@@ -184,7 +188,7 @@ internal sealed class ManpowerHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, d.ActivityID, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.IsDepartment, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
+        var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, string.Empty, d.ActivityID, string.Empty, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.IsDepartment, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
 
         return new ManpowerModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SectionID, entity.EntryDate, entity.Remarks, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
@@ -304,20 +308,156 @@ internal sealed class ManpowerHandlers :
         if (manpower == null)
             return null;
 
-        var details = manpower.ManpowerDetail?
+        var detailsData = manpower.ManpowerDetail?
             .Where(x => x.IsActive)
+            .ToList()
+            ?? new List<Domain.Entities.ManpowerDetail>();
+
+
+        // =========================================================
+        // CONTRACTOR IDs
+        // =========================================================
+
+        var contractorIds = detailsData
+            .Where(x => x.ContractorID > 0)
+            .Select(x => x.ContractorID)
+            .Distinct()
+            .ToArray();
+
+
+        // =========================================================
+        // ACTIVITY IDs
+        // =========================================================
+
+        var activityIds = detailsData
+            .Where(x => x.ActivityID > 0)
+            .Select(x => x.ActivityID)
+            .Distinct()
+            .ToArray();
+
+
+        var contractorMap = new Dictionary<int, string>();
+        var activityMap = new Dictionary<int, string>();
+
+
+        // =========================================================
+        // FETCH CONTRACTOR + ACTIVITY NAMES
+        // =========================================================
+
+        if (contractorIds.Length > 0 || activityIds.Length > 0)
+        {
+            await using var connection = _db.Database.GetDbConnection();
+
+            if (connection.State != System.Data.ConnectionState.Open)
+                await connection.OpenAsync(cancellationToken);
+
+
+            // -----------------------------------------------------
+            // CONTRACTORS
+            // -----------------------------------------------------
+
+            if (contractorIds.Length > 0)
+            {
+                using var command = connection.CreateCommand();
+
+                command.CommandText = @"
+                SELECT ""ID"", ""NAME""
+                FROM public.""DynamicsVendorMaster""
+                WHERE ""ID"" = ANY(@contractorIds)";
+
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@contractorIds";
+                parameter.Value = contractorIds;
+
+                command.Parameters.Add(parameter);
+
+                using var reader =
+                    await command.ExecuteReaderAsync(cancellationToken);
+
+                while (await reader.ReadAsync(cancellationToken))
+                {
+                    var id = reader.GetInt32(0);
+
+                    var name = reader.IsDBNull(1)
+                        ? string.Empty
+                        : reader.GetString(1);
+
+                    contractorMap[id] = name;
+                }
+            }
+
+
+            // -----------------------------------------------------
+            // ACTIVITIES
+            // -----------------------------------------------------
+
+            if (activityIds.Length > 0)
+            {
+                using var command = connection.CreateCommand();
+
+                command.CommandText = @"
+                SELECT ""ID"", ""ActivityName""
+                FROM execution.""Activities""
+                WHERE ""ID"" = ANY(@activityIds)";
+
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@activityIds";
+                parameter.Value = activityIds;
+
+                command.Parameters.Add(parameter);
+
+                using var reader =
+                    await command.ExecuteReaderAsync(cancellationToken);
+
+                while (await reader.ReadAsync(cancellationToken))
+                {
+                    var id = reader.GetInt32(0);
+
+                    var name = reader.IsDBNull(1)
+                        ? string.Empty
+                        : reader.GetString(1);
+
+                    activityMap[id] = name;
+                }
+            }
+        }
+
+
+        // =========================================================
+        // BUILD DETAILS
+        // =========================================================
+
+        var details = detailsData
             .Select(d => new ManpowerDetailModel(
                 d.ID,
                 d.UniqueID,
+
                 d.ContractorID,
+                contractorMap.TryGetValue(
+                    d.ContractorID,
+                    out var contractorName)
+                    ? contractorName
+                    : string.Empty,
+
                 d.ActivityID,
+                activityMap.TryGetValue(
+                    d.ActivityID,
+                    out var activityName)
+                    ? activityName
+                    : string.Empty,
+
                 d.SkilledCount,
                 d.UnskilledCount,
                 d.OtherCount,
                 d.IsDepartment,
-                d.TotalCount))
-            .ToList()
-            ?? new List<ManpowerDetailModel>();
+                d.TotalCount
+            ))
+            .ToList();
+
+
+        // =========================================================
+        // RETURN
+        // =========================================================
 
         return new ManpowerModel(
             manpower.ID,

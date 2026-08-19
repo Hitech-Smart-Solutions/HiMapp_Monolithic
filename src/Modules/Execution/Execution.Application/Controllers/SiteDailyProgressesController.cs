@@ -1,5 +1,6 @@
 using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.DailyLabor.Commands;
+using Himapp.Execution.Application.Features.Manpower.Queries;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Commands;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Models;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
@@ -61,7 +62,7 @@ public sealed class SiteDailyProgressesController : ControllerBase
         return Ok(result);
     }
 
-    [AllowAnonymous]
+
     [HttpGet("GetActivityWiseQuantityBySectionID")]
     public async Task<IActionResult> GetActivityWiseQuantityBySectionID([FromQuery] int areaID, CancellationToken cancellationToken)
     {
@@ -75,8 +76,13 @@ public sealed class SiteDailyProgressesController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("GetLastSiteDailyProgressBySectionID/{projectId:int}/{sectionId:int}")]
+    public async Task<IActionResult> GetLastSiteDailyProgressBySectionID(int projectId, int sectionId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetLastSiteDPRBySectionIDQuery(projectId, sectionId), cancellationToken);
 
-
+        return result is null ? NotFound() : Ok(result);
+    }
 
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }

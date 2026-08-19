@@ -22,7 +22,8 @@ internal sealed class SiteDailyProgressHandlers :
     IRequestHandler<DeleteSiteDailyProgressCommand, bool>,
     IRequestHandler<GetSiteDailyProgressByProjectIDQuery, DataSet>,
     IRequestHandler<DeleteSiteDPRCommand, bool>,
-    IRequestHandler<GetActivityWiseQuantityBySectionIDQuery, List<ActivityWiseQuantityBySectionModel>>
+    IRequestHandler<GetActivityWiseQuantityBySectionIDQuery, List<ActivityWiseQuantityBySectionModel>>,
+    IRequestHandler<GetLastSiteDPRBySectionIDQuery, SiteDailyProgressModel?>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
@@ -533,5 +534,45 @@ internal sealed class SiteDailyProgressHandlers :
                 UOMShortName = uom.ShortName
             };
         }).ToList();
+    }
+
+    public async Task<SiteDailyProgressModel?> Handle(GetLastSiteDPRBySectionIDQuery request, CancellationToken cancellationToken)
+    {
+        var siteDpr = await _db
+            .Set<Domain.Entities.SiteDailyProgress>()
+            .AsNoTracking()
+            .Where(x =>
+                x.ProjectID == request.ProjectId &&
+                x.SectionID == request.SectionId &&
+                x.IsActive)
+            .OrderByDescending(x => x.ReportDate)
+            .ThenByDescending(x => x.ID)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (siteDpr == null)
+            return null;
+
+        return new SiteDailyProgressModel(
+            siteDpr.ID,
+            0,
+            siteDpr.ReportDate,
+            siteDpr.Remarks,
+            siteDpr.IsActive,
+            siteDpr.CreatedBy,
+            siteDpr.CreatedDate,
+            siteDpr.LastModifiedBy,
+            siteDpr.LastModifiedDate,
+            siteDpr.SectionID,
+            siteDpr.NextDayPlan,
+
+            // No details required for duplicate-date validation
+            Array.Empty<SiteDailyProgressDetailModel>(),
+
+            // No hindrances required
+            Array.Empty<SiteDailyProgressHindranceModel>(),
+
+            // No photos required
+            Array.Empty<SiteDailyProgressPhotoModel>()
+        );
     }
 }
