@@ -3,6 +3,7 @@ using System;
 using Himapp.Execution.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     [DbContext(typeof(ExecutionDbContext))]
-    partial class ExecutionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260820074913_Soumy_AddFileNameFileSixeFileTypeInSiteDPRPhotoEntity")]
+    partial class Soumy_AddFileNameFileSixeFileTypeInSiteDPRPhotoEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -428,18 +431,22 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("CreatedBy")
+                    b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                    b.Property<string>("HindranceAudioUrl")
+                        .HasColumnType("text");
 
-                    b.Property<int>("LastModifiedBy")
+                    b.Property<string>("Hindrances")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("LastModifiedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("LastModifiedDate")
@@ -457,21 +464,19 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<DateOnly>("ReportDate")
                         .HasColumnType("date");
 
-                    b.Property<int>("StatusID")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<Guid>("UniqueID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
+                        .HasColumnType("uuid");
 
                     b.HasKey("ID");
 
-                    b.ToTable("DailyProgress", "execution");
+                    b.ToTable("DailyProgresses", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressDetail", b =>
@@ -486,10 +491,9 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
-                    b.Property<int>("CreatedBy")
+                    b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedDate")
@@ -499,94 +503,41 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("LastModifiedBy")
+                    b.Property<int?>("LastModifiedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("PlanQuantity")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("Rate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
 
-                    b.Property<int?>("UOMID")
-                        .HasColumnType("integer");
-
                     b.Property<Guid>("UniqueID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
+                        .HasColumnType("uuid");
 
-                    b.Property<decimal?>("Variance")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                    b.Property<string>("Uom")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Variance")
+                        .HasColumnType("numeric");
 
                     b.HasKey("ID");
 
                     b.HasIndex("DailyProgressID");
 
                     b.ToTable("DailyProgressDetails", "execution");
-                });
-
-            modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressHindrance", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
-
-                    b.Property<string>("AudioUrl")
-                        .HasColumnType("text");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DailyProgressID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Hindrance")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<int>("LastModifiedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UniqueID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("DailyProgressID");
-
-                    b.ToTable("DailyProgressHindrances", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressPhoto", b =>
@@ -600,7 +551,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<string>("Caption")
                         .HasColumnType("text");
 
-                    b.Property<int>("CreatedBy")
+                    b.Property<int?>("CreatedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedDate")
@@ -610,11 +561,9 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("LastModifiedBy")
+                    b.Property<int?>("LastModifiedBy")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("LastModifiedDate")
@@ -625,15 +574,13 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("text");
 
                     b.Property<Guid>("UniqueID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
+                        .HasColumnType("uuid");
 
                     b.HasKey("ID");
 
                     b.HasIndex("DailyProgressID");
 
-                    b.ToTable("DailyProgressPhotos", "execution");
+                    b.ToTable("DailyProgressPhoto", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.ExecutionProjectConfig", b =>
@@ -1231,17 +1178,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Navigation("DailyProgress");
                 });
 
-            modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressHindrance", b =>
-                {
-                    b.HasOne("Himapp.Execution.Domain.Entities.DailyProgress", "DailyProgress")
-                        .WithMany("DailyProgressHindrance")
-                        .HasForeignKey("DailyProgressID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DailyProgress");
-                });
-
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressPhoto", b =>
                 {
                     b.HasOne("Himapp.Execution.Domain.Entities.DailyProgress", "DailyProgress")
@@ -1332,8 +1268,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgress", b =>
                 {
                     b.Navigation("DailyProgressDetail");
-
-                    b.Navigation("DailyProgressHindrance");
 
                     b.Navigation("DailyProgressPhoto");
                 });

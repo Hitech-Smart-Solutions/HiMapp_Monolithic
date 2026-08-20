@@ -8,6 +8,9 @@ public class SiteDailyProgressPhoto
 
     public int DailyProgressID { get; set; }
 
+    public string? FileName { get; set; }
+    public string? FileType { get; set; }
+    public int? FileSize { get; set; }
     public string PhotoUrl { get; set; } = string.Empty;
     public string? Caption { get; set; }
 

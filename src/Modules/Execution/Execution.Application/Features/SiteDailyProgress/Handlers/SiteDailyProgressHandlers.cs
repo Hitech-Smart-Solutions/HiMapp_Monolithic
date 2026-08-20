@@ -70,7 +70,7 @@ internal sealed class SiteDailyProgressHandlers :
             h.Hindrance,
             h.AudioUrl)).ToArray() ?? Array.Empty<SiteDailyProgressHindranceModel>();
 
-        var photos = d.SiteDailyProgressPhoto.Where(p => p.IsActive).Select(p => new SiteDailyProgressPhotoModel(p.ID, p.UniqueID, p.PhotoUrl, p.Caption)).ToArray();
+        var photos = d.SiteDailyProgressPhoto.Where(p => p.IsActive).Select(p => new SiteDailyProgressPhotoModel(p.ID, p.UniqueID, p.FileName, p.FileType, p.FileSize, p.PhotoUrl, p.Caption)).ToArray();
 
         return new SiteDailyProgressModel(d.ID, d.ProjectID, d.ReportDate, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, d.SectionID, d.NextDayPlan, details, hindrances, photos);
     }
@@ -85,7 +85,7 @@ internal sealed class SiteDailyProgressHandlers :
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
             SectionID = r.SectionID,
-            ReportDate = r.ReportDate.HasValue ? DateOnly.FromDateTime(r.ReportDate.Value.UtcDateTime) : DateOnly.FromDateTime(DateTime.UtcNow),
+            ReportDate = r.ReportDate.HasValue ? DateOnly.FromDateTime(r.ReportDate.Value.DateTime) : DateOnly.FromDateTime(DateTime.UtcNow),
             Remarks = r.Remarks,
             NextDayPlan = r.NextDayPlan,
             TotalAmount = 0m,
@@ -149,7 +149,9 @@ internal sealed class SiteDailyProgressHandlers :
                     UniqueID = Guid.NewGuid(),
                     PhotoUrl = p.PhotoUrl,
                     Caption = p.Caption,
-
+                    FileName = p.FileName,
+                    FileType = p.FileType,
+                    FileSize = p.FileSize,
                     IsActive = true,
                     CreatedBy = userId,
                     CreatedDate = DateTimeOffset.UtcNow,
@@ -174,6 +176,9 @@ internal sealed class SiteDailyProgressHandlers :
         var photos = entity.SiteDailyProgressPhoto?.Select(p => new SiteDailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
+            p.FileName,
+            p.FileType,
+            p.FileSize,
             p.PhotoUrl,
             p.Caption)).ToArray() ?? Array.Empty<SiteDailyProgressPhotoModel>();
 
@@ -192,7 +197,7 @@ internal sealed class SiteDailyProgressHandlers :
         var r = request.Request;
 
         entity.ProjectID = r.ProjectId;
-        entity.ReportDate = r.ReportDate.HasValue ? DateOnly.FromDateTime(r.ReportDate.Value.UtcDateTime) : entity.ReportDate;
+        entity.ReportDate = r.ReportDate ?? entity.ReportDate;
         entity.Remarks = r.Remarks ?? entity.Remarks;
         entity.SectionID = r.SectionID ?? entity.SectionID;
         entity.NextDayPlan = r.NextDayPlan ?? entity.NextDayPlan;
@@ -293,7 +298,9 @@ internal sealed class SiteDailyProgressHandlers :
                     UniqueID = Guid.NewGuid(),
                     PhotoUrl = p.PhotoUrl,
                     Caption = p.Caption,
-
+                    FileName = p.FileName,
+                    FileType = p.FileType,
+                    FileSize = p.FileSize,
                     IsActive = true,
                     CreatedBy = userId,
                     CreatedDate = DateTimeOffset.UtcNow,
@@ -313,7 +320,7 @@ internal sealed class SiteDailyProgressHandlers :
 
         var hindrances = entity.SiteDailyProgressHindrance?.Select(h => new SiteDailyProgressHindranceModel(h.ID, h.UniqueID, h.Hindrance, h.AudioUrl)).ToArray() ?? Array.Empty<SiteDailyProgressHindranceModel>();
 
-        var photos = entity.SiteDailyProgressPhoto?.Select(p => new SiteDailyProgressPhotoModel(p.ID, p.UniqueID, p.PhotoUrl, p.Caption)).ToArray() ?? Array.Empty<SiteDailyProgressPhotoModel>();
+        var photos = entity.SiteDailyProgressPhoto?.Select(p => new SiteDailyProgressPhotoModel(p.ID, p.UniqueID, p.FileName, p.FileType, p.FileSize, p.PhotoUrl, p.Caption)).ToArray() ?? Array.Empty<SiteDailyProgressPhotoModel>();
 
         return new SiteDailyProgressModel(entity.ID, entity.ProjectID, entity.ReportDate, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, entity.SectionID, entity.NextDayPlan, details, hindrances, photos);
     }

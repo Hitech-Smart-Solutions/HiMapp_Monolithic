@@ -1,3 +1,6 @@
+using Amazon;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.S3;
 using Himapp.Admin.Application;
 // Admin.Contracts moved to Admin.Application
 using Himapp.Admin.Infrastructure;
@@ -47,6 +50,13 @@ builder.Services.AddControllers()
     );  // 🔥 Registers the global auto-log action filter for ALL controllers
 builder.Services.AddHealthChecks();
 builder.Services.AddSignalR();
+
+var awsSection = builder.Configuration.GetSection("AWS");
+var accessKey = awsSection["AWS_ACCESS_KEY_ID"];
+var secretKey = awsSection["AWS_SECRET_ACCESS_KEY"];
+var region = RegionEndpoint.GetBySystemName(awsSection["Region"] ?? "ap-south-1");
+
+builder.Services.AddSingleton<IAmazonS3>(sp => new AmazonS3Client(accessKey, secretKey, region));
 
 // Authentication (JWT) - read values from configuration: Jwt:Issuer, Jwt:Audience, Jwt:Key
 builder.Services.AddAuthentication(options =>

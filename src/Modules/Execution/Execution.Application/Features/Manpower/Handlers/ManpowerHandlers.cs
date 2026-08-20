@@ -361,8 +361,8 @@ internal sealed class ManpowerHandlers :
                 using var command = connection.CreateCommand();
 
                 command.CommandText = @"
-                SELECT ""ID"", ""NAME""
-                FROM public.""DynamicsVendorMaster""
+                SELECT ""ID"", ""PartyName""
+                FROM public.""PartyMaster""
                 WHERE ""ID"" = ANY(@contractorIds)";
 
                 var parameter = command.CreateParameter();
