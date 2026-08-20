@@ -7,27 +7,52 @@ public sealed class ManpowerDetailRequest
     public int SkilledCount { get; set; }
     public int UnskilledCount { get; set; }
     public int OtherCount { get; set; }
+    public bool? IsDepartment { get; set; }
 }
 
 public sealed class ManpowerDetailModel
 {
     public int Id { get; init; }
     public Guid UniqueId { get; init; }
+
     public int ContractorId { get; init; }
+    public string ContractorName { get; init; } = string.Empty;
+
     public int ActivityId { get; init; }
+    public string ActivityName { get; init; } = string.Empty;
+
     public int SkilledCount { get; init; }
     public int UnskilledCount { get; init; }
     public int OtherCount { get; init; }
+    public bool? IsDepartment { get; init; }
     public int TotalCount { get; init; }
-    public ManpowerDetailModel(int id, Guid uniqueId, int contractorId, int activityId, int skilledCount, int unskilledCount, int otherCount, int totalCount)
+
+    public ManpowerDetailModel(
+        int id,
+        Guid uniqueId,
+        int contractorId,
+        string contractorName,
+        int activityId,
+        string activityName,
+        int skilledCount,
+        int unskilledCount,
+        int otherCount,
+        bool? isDepartment,
+        int totalCount)
     {
         Id = id;
         UniqueId = uniqueId;
+
         ContractorId = contractorId;
+        ContractorName = contractorName;
+
         ActivityId = activityId;
+        ActivityName = activityName;
+
         SkilledCount = skilledCount;
         UnskilledCount = unskilledCount;
         OtherCount = otherCount;
+        IsDepartment = isDepartment;
         TotalCount = totalCount;
     }
 }

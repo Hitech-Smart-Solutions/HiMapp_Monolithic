@@ -8,7 +8,8 @@ public static class DependencyInjection
     public static IServiceCollection AddSharedKernel(this IServiceCollection services)
     {
         services.AddSingleton<IClock, SystemClock>();
-        services.AddScoped<ICurrentUser, AnonymousCurrentUser>();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUser, JwtCurrentUser>();
         return services;
     }
 }

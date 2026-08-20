@@ -1,8 +1,8 @@
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Models;
-using Himapp.Workflow.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Queries;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Commands;
 
@@ -10,7 +10,7 @@ namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
 [Authorize]
-[RequiresApproval]
+//[RequiresApproval]
 [Route("v1/execution/daily-departmental-labour-slips")]
 public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
 {
@@ -44,6 +44,20 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
     {
         var deleted = await _mediator.Send(new DeleteDailyDepartmentalLabourSlipCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();
+    }
+
+    [HttpPut("SetActiveInActiveForDDLS")]
+    public async Task<IActionResult> SetActiveInActiveForDDLS(AddTransactionActionHistoryDTO dto, CancellationToken cancellationToken)
+    {
+        var deleted = await _mediator.Send(new DeleteDDLSCommand(dto), cancellationToken);
+        return deleted ? Ok() : NotFound();
+    }
+
+    [HttpGet("GetDailyDepartmentalLabourSlipsByProjectID")]
+    public async Task<IActionResult> GetDailyDepartmentalLabourSlipsByProjectID([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDailyDepartmentalLabourSlipsByProjectID(searchParams), cancellationToken);
+        return Ok(result);
     }
 
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);

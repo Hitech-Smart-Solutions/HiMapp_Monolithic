@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.100.9" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <ProjectReference Include="..\..\Safety\Safety.Infrastructure\Safety.Infrastructure.csproj" />
     <ProjectReference Include="..\Store.Contracts\Store.Contracts.csproj" />

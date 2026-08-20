@@ -80,8 +80,9 @@ public sealed class AutoUserActionLogAttribute : Attribute, IAsyncActionFilter
             var currentUser = serviceProvider.GetRequiredService<ICurrentUser>();
             var logger = serviceProvider.GetRequiredService<ILogger<AutoUserActionLogAttribute>>();
 
-            // Extract UserId from authenticated session
+            // JwtCurrentUser reads the authenticated user's ID from JWT claims.
             var userId = (int)(currentUser.UserId ?? 0);
+
             if (userId == 0)
             {
                 // Anonymous user — skip logging

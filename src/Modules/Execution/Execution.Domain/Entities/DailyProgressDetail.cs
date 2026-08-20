@@ -14,7 +14,7 @@ public class DailyProgressDetail
     public int ActivityID { get; set; }
 
     public decimal Quantity { get; set; }
-    public string Uom { get; set; } = string.Empty;
+    public int? UOMID { get; set; }
 
     public decimal Rate { get; set; }
 
@@ -24,14 +24,14 @@ public class DailyProgressDetail
     public decimal? PlanQuantity { get; set; }
 
     // computed stored column in DB
-    public decimal Variance { get; set; }
+    public decimal? Variance { get; set; }
 
     public string? Remarks { get; set; }
-    public bool IsActive { get; set; }
+    public bool IsActive { get; set; } = true;
 
-    public int? CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
-    public int? LastModifiedBy { get; set; }
+    public int LastModifiedBy { get; set; }
     public DateTimeOffset LastModifiedDate { get; set; }
     public virtual DailyProgress? DailyProgress { get; set; }
 

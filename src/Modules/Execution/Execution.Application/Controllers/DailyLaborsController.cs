@@ -3,7 +3,6 @@ using Himapp.Execution.Application.Features.DailyLabor.Commands;
 using Himapp.Execution.Application.Features.DailyLabor.Models;
 using Himapp.Execution.Application.Features.DailyLabor.Queries;
 using Himapp.Execution.Application.Features.Manpower.Queries;
-using Himapp.Workflow.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize]
 [Route("v1/execution/daily-labors")]
 public sealed class DailyLaborsController : ControllerBase
 {
@@ -58,6 +57,13 @@ public sealed class DailyLaborsController : ControllerBase
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _mediator.Send(new DeleteDailyLaborCommand(id), cancellationToken);
+        return deleted ? Ok() : NotFound();
+    }
+
+    [HttpPut("SetActiveInActiveForDailyLabour")]
+    public async Task<IActionResult> SetActiveInActiveForDailyLabour(AddTransactionActionHistoryDTO dto, CancellationToken cancellationToken)
+    {
+        var deleted = await _mediator.Send(new DeleteDailyLaborActionCommand(dto), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 

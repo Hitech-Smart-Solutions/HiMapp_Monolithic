@@ -1,4 +1,5 @@
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2016.Excel;
 using Himapp.Execution.Application.Features.Planning.Commands;
 using Himapp.Execution.Application.Features.Planning.Models;
 using Himapp.Execution.Application.Features.Planning.Queries;
@@ -9,8 +10,9 @@ using Himapp.Execution.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using System.Linq;
 using System.Data;
+using System.Linq;
+using PlanningEntity = Himapp.Execution.Domain.Entities.Planning;
 
 namespace Himapp.Execution.Application.Features.Planning.Handlers;
 
@@ -33,7 +35,7 @@ internal sealed class PlanningHandlers :
 
     public async Task<IReadOnlyCollection<PlanningModel>> Handle(GetAllPlanningsQuery request, CancellationToken cancellationToken)
     {
-        return await _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+        return await _db.Set<PlanningEntity>()
             .AsNoTracking()
             .Select(p => new PlanningModel(p.ID, p.UniqueID, p.ProjectID, p.AreaID, p.PlanTypeID, p.StartDate, p.EndDate, p.Remarks, p.StatusID, p.IsActive, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate, Array.Empty<PlanningDetailModel>(), Array.Empty<PlanningDocumentDetailModel>()))
             .ToArrayAsync(cancellationToken);
@@ -41,7 +43,7 @@ internal sealed class PlanningHandlers :
 
     public async Task<PlanningModel?> Handle(GetPlanningByIdQuery request, CancellationToken cancellationToken)
     {
-        var p = await _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+        var p = await _db.Set<PlanningEntity>()
             .AsNoTracking()
             .Include(x => x.PlanningDetail)
             .Include(x => x.PlanningDocumentDetail)
@@ -72,7 +74,7 @@ internal sealed class PlanningHandlers :
     public async Task<PlanningModel> Handle(CreatePlanningCommand request, CancellationToken cancellationToken)
     {
         var r = request.Request;
-        var entity = new Himapp.Execution.Domain.Entities.Planning
+        var entity = new PlanningEntity
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
@@ -93,7 +95,7 @@ internal sealed class PlanningHandlers :
         {
             foreach (var d in r.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.PlanningDetail
+                var detail = new PlanningDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     AreaID = d.AreaId,
@@ -116,7 +118,7 @@ internal sealed class PlanningHandlers :
         {
             foreach (var d in r.docDetails)
             {
-                var docDetail = new Himapp.Execution.Domain.Entities.PlanningDocumentDetail
+                var docDetail = new PlanningDocumentDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     DocumentName = d.DocumentName,
@@ -135,7 +137,7 @@ internal sealed class PlanningHandlers :
             }
         }
 
-        _db.Set<Himapp.Execution.Domain.Entities.Planning>().Add(entity);
+        _db.Set<PlanningEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
         var details = entity.PlanningDetail?.Select(pd => new PlanningDetailModel(pd.ID, pd.UniqueID, pd.AreaID, pd.ActivityID, pd.TargetQuantity, pd.UOMID, pd.Remarks)).ToArray() ?? Array.Empty<PlanningDetailModel>();
@@ -147,7 +149,7 @@ internal sealed class PlanningHandlers :
 
     public async Task<PlanningModel?> Handle(UpdatePlanningCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+        var entity = await _db.Set<PlanningEntity>()
             .Include(d => d.PlanningDetail)
             .Include(x => x.PlanningDocumentDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
@@ -164,7 +166,7 @@ internal sealed class PlanningHandlers :
         // Remove existing details and add new ones
         if (entity.PlanningDetail != null && entity.PlanningDetail.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.PlanningDetail>().RemoveRange(entity.PlanningDetail);
+            _db.Set<PlanningDetail>().RemoveRange(entity.PlanningDetail);
             entity.PlanningDetail.Clear();
         }
 
@@ -172,7 +174,7 @@ internal sealed class PlanningHandlers :
         {
             foreach (var d in request.Request.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.PlanningDetail
+                var detail = new PlanningDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     AreaID = d.AreaId,
@@ -181,6 +183,8 @@ internal sealed class PlanningHandlers :
                     UOMID = d.UomId,
                     Remarks = d.Remarks,
                     IsActive = true,
+                    CreatedBy = LastModifiedBy,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = LastModifiedBy,
                     LastModifiedDate = DateTime.UtcNow
                 };
@@ -192,7 +196,7 @@ internal sealed class PlanningHandlers :
         // Remove existing document details and add new ones
         if (entity.PlanningDocumentDetail != null && entity.PlanningDocumentDetail.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.PlanningDocumentDetail>().RemoveRange(entity.PlanningDocumentDetail);
+            _db.Set<PlanningDocumentDetail>().RemoveRange(entity.PlanningDocumentDetail);
             entity.PlanningDocumentDetail.Clear();
         }
 
@@ -200,7 +204,7 @@ internal sealed class PlanningHandlers :
         {
             foreach (var d in request.Request.docDetails)
             {
-                var docDetail = new Himapp.Execution.Domain.Entities.PlanningDocumentDetail
+                var docDetail = new PlanningDocumentDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     DocumentName = d.DocumentName,
@@ -209,6 +213,8 @@ internal sealed class PlanningHandlers :
                     FileExtension = d.FileExtension,
                     ContentType = d.ContentType,
                     IsActive = true,
+                    CreatedBy = LastModifiedBy,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = LastModifiedBy,
                     LastModifiedDate = DateTime.UtcNow
                 };
@@ -228,23 +234,25 @@ internal sealed class PlanningHandlers :
 
     public async Task<bool> Handle(DeletePlanningCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+        var entity = await _db.Set<PlanningEntity>()
             .Include(d => d.PlanningDetail)
             .Include(x => x.PlanningDocumentDetail)
-            .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.ID == request.dtoInactive.ProgramRowId, cancellationToken);
         if (entity is null) return false;
 
+        bool isActive = request.dtoInactive.Actions == Actions.Activated;
+
         // Soft delete header and child details
-        entity.IsActive = false;
-        entity.LastModifiedBy = 0;
+        entity.IsActive = isActive;
+        entity.LastModifiedBy = request.dtoInactive.UserId;
         entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.PlanningDetail != null)
         {
             foreach (var pd in entity.PlanningDetail)
             {
-                pd.IsActive = false;
-                pd.LastModifiedBy = request.DeletedBy;
+                pd.IsActive = isActive;
+                pd.LastModifiedBy = request.dtoInactive.UserId;
                 pd.LastModifiedDate = DateTime.UtcNow;
             }
         }
@@ -253,8 +261,8 @@ internal sealed class PlanningHandlers :
         {
             foreach (var pd in entity.PlanningDocumentDetail)
             {
-                pd.IsActive = false;
-                pd.LastModifiedBy = request.DeletedBy;
+                pd.IsActive = isActive;
+                pd.LastModifiedBy = request.dtoInactive.UserId;
                 pd.LastModifiedDate = DateTime.UtcNow;
             }
         }
@@ -463,104 +471,246 @@ internal sealed class PlanningHandlers :
 
     public async Task<byte[]> Handle(DownloadPlanningTemplateQuery request, CancellationToken cancellationToken)
     {
-        // Load sections for project using injected IPlanningSectionService
-        var sectionsList = (await _planningSectionService.GetProjectSectionsAsync(request.ProjectId, cancellationToken)).ToList();
-        if (sectionsList == null || !sectionsList.Any())
-            throw new InvalidOperationException("No active sections configured for this project.");
-
-        var activities = new List<(int ActivityId, string ActivityName, int UomId, decimal? Rate)>();
-
-        // Use existing ProjectActivity mapping stored in ProjectActivity table to fetch activities for the project
-        var paList = await _db.Set<ProjectActivity>()
-            .AsNoTracking()
-            .Where(x => x.ProjectID == request.ProjectId && x.IsActive)
-            .ToListAsync(cancellationToken);
-
-        if (!paList.Any())
-            throw new InvalidOperationException("No applicable activities found for this project.");
-
-        // Map to activity master to get activity name and UOM
-        var activityIds = paList.Select(x => x.ActivityID).Distinct().ToArray();
-        var activityMasters = await _db.Set<Activity>()
-            .AsNoTracking()
-            .Where(a => activityIds.Contains(a.ID) && a.IsActive)
-            .ToListAsync(cancellationToken);
-
-        foreach (var pa in paList)
+        try
         {
-            var am = activityMasters.FirstOrDefault(a => a.ID == pa.ActivityID);
-            if (am is null) continue;
-            activities.Add((am.ID, am.ActivityName, am.UOMID, pa.RevenueRate));
-        }
+            // Load sections
+            var sections = await _planningSectionService.GetProjectSectionsAsync(request.ProjectId, cancellationToken);
 
-        // Build Excel using ClosedXML
-        using var wb = new XLWorkbook();
-        var ws = wb.Worksheets.Add("Template");
-
-        // Two header rows
-        ws.Cell(1, 1).Value = "Activities";
-        ws.Cell(1, 2).Value = "Section Wise Targeted Quantity";
-        ws.Cell(1, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-        ws.Range(1, 2, 1, 1 + sectionsList.Count).Merge();
-
-        ws.Cell(1, 2 + sectionsList.Count).Value = "UOM";
-        ws.Cell(1, 3 + sectionsList.Count).Value = "Rate";
-        //ws.Cell(1, 2 + sectionsList.Count + 1).Value = "UOM";
-        //ws.Cell(1, 2 + sectionsList.Count + 2).Value = "Rate";
-
-        // Row 2: area names
-        ws.Cell(2, 1).Value = string.Empty;
-        for (int i = 0; i < sectionsList.Count; i++)
-        {
-            var label = !string.IsNullOrWhiteSpace(sectionsList[i].LabelName) ? sectionsList[i].LabelName : sectionsList[i].SectionName;
-            ws.Cell(2, 2 + i).Value = label;
-        }
-
-        ws.Cell(2, 2 + sectionsList.Count).Value = "UOM";
-        ws.Cell(2, 3 + sectionsList.Count).Value = "Rate";
-        //ws.Cell(2, 2 + sectionsList.Count + 1).Value = "UOM";
-        //ws.Cell(2, 2 + sectionsList.Count + 2).Value = "Rate";
-
-        // Activities start from row 3
-        int row = 3;
-        foreach (var act in activities)
-        {
-            ws.Cell(row, 1).Value = act.ActivityName;
-            // leave area qty cells blank
-        for (int i = 0; i < sectionsList.Count; i++)
+            if (sections == null || !sections.Any())
             {
-            ws.Cell(row, 2 + i).Value = string.Empty;
-            }
-            // UOM: try to get UOM name from UOMID - if not available leave blank
-            string uomText = string.Empty;
-            if (act.UomId > 0)
-            {
-                //var uom = await _db.Set<UOM>().AsNoTracking().FirstOrDefaultAsync(x => x.ID == act.UomId, cancellationToken);
-                //var uom = await _db.Set<object>().FindAsync(cancellationToken);
-                // no UOM entity in project; leave blank
+                throw new InvalidOperationException("No active sections configured for this project.");
             }
 
-            //ws.Cell(row, 2 + sectionsList.Count + 1).Value = string.Empty; // UOM text
-            //ws.Cell(row, 2 + sectionsList.Count + 2).Value = act.Rate > 0 ? act.Rate : (decimal?)null;
-            ws.Cell(row, 2 + sectionsList.Count).Value = string.Empty;
-            ws.Cell(row, 3 + sectionsList.Count).Value = act.Rate > 0 ? act.Rate : (decimal?)null;
+            var sectionsList = sections.ToList();
 
-            row++;
+            var activities = new List<(int ActivityId, string ActivityName, int UomId, string UomName, decimal? Rate)>();
+
+            // Get project activities
+            var paList = await _db.Set<ProjectActivity>()
+                .AsNoTracking()
+                .Where(x => x.ProjectID == request.ProjectId && x.IsActive)
+                .ToListAsync(cancellationToken);
+
+            if (!paList.Any())
+            {
+                throw new InvalidOperationException("No applicable activities found for this project.");
+            }
+
+            // Get activity IDs
+            var activityIds = paList.Select(x => x.ActivityID).Distinct().ToList();
+
+            if (!activityIds.Any())
+            {
+                throw new InvalidOperationException($"No Activity IDs found for project {request.ProjectId}.");
+            }
+
+            // Get activity masters
+            var activityMasters = await _db.Set<Activity>()
+                .AsNoTracking()
+                .Where(a => activityIds.Contains(a.ID) && a.IsActive)
+                .ToListAsync(cancellationToken);
+
+            // GET UOM NAMES
+            if (!activityMasters.Any())
+            {
+                throw new InvalidOperationException($"No active activities found for project {request.ProjectId}.");
+            }
+
+            // Get UOM IDs from activities
+            var uomIds = activityMasters
+                .Where(a => a.UOMID > 0)
+                .Select(a => a.UOMID)
+                .Distinct()
+                .ToArray();
+
+            var uomMap = new Dictionary<int, string>();
+
+            if (uomIds.Length > 0)
+            {
+                var dbContext = _db as DbContext;
+
+                if (dbContext is null)
+                {
+                    throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+                }
+
+                var connection = dbContext.Database.GetDbConnection();
+
+                await connection.OpenAsync(cancellationToken);
+
+                try
+                {
+                    using var command = connection.CreateCommand();
+
+                    command.CommandText = @"SELECT ""ID"", ""UOMShortName""
+                        FROM public.""UnitOfMeasurement""
+                        WHERE ""ID"" = ANY(@uomIds)";
+
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@uomIds";
+                    parameter.Value = uomIds;
+
+                    command.Parameters.Add(parameter);
+
+                    using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+                    while (await reader.ReadAsync(cancellationToken))
+                    {
+                        var id = reader.GetInt32(0);
+
+                        var name = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+
+                        uomMap[id] = name;
+                    }
+                }
+                finally
+                {
+                    await connection.CloseAsync();
+                }
+            }
+
+            // Map activities
+            foreach (var pa in paList)
+            {
+                var am = activityMasters.FirstOrDefault(a => a.ID == pa.ActivityID);
+
+                if (am is null) continue;
+
+                string uomName = string.Empty;
+
+                if (am.UOMID > 0)
+                {
+                    uomMap.TryGetValue(am.UOMID, out uomName);
+                }
+
+                activities.Add((am.ID, am.ActivityName, am.UOMID, uomName ?? string.Empty, pa.RevenueRate));
+            }
+
+            // Build Excel using ClosedXML
+            using var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add("Template");
+
+            // HEADER ROW 1
+            ws.Cell(1, 1).Value = "Activities";
+
+            var sectionHeader = ws.Range(1, 2, 1, 1 + sectionsList.Count);
+            sectionHeader.Merge();
+            sectionHeader.FirstCell().Value = "Section Wise Targeted Quantity";
+
+            // Merge section header
+            ws.Range(1, 2, 1, 1 + sectionsList.Count).Merge();
+
+            // UOM and Rate
+            ws.Cell(1, 2 + sectionsList.Count).Value = "UOM";
+            ws.Cell(1, 3 + sectionsList.Count).Value = "Rate";
+
+            // HEADER ROW 2
+            ws.Cell(2, 1).Value = string.Empty;
+
+            for (int i = 0; i < sectionsList.Count; i++)
+            {
+                ws.Cell(2, 2 + i).Value = sectionsList[i].SectionName;
+            }
+
+            ws.Cell(2, 2 + sectionsList.Count).Value = string.Empty;
+            ws.Cell(2, 3 + sectionsList.Count).Value = string.Empty;
+
+
+            // DATA ROWS
+            int row = 3;
+
+            foreach (var act in activities)
+            {
+                ws.Cell(row, 1).Value = act.ActivityName;
+
+                // Area quantity columns
+                for (int i = 0; i < sectionsList.Count; i++)
+                {
+                    ws.Cell(row, 2 + i).Value = string.Empty;
+                }
+
+                // UOM
+                ws.Cell(row, 2 + sectionsList.Count).Value = act.UomName;
+
+                // Rate
+                ws.Cell(row, 3 + sectionsList.Count).Value = act.Rate > 0 ? act.Rate : (decimal?)null;
+
+                row++;
+            }
+
+            // =============================
+            // FORMATTING
+            // =============================
+            // Activity + Sections + UOM + Rate
+            int totalColumns = 2 + sectionsList.Count + 1;
+
+            // Last data row
+            int lastRow = row - 1;
+
+            // Apply bold + center alignment to headers
+            var headerRange = ws.Range(1, 1, 2, totalColumns);
+
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            headerRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            // Apply borders to ENTIRE table
+            var tableRange = ws.Range(1, 1, lastRow, totalColumns);
+
+            tableRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            tableRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+            // Center section quantity, UOM and Rate columns
+            if (sectionsList.Count > 0)
+            {
+                var sectionRange = ws.Range(2, 2, lastRow, 1 + sectionsList.Count);
+
+                sectionRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                sectionRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            }
+
+            // UOM column
+            var uomRange = ws.Range(2, 2 + sectionsList.Count, lastRow, 2 + sectionsList.Count);
+
+            uomRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            uomRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            // Rate column
+            var rateRange = ws.Range(2, 3 + sectionsList.Count, lastRow, 3 + sectionsList.Count);
+
+            rateRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            rateRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+            // Freeze header rows
+            ws.SheetView.FreezeRows(2);
+
+            // Adjust column widths
+            ws.Columns().AdjustToContents();
+
+            ws.SheetView.FreezeRows(2);
+            ws.Columns().AdjustToContents();
+
+            using var ms = new MemoryStream();
+            wb.SaveAs(ms);
+            return ms.ToArray();
         }
+        catch (InvalidOperationException)
+        {
+            // Preserve business validation errors
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // IMPORTANT: log the actual exception and inner exception
+            var innerMessage = ex.InnerException?.Message;
 
-        // Formatting
-        var headerRange = ws.Range(1, 1, 2, 2 + sectionsList.Count + 2);
-        headerRange.Style.Font.Bold = true;
-        headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-        headerRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-        headerRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-
-        ws.SheetView.FreezeRows(2);
-        ws.Columns().AdjustToContents();
-
-        using var ms = new MemoryStream();
-        wb.SaveAs(ms);
-        return ms.ToArray();
+            throw new InvalidOperationException(
+                $"Error while downloading planning template for ProjectId {request.ProjectId}. " +
+                $"Error: {ex.Message}" +
+                (!string.IsNullOrWhiteSpace(innerMessage)
+                    ? $" | Inner Exception: {innerMessage}"
+                    : string.Empty), ex);
+        }
     }
 }
 

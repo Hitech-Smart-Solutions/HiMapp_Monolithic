@@ -1,9 +1,10 @@
+using DocumentFormat.OpenXml.Office2016.Excel;
 using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.Planning.Commands;
 using Himapp.Execution.Application.Features.Planning.Models;
 using Himapp.Execution.Application.Features.Planning.Queries;
-using Himapp.SharedKernel.Abstractions;
 using Himapp.Execution.Application.Features.Planning.Services;
+using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize]
 [Route("v1/execution/plannings")]
 public sealed class PlanningsController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public PlanningsController(IMediator mediator) => _mediator = mediator;
+    private readonly ICurrentUser _currentUser;
+    public PlanningsController(IMediator mediator, ICurrentUser currentUser) => (_mediator, _currentUser) = (mediator, currentUser);
 
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
@@ -30,6 +32,23 @@ public sealed class PlanningsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePlanningRequest request, CancellationToken cancellationToken)
     {
+        if (request == null)
+        {
+            return BadRequest("Create request is required.");
+        }
+        else if (request.StartDate == default)
+        {
+            return BadRequest("Start date is required.");
+        }
+        else if (request.EndDate == default)
+        {
+            return BadRequest("End date is required.");
+        }
+        else if (request.StartDate > request.EndDate)
+        {
+            return BadRequest("Start date cannot be later than end date.");
+        }
+
         var result = await _mediator.Send(new CreatePlanningCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
@@ -37,14 +56,36 @@ public sealed class PlanningsController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdatePlanningRequest request, CancellationToken cancellationToken)
     {
+        if (request == null)
+        {
+            return BadRequest("Update request is required.");
+        }
+        else if (request.Id != id)
+        {
+            return BadRequest("Planning ID does not match.");
+        }
+
         var result = await _mediator.Send(new UpdatePlanningCommand(id, request), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:int},{deletedBy:int}")]
-    public async Task<IActionResult> Delete(int id, int deletedBy, CancellationToken cancellationToken)
+    [HttpPut("SetActiveInActivePlanning")]
+    public async Task<IActionResult> SetActiveInActivePlanning([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeletePlanningCommand(id, deletedBy), cancellationToken);
+        if (dtoInactive == null)
+        {
+            return BadRequest("Delete request is required.");
+        }
+        else if (dtoInactive.ProgramId <= 0)
+        {
+            return BadRequest("Program ID is required.");
+        }
+        else if (dtoInactive.ProgramRowId <= 0)
+        {
+            return BadRequest("Planning ID is required.");
+        }
+
+        var deleted = await _mediator.Send(new DeletePlanningCommand(dtoInactive), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 
@@ -62,9 +103,9 @@ public sealed class PlanningsController : ControllerBase
             var result = await _mediator.Send(new GetPlanningListByProjectQuery(searchParams), cancellationToken);
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, ex.Message);
+            return StatusCode(500, "An unexpected error occurred.");
         }
 
     }
@@ -85,9 +126,9 @@ public sealed class PlanningsController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, ex.Message);
+            return StatusCode(500, "An unexpected error occurred.");
         }
     }
 
@@ -96,6 +137,31 @@ public sealed class PlanningsController : ControllerBase
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> BulkCreate([FromForm] BulkCreatePlanningRequest request, CancellationToken cancellationToken)
     {
+        if (request == null)
+        {
+            return BadRequest("Upload request is required.");
+        }
+        else if (request.ProjectId <= 0)
+        {
+            return BadRequest("ProjectID is required.");
+        }
+        else if (request.ExcelFile == null)
+        {
+            return BadRequest("Excel file is required.");
+        }
+        else if (request.StartDate == default || request.StartDate == DateOnly.MinValue)
+        {
+            return BadRequest("Start date is required.");
+        }
+        else if (request.EndDate == default || request.EndDate == DateOnly.MinValue)
+        {
+            return BadRequest("End date is required.");
+        }
+        else if (request.StartDate > request.EndDate)
+        {
+            return BadRequest("Start date cannot be later than end date.");
+        }
+
         try
         {
             var result = await _mediator.Send(new BulkCreatePlanningCommand(request), cancellationToken);
@@ -107,9 +173,9 @@ public sealed class PlanningsController : ControllerBase
             var parts = ex.Message.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries);
             return BadRequest(parts);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, ex.Message);
+            return StatusCode(500, "An unexpected error occurred.");
         }
     }
 

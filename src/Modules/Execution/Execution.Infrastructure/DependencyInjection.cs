@@ -15,7 +15,6 @@ public static class DependencyInjection
             var conn = configuration.GetConnectionString("DefaultConnection");
             options.UseNpgsql(conn);
         });
-
         return services;
     }
 }
