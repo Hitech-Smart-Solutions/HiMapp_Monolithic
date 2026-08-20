@@ -59,7 +59,7 @@ namespace Himapp.Execution.Application.Controllers
 
             // Build the public URL (if bucket is public or you want the object URL)
             // Option 1: Use the bucket's public URL (if public-read)
-            var fileUrl = $"https://{bucketName}.s3.{_region}.amazonaws.com/{storedFileName}";
+            var fileUrl = $"https://s3.{_region}.amazonaws.com/{bucketName}/{storedFileName}";
 
             // Option 2: Generate a pre‑signed URL (if private bucket) – see below
 

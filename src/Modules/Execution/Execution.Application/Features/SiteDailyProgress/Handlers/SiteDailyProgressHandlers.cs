@@ -176,8 +176,8 @@ internal sealed class SiteDailyProgressHandlers :
         var photos = entity.SiteDailyProgressPhoto?.Select(p => new SiteDailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
-            p.FileName, 
-            p.FileType, 
+            p.FileName,
+            p.FileType,
             p.FileSize,
             p.PhotoUrl,
             p.Caption)).ToArray() ?? Array.Empty<SiteDailyProgressPhotoModel>();
@@ -298,7 +298,9 @@ internal sealed class SiteDailyProgressHandlers :
                     UniqueID = Guid.NewGuid(),
                     PhotoUrl = p.PhotoUrl,
                     Caption = p.Caption,
-
+                    FileName = p.FileName,
+                    FileType = p.FileType,
+                    FileSize = p.FileSize,
                     IsActive = true,
                     CreatedBy = userId,
                     CreatedDate = DateTimeOffset.UtcNow,
@@ -318,7 +320,7 @@ internal sealed class SiteDailyProgressHandlers :
 
         var hindrances = entity.SiteDailyProgressHindrance?.Select(h => new SiteDailyProgressHindranceModel(h.ID, h.UniqueID, h.Hindrance, h.AudioUrl)).ToArray() ?? Array.Empty<SiteDailyProgressHindranceModel>();
 
-        var photos = entity.SiteDailyProgressPhoto?.Select(p => new SiteDailyProgressPhotoModel(p.ID, p.UniqueID, p.FileName, p.FileType, p.FileSize,p.PhotoUrl, p.Caption)).ToArray() ?? Array.Empty<SiteDailyProgressPhotoModel>();
+        var photos = entity.SiteDailyProgressPhoto?.Select(p => new SiteDailyProgressPhotoModel(p.ID, p.UniqueID, p.FileName, p.FileType, p.FileSize, p.PhotoUrl, p.Caption)).ToArray() ?? Array.Empty<SiteDailyProgressPhotoModel>();
 
         return new SiteDailyProgressModel(entity.ID, entity.ProjectID, entity.ReportDate, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, entity.SectionID, entity.NextDayPlan, details, hindrances, photos);
     }
