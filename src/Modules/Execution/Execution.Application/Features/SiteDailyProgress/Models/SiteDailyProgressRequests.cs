@@ -27,7 +27,7 @@ public sealed class UpdateSiteDailyProgressRequest
     [Required]
     public int ProjectId { get; set; }
 
-    public DateTimeOffset? ReportDate { get; set; }
+    public DateOnly? ReportDate { get; set; }
 
     public string? Remarks { get; set; }
 
@@ -118,4 +118,10 @@ public sealed class SiteDailyProgressPhotoRequest
     public string PhotoUrl { get; set; } = string.Empty;
 
     public string? Caption { get; set; }
+
+    public string? FileName { get; set; }
+
+    public string? FileType { get; set; }
+
+    public int? FileSize { get; set; }
 }

@@ -8,6 +8,9 @@
   <ItemGroup>
     <Folder Include="ApprovalWorkflows\" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.100.9" />
+  </ItemGroup>
 
   <!-- Rely on SDK default Compile items -->
 
