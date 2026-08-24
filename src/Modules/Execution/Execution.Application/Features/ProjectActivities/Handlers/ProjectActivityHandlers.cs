@@ -1,3 +1,4 @@
+using DocumentFormat.OpenXml.InkML;
 using Himapp.Execution.Application.Features.ProjectActivities.Commands;
 using Himapp.Execution.Application.Features.ProjectActivities.Models;
 using Himapp.Execution.Application.Features.ProjectActivities.Queries;
@@ -17,7 +18,8 @@ internal sealed class ProjectActivityHandlers :
     IRequestHandler<DeleteProjectActivityCommand, bool>,
     IRequestHandler<GetAllProjectActivitiesQuery, System.Data.DataSet>,
     IRequestHandler<GetProjectActivityByIdQuery, ProjectActivityModel?>,
-    IRequestHandler<GetProjectActivitiesByProjectIdQuery, System.Data.DataSet>
+    IRequestHandler<GetProjectActivitiesByProjectIdQuery, System.Data.DataSet>,
+    IRequestHandler<GetProjectActivitiyDetailsByProjectID, List<ProjectActivityCategoryDetailsModel>>
 {
     private readonly IExecutionDbContext _db;
     public ProjectActivityHandlers(IExecutionDbContext db) => _db = db;
@@ -265,7 +267,7 @@ internal sealed class ProjectActivityHandlers :
 
     public async Task<System.Data.DataSet> Handle(GetProjectActivitiesByProjectIdQuery request, CancellationToken cancellationToken)
     {
-       
+
         // Prepare DataSet
         var ds = new System.Data.DataSet("ProjectActivitiesResult");
 
@@ -294,6 +296,24 @@ internal sealed class ProjectActivityHandlers :
         }
 
         return dsLocal;
+    }
+
+    public async Task<List<ProjectActivityCategoryDetailsModel>> Handle(GetProjectActivitiyDetailsByProjectID request, CancellationToken cancellationToken)
+    {
+        var result = await _db.Set<ActivityCategoryDetails>()
+            .Where(x =>
+                x.ProjectID == request.ProjectId &&
+                x.IsActive)
+            .Select(x => new ProjectActivityCategoryDetailsModel
+            {
+                ID = x.ID,
+                ProjectID = x.ProjectID,
+                Name = x.Name,
+                Rate = x.Rate
+            })
+            .ToListAsync(cancellationToken);
+
+        return result;
     }
 }
 

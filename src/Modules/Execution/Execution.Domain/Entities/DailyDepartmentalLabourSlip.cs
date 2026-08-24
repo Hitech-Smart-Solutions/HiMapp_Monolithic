@@ -19,7 +19,7 @@ namespace Himapp.Execution.Domain.Entities
 
         public string? DDLSlipCode { get; set; }
         public DateTime? SlipDate { get; set; }
-        public int? SlipNumber { get; set; }
+        public int? IssueNumber { get; set; }
 
         public int? PartyID { get; set; }
         public bool? IsNewParty { get; set; }
