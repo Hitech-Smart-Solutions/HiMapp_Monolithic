@@ -3,6 +3,8 @@ using Himapp.Execution.Contracts.Dpr;
 using Himapp.Execution.Application.Features.Planning.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Himapp.Execution.Application.Features.Planning.Services.IServices;
+using Himapp.Execution.Contracts.References;
+using Himapp.Execution.Application.Features.DailyProgress.Service;
 
 namespace Himapp.Execution.Application;
 
@@ -18,6 +20,7 @@ public static class DependencyInjection
         // Planning: section lookup and Excel importer
         services.AddScoped<IPlanningSectionService, PlanningSectionService>();
         services.AddScoped<IExcelPlanningImporter, ExcelPlanningImporter>();
+        services.AddScoped<IDPRCodeGenerator, DPRCodeGenerator>();
 
         // DDL Slip code generator
         services.AddScoped<Himapp.Execution.Contracts.References.IDdlSlipCodeGenerator, Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Services.DdlSlipCodeGenerator>();

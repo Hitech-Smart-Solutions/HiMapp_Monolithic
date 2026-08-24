@@ -6,5 +6,5 @@ using System.Text;
 
 namespace Himapp.Execution.Application.Features.DailyLabor.Queries
 {
-    public sealed record GetConsolidatedDailyLaborQuery(int ProjectId,DateOnly Date) : IRequest<IReadOnlyCollection<DailyLaborConsolidatedModel>>;
+    public sealed record GetConsolidatedDailyLaborQuery(int ProjectId, DateOnly Date) : IRequest<IReadOnlyCollection<DailyLaborConsolidatedModel>>;
 }
