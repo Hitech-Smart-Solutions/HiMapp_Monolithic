@@ -1,12 +1,17 @@
+using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Handlers;
 using Himapp.Execution.Application.Features.DailyProgress.Commands;
 using Himapp.Execution.Application.Features.DailyProgress.Models;
 using Himapp.Execution.Application.Features.DailyProgress.Queries;
 using Himapp.Execution.Application.Features.Planning.Queries;
+using Himapp.Execution.Application.Features.SiteDailyProgress.Models;
+using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
 using Himapp.Execution.Contracts;
+using Himapp.Execution.Contracts.References;
 using Himapp.Execution.Domain.Entities;
 using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Data;
 
@@ -18,11 +23,15 @@ internal sealed class DailyProgressHandlers :
     IRequestHandler<CreateDailyProgressCommand, DailyProgressModel>,
     IRequestHandler<UpdateDailyProgressCommand, DailyProgressModel?>,
     IRequestHandler<DeleteDailyProgressCommand, bool>,
-    IRequestHandler<GetDailyProgressListByProjectQuery, DataSet>
+    IRequestHandler<GetDailyProgressListByProjectQuery, DataSet>,
+    IRequestHandler<GetActivityWiseQuantityByProjectQuery, List<ActivityWiseQuantityBySectionModel>>,
+    IRequestHandler<GetDailyProgressByProjectAndDateQuery, DailyProgressModel?>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
-    public DailyProgressHandlers(IExecutionDbContext db, ICurrentUser currentUser) => (_db, _currentUser) = (db, currentUser);
+    private readonly IDPRCodeGenerator _codeGenerator;
+    private readonly ILogger<DailyProgressHandlers> _logger;
+    public DailyProgressHandlers(IExecutionDbContext db, ICurrentUser currentUser, IDPRCodeGenerator codeGenerator, ILogger<DailyProgressHandlers> logger) => (_db, _currentUser, _codeGenerator, _logger) = (db, currentUser, codeGenerator, logger);
 
     private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
 
@@ -30,7 +39,7 @@ internal sealed class DailyProgressHandlers :
     {
         return await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
             .AsNoTracking()
-            .Select(d => new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, Array.Empty<DailyProgressDetailModel>(), Array.Empty<DailyProgressHindranceModel>(), Array.Empty<DailyProgressPhotoModel>()))
+            .Select(d => new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, Array.Empty<DailyProgressDetailModel>(), Array.Empty<DailyProgressHindranceModel>(), Array.Empty<DailyProgressPhotoModel>()))
             .ToArrayAsync(cancellationToken);
     }
 
@@ -65,16 +74,24 @@ internal sealed class DailyProgressHandlers :
         var photos = d.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
+            p.FileName,
+            p.FileType,
+            p.FileSize,
             p.PhotoUrl,
             p.Caption)).ToArray() ?? Array.Empty<DailyProgressPhotoModel>();
 
-        return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details, hindrances, photos);
+        return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details, hindrances, photos);
     }
 
     public async Task<DailyProgressModel> Handle(CreateDailyProgressCommand request, CancellationToken cancellationToken)
     {
         var r = request.Request;
         var userId = CurrentUserId;
+
+        // Generate DPRCode project-wise before constructing the entity so we can log and inspect it
+        var generatedCode = await _codeGenerator.GenerateDPRCodeAsync(r.ProjectId, cancellationToken);
+        _logger.LogDebug("DPR code generated for ProjectId {ProjectId}: '{Code}'", r.ProjectId, generatedCode);
+
         var entity = new Himapp.Execution.Domain.Entities.DailyProgress
         {
             UniqueID = Guid.NewGuid(),
@@ -82,6 +99,7 @@ internal sealed class DailyProgressHandlers :
             ReportDate = r.ReportDate,
             NextDayPlan = r.NextDayPlan,
             Remarks = r.Remarks,
+            DPRCode = generatedCode,
             TotalAmount = 0m,
             StatusID = r.StatusID,
             IsActive = true,
@@ -143,6 +161,9 @@ internal sealed class DailyProgressHandlers :
                 var photo = new DailyProgressPhoto
                 {
                     UniqueID = Guid.NewGuid(),
+                    FileName = p.FileName,
+                    FileType = p.FileType,
+                    FileSize = p.FileSize,
                     PhotoUrl = p.PhotoUrl,
                     Caption = p.Caption,
                     IsActive = true,
@@ -168,10 +189,13 @@ internal sealed class DailyProgressHandlers :
         var photos = entity.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
+            p.FileName,
+            p.FileType,
+            p.FileSize,
             p.PhotoUrl,
             p.Caption)).ToArray() ?? Array.Empty<DailyProgressPhotoModel>();
 
-        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ReportDate, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, hindrances, photos);
+        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.DPRCode, entity.ReportDate, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, hindrances, photos);
     }
 
     public async Task<DailyProgressModel?> Handle(UpdateDailyProgressCommand request, CancellationToken cancellationToken)
@@ -265,6 +289,9 @@ internal sealed class DailyProgressHandlers :
                 {
                     UniqueID = Guid.NewGuid(),
                     PhotoUrl = p.PhotoUrl,
+                    FileName = p.FileName,
+                    FileType = p.FileType,
+                    FileSize = p.FileSize,
                     Caption = p.Caption,
                     IsActive = true,
                     CreatedBy = LastModifiedBy,
@@ -288,10 +315,13 @@ internal sealed class DailyProgressHandlers :
         var photos = entity.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
+            p.FileName,
+            p.FileType,
+            p.FileSize,
             p.PhotoUrl,
             p.Caption)).ToArray() ?? Array.Empty<DailyProgressPhotoModel>();
 
-        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ReportDate, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, hindrances, photos);
+        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.DPRCode, entity.ReportDate, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, hindrances, photos);
     }
 
     public async Task<bool> Handle(DeleteDailyProgressCommand request, CancellationToken cancellationToken)
@@ -472,5 +502,155 @@ internal sealed class DailyProgressHandlers :
         #endregion
 
         return ds;
+    }
+
+    public async Task<List<ActivityWiseQuantityBySectionModel>> Handle(GetActivityWiseQuantityByProjectQuery request, CancellationToken cancellationToken)
+    {
+        // Get planning details + activities
+        var result = await (
+            from p in _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+            join pd in _db.Set<PlanningDetail>()
+                on p.ID equals pd.PlanningID
+            join activity in _db.Set<Activity>()
+                on pd.ActivityID equals activity.ID
+            where p.ProjectID == request.ProjectID
+                  && p != null && p.IsActive
+                  && pd.IsActive
+            select new
+            {
+                pd.ActivityID,
+                ActivityName = activity.ActivityName,
+                pd.TargetQuantity,
+                pd.UOMID
+            }
+        ).ToListAsync(cancellationToken);
+
+        if (!result.Any())
+        {
+            return new List<ActivityWiseQuantityBySectionModel>();
+        }
+
+        // Get distinct UOM IDs
+        var uomIds = result
+            .Where(x => x.UOMID > 0)
+            .Select(x => x.UOMID)
+            .Distinct()
+            .ToArray();
+
+        var uomMap = new Dictionary<int, (string Name, string ShortName)>();
+
+        if (uomIds.Length > 0)
+        {
+            var dbContext = _db as DbContext;
+
+            if (dbContext == null)
+            {
+                throw new InvalidOperationException(
+                    "IExecutionDbContext is not a DbContext.");
+            }
+
+            var connection = dbContext.Database.GetDbConnection();
+
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            try
+            {
+                using var command = connection.CreateCommand();
+
+                command.CommandText = @"
+                SELECT 
+                    ""ID"",
+                    ""UOMName"",
+                    ""UOMShortName""
+                FROM public.""UnitOfMeasurement""
+                WHERE ""ID"" = ANY(@uomIds)";
+
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@uomIds";
+                parameter.Value = uomIds;
+
+                command.Parameters.Add(parameter);
+
+                using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+                while (await reader.ReadAsync(cancellationToken))
+                {
+                    var id = reader.GetInt32(0);
+
+                    var name = reader.IsDBNull(1)
+                        ? string.Empty
+                        : reader.GetString(1);
+
+                    var shortName = reader.IsDBNull(2)
+                        ? string.Empty
+                        : reader.GetString(2);
+
+                    uomMap[id] = (name, shortName);
+                }
+            }
+            finally
+            {
+                await connection.CloseAsync();
+            }
+        }
+
+        // Map final response
+        return result.Select(x =>
+        {
+            uomMap.TryGetValue(x.UOMID, out var uom);
+
+            return new ActivityWiseQuantityBySectionModel
+            {
+                ActivityID = x.ActivityID,
+                ActivityName = x.ActivityName,
+                TargetQuantity = x.TargetQuantity,
+                UOMID = x.UOMID,
+                UOMName = uom.Name,
+                UOMShortName = uom.ShortName
+            };
+        }).ToList();
+    }
+
+    public async Task<DailyProgressModel?> Handle(GetDailyProgressByProjectAndDateQuery request, CancellationToken cancellationToken)
+    {
+        var d = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
+            .AsNoTracking()
+            .Include(x => x.DailyProgressDetail)
+            .Include(x => x.DailyProgressHindrance)
+            .Include(x => x.DailyProgressPhoto)
+            .FirstOrDefaultAsync(x => x.ProjectID == request.ProjectId && x.ReportDate == request.ReportDate && x.IsActive, cancellationToken);
+        if (d is null) return null;
+
+        var details = d.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(
+            dd.ID,
+            dd.UniqueID,
+            dd.ActivityID,
+            dd.Quantity,
+            dd.UOMID,
+            dd.Rate,
+            dd.Amount,
+            dd.PlanQuantity,
+            dd.Variance,
+            dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
+
+        var hindrances = d.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
+            h.ID,
+            h.UniqueID,
+            h.Hindrance,
+            h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
+
+        var photos = d.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
+            p.ID,
+            p.UniqueID,
+            p.FileName,
+            p.FileType,
+            p.FileSize,
+            p.PhotoUrl,
+            p.Caption)).ToArray() ?? Array.Empty<DailyProgressPhotoModel>();
+
+        return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details, hindrances, photos);
     }
 }

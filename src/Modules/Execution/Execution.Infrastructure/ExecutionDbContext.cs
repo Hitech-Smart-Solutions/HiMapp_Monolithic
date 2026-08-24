@@ -57,6 +57,9 @@ public sealed class ExecutionDbContext : DbContext, IExecutionDbContext
                 .HasDefaultValueSql("gen_random_uuid()")
                 .ValueGeneratedOnAdd();
 
+            entity.Property(x => x.DPRCode)
+                .HasColumnName("DPRCode");
+
             entity.Property(x => x.ProjectID)
                 .IsRequired();
 

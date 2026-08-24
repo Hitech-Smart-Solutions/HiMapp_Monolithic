@@ -14,6 +14,7 @@ public class DailyProgress
     public Guid UniqueID { get; set; }
 
     public int ProjectID { get; set; }
+    public string DPRCode { get; set; }
     public DateOnly ReportDate { get; set; }
 
     public string? NextDayPlan { get; set; }

@@ -67,5 +67,23 @@ public sealed class DailyLaborsController : ControllerBase
         return deleted ? Ok() : NotFound();
     }
 
+    [HttpGet("GetConsolidatedForDPR")]
+    public async Task<IActionResult> GetConsolidatedForDPR([FromQuery] DateOnly date, [FromQuery] int projectId, CancellationToken cancellationToken)
+    {
+        if (projectId <= 0)
+        {
+            return BadRequest("ProjectID is required.");
+        }
+
+        if (date == default)
+        {
+            return BadRequest("date is required.");
+        }
+
+        var result = await _mediator.Send(new DPRGetConsolidatedDailyLaborQuery(date, projectId), cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
+    }
+
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }

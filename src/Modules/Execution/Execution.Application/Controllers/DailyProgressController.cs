@@ -1,8 +1,10 @@
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.DailyProgress.Commands;
 using Himapp.Execution.Application.Features.DailyProgress.Models;
 using Himapp.Execution.Application.Features.DailyProgress.Queries;
 using Himapp.Execution.Application.Features.Planning.Queries;
+using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -103,6 +105,43 @@ public sealed class DailyProgressController : ControllerBase
             return StatusCode(500, "An unexpected error occurred.");
         }
 
+    }
+
+    [HttpGet("GetActivityWiseQuantityByProjectID/{projectId:int}")]
+    public async Task<IActionResult> GetActivityWiseQuantityByProjectID(int projectId, CancellationToken cancellationToken)
+    {
+        if (projectId <= 0)
+        {
+            return BadRequest("ProjectID is required.");
+        }
+
+        try
+        {
+            var result = await _mediator.Send(new GetActivityWiseQuantityByProjectQuery(projectId), cancellationToken);
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred.");
+        }
+    }
+
+    [HttpGet("GetByProjectAndDate/{projectId:int}/{reportDate}")]
+    public async Task<IActionResult> GetByProjectAndDate(int projectId, DateOnly reportDate, CancellationToken cancellationToken)
+    {
+        if (projectId <= 0)
+        {
+            return BadRequest("ProjectID is required.");
+        }
+
+        if (reportDate == default)
+        {
+            return BadRequest("Report date is required.");
+        }
+
+        var result = await _mediator.Send(new GetDailyProgressByProjectAndDateQuery(projectId, reportDate), cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
     }
 
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);

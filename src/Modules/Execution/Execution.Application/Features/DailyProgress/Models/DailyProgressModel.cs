@@ -4,6 +4,7 @@ public sealed record DailyProgressModel(
     int Id,
     System.Guid UniqueId,
     int ProjectId,
+    string DPRCode,
     System.DateOnly ReportDate,
     string? NextDayPlan,
     string? Remarks,
