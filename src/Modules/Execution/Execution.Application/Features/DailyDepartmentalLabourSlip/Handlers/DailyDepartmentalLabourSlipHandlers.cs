@@ -39,6 +39,8 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 d.ProjectID,
                 d.SlipDate,
                 d.DDLSlipCode,
+                d.IssueNumber,
+                d.PartyID,
                 d.Remarks,
                 d.IsActive,
                 d.CreatedBy,
@@ -85,20 +87,21 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.ID,
             dd.UniqueID,
             dd.LabourCategoryTypeID,
+            dd.IsLumSumWork,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
             dd.LunchHour,
             dd.WorkingHours,
             dd.WorkLocationID,
-            dd.ActivityCategoryID,
+            dd.ActivityID,
             dd.ActivityDetails,
             dd.UOMID,
             dd.Quantity,
             dd.DebitPartyID,
             dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
-        return new DailyDepartmentalLabourSlipModel(d.ID, d.UniqueID, d.ProjectID, d.SlipDate, d.DDLSlipCode, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details);
+        return new DailyDepartmentalLabourSlipModel(d.ID, d.UniqueID, d.ProjectID, d.SlipDate, d.DDLSlipCode, d.IssueNumber, d.PartyID, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details);
     }
 
     public async Task<DailyDepartmentalLabourSlipModel> Handle(CreateDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
@@ -114,7 +117,9 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
             DDLSlipCode = string.IsNullOrWhiteSpace(generatedCode) ? null : generatedCode,
-            SlipDate = r.SlipDate?.UtcDateTime,
+            IssueNumber = r.IssueNumber,
+            PartyID = r.PartyID,
+            SlipDate = r.SlipDate.HasValue ? DateTime.SpecifyKind(r.SlipDate.Value.Date, DateTimeKind.Utc) : DateTime.UtcNow.Date,
             Remarks = r.Remarks,
             IsActive = true,
             CreatedBy = r.CreatedBy,
@@ -127,17 +132,20 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         {
             foreach (var d in r.Details)
             {
+                var workingHours = CalculateWorkingHours(d.FromTime, d.ToTime, d.LunchHour);
                 var detail = new Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails
                 {
                     UniqueID = Guid.NewGuid(),
                     DDLSlipID = entity.ID,
                     LabourCategoryTypeID = d.LabourCategoryTypeId,
+                    IsLumSumWork = d.IsLumSumWork,
                     NumOfLabour = d.NumOfLabour,
                     FromTime = d.FromTime,
                     TOTime = d.ToTime,
                     LunchHour = d.LunchHour,
+                    WorkingHours = workingHours,
                     WorkLocationID = d.WorkLocationId,
-                    ActivityCategoryID = d.ActivityCategoryId,
+                    ActivityID = d.ActivityID,
                     ActivityDetails = d.ActivityDetails,
                     UOMID = d.UomId,
                     Quantity = d.Quantity,
@@ -161,20 +169,21 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.ID,
             dd.UniqueID,
             dd.LabourCategoryTypeID,
+            dd.IsLumSumWork,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
             dd.LunchHour,
             dd.WorkingHours,
             dd.WorkLocationID,
-            dd.ActivityCategoryID,
+            dd.ActivityID,
             dd.ActivityDetails,
             dd.UOMID,
             dd.Quantity,
             dd.DebitPartyID,
             dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
-        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<DailyDepartmentalLabourSlipModel?> Handle(UpdateDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
@@ -187,7 +196,9 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         var r = request.Request;
 
         entity.ProjectID = r.ProjectId;
-        entity.SlipDate = r.SlipDate?.UtcDateTime ?? entity.SlipDate;
+        entity.IssueNumber = entity.IssueNumber;
+        entity.SlipDate = r.SlipDate.HasValue ? DateTime.SpecifyKind(r.SlipDate.Value.Date, DateTimeKind.Utc) : entity.SlipDate;
+        entity.PartyID = r.PartyID;
         entity.Remarks = r.Remarks ?? entity.Remarks;
         entity.LastModifiedBy = r.LastModifiedBy;
         entity.LastModifiedDate = DateTime.UtcNow;
@@ -203,16 +214,19 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         {
             foreach (var d in r.Details)
             {
+                var workingHours = CalculateWorkingHours(d.FromTime, d.ToTime, d.LunchHour);
                 var detail = new Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails
                 {
                     UniqueID = Guid.NewGuid(),
                     LabourCategoryTypeID = d.LabourCategoryTypeId,
+                    IsLumSumWork = d.IsLumSumWork,
                     NumOfLabour = d.NumOfLabour,
                     FromTime = d.FromTime,
                     TOTime = d.ToTime,
                     LunchHour = d.LunchHour,
+                    WorkingHours = workingHours,
                     WorkLocationID = d.WorkLocationId,
-                    ActivityCategoryID = d.ActivityCategoryId,
+                    ActivityID = d.ActivityID,
                     ActivityDetails = d.ActivityDetails,
                     UOMID = d.UomId,
                     Quantity = d.Quantity,
@@ -235,20 +249,21 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.ID,
             dd.UniqueID,
             dd.LabourCategoryTypeID,
+            dd.IsLumSumWork,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
             dd.LunchHour,
             dd.WorkingHours,
             dd.WorkLocationID,
-            dd.ActivityCategoryID,
+            dd.ActivityID,
             dd.ActivityDetails,
             dd.UOMID,
             dd.Quantity,
             dd.DebitPartyID,
             dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
-        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<bool> Handle(DeleteDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
@@ -332,5 +347,22 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         }
 
         return dsLocal;
+    }
+
+    private static decimal CalculateWorkingHours(DateTime fromTime, DateTime toTime, decimal? lunchHour)
+    {
+        if (toTime <= fromTime)
+            return 0;
+
+        var totalMinutes = (decimal)(toTime - fromTime).TotalMinutes;
+
+        var lunchMinutes = (lunchHour ?? 0) * 60;
+
+        var workingMinutes = Math.Max(
+            totalMinutes - lunchMinutes,
+            0
+        );
+
+        return Math.Round(workingMinutes / 60m, 2);
     }
 }

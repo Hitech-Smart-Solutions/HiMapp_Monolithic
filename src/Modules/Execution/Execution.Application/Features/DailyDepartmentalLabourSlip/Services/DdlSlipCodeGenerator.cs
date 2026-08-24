@@ -72,23 +72,39 @@ internal sealed class DdlSlipCodeGenerator : IDdlSlipCodeGenerator
         }
 
         int nextNumber = 1;
-        if (!string.IsNullOrEmpty(lastLogCode))
+        if (!string.IsNullOrWhiteSpace(lastLogCode))
         {
-            // Expecting format: DDLS-(ProjectCode)-0001
             var prefix = $"DDLS-{projectCode}-";
-            var lastCode = lastLogCode.Replace(prefix, "");
-            if (int.TryParse(lastCode, out var lastNumber))
+
+            if (lastLogCode.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             {
-                nextNumber = lastNumber + 1;
+                var numberPart = lastLogCode[prefix.Length..];
+
+                if (int.TryParse(numberPart, out var lastNumber))
+                {
+                    nextNumber = lastNumber + 1;
+                }
+                else
+                {
+                    _logger.LogWarning(
+                        "Unable to parse numeric part '{NumberPart}' from DDLSlipCode '{LastLogCode}' for ProjectId {ProjectId}",
+                        numberPart,
+                        lastLogCode,
+                        projectId);
+                }
             }
             else
             {
-                _logger.LogWarning("Unable to parse last DDLSlipCode '{LastLogCode}' for ProjectId {ProjectId}", lastLogCode, projectId);
+                _logger.LogWarning(
+                    "Last DDLSlipCode '{LastLogCode}' does not match expected prefix '{Prefix}' for ProjectId {ProjectId}",
+                    lastLogCode,
+                    prefix,
+                    projectId);
             }
         }
 
         // Format: DDLS-(ProjectCode)-0001 (4 digits)
-        var generated = $"DDLS-({projectCode})-{nextNumber:D4}";
+        var generated = $"DDLS-{projectCode}-{nextNumber:D4}";
         _logger.LogInformation("Generated DDLSlipCode '{Code}' for ProjectId {ProjectId} (last: '{LastLogCode}')", generated, projectId, lastLogCode);
         return generated;
     }

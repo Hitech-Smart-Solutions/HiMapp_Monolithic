@@ -3,6 +3,7 @@ using System;
 using Himapp.Execution.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     [DbContext(typeof(ExecutionDbContext))]
-    partial class ExecutionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260821054448_Soumy_RenameColumnsAndAddColumnInDDLS")]
+    partial class Soumy_RenameColumnsAndAddColumnInDDLS
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -434,11 +437,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("DPRCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("DPRCode");
-
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -614,15 +612,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int>("DailyProgressID")
                         .HasColumnType("integer");
 
-                    b.Property<string>("FileName")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("FileSize")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("FileType")
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -635,6 +624,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhotoUrl")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid>("UniqueID")
