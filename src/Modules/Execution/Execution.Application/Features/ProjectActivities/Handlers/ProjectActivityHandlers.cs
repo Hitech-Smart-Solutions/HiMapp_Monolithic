@@ -239,7 +239,7 @@ internal sealed class ProjectActivityHandlers :
         using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetexecutionactivitiescountforactivitymapping(@p_companyid,@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd2.CommandType = CommandType.Text;
-            cmd2.CommandTimeout = 30;
+            cmd2.CommandTimeout = 10;
             cmd2.Parameters.AddWithValue("@p_companyid", NpgsqlDbType.Integer, p.CompanyID);
             cmd2.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);

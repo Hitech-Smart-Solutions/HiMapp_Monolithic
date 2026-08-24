@@ -9,7 +9,7 @@ public sealed class CreateDailyDepartmentalLabourSlipRequest
 
     public DateTime? SlipDate { get; set; }
 
-    public int? IssueNumber { get; set; }
+    public string? IssueNumber { get; set; }
 
     public int? PartyID { get; set; }
 
@@ -45,7 +45,7 @@ public sealed class DailyDepartmentalLabourSlipModel
     public int? ProjectId { get; init; }
     public DateTime? SlipDate { get; init; }
     public string? DDLSlipCode { get; init; }
-    public int? IssueNumber { get; set; }
+    public string? IssueNumber { get; set; }
     public int? PartyID { get; set; }
     public string? Remarks { get; init; }
     public bool IsActive { get; init; }
@@ -55,7 +55,7 @@ public sealed class DailyDepartmentalLabourSlipModel
     public DateTime LastModifiedDate { get; init; }
     public IReadOnlyCollection<DailyDepartmentalLabourSlipDetailsModel> Details { get; init; }
 
-    public DailyDepartmentalLabourSlipModel(int id, Guid uniqueId, int? projectId, DateTime? slipDate, string? ddlSlipCode, int? issueNumber,int? partyId,string? remarks, bool isActive, int createdBy, DateTime createdDate, int lastModifiedBy, DateTime lastModifiedDate, IReadOnlyCollection<DailyDepartmentalLabourSlipDetailsModel> details)
+    public DailyDepartmentalLabourSlipModel(int id, Guid uniqueId, int? projectId, DateTime? slipDate, string? ddlSlipCode, string? issueNumber,int? partyId,string? remarks, bool isActive, int createdBy, DateTime createdDate, int lastModifiedBy, DateTime lastModifiedDate, IReadOnlyCollection<DailyDepartmentalLabourSlipDetailsModel> details)
     {
         Id = id;
         UniqueId = uniqueId;

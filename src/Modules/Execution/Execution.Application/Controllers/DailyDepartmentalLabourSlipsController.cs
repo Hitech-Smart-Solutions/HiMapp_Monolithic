@@ -5,12 +5,13 @@ using MediatR;
 using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Queries;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Commands;
+using Himapp.Workflow.Application.Filters;
 
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-//[Authorize]
-//[RequiresApproval]
+[Authorize]
+[RequiresApprovalAttribute]
 [Route("v1/execution/daily-departmental-labour-slips")]
 public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
 {
@@ -24,6 +25,7 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken) =>
         OkOrNotFound(await _mediator.Send(new GetDailyDepartmentalLabourSlipByIdQuery(id), cancellationToken));
+
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateDailyDepartmentalLabourSlipRequest request, CancellationToken cancellationToken)

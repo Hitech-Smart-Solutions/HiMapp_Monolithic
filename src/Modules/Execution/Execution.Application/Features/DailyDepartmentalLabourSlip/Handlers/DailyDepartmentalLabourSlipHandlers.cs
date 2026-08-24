@@ -312,7 +312,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uspgetdailydepartmentallabourslipbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd.CommandType = CommandType.Text;
-            cmd.CommandTimeout = 30;
+            cmd.CommandTimeout = 10;
             cmd.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
@@ -331,7 +331,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetdailydepartmentallabourslipcountbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd2.CommandType = CommandType.Text;
-            cmd2.CommandTimeout = 30;
+            cmd2.CommandTimeout = 10;
             cmd2.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd2.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
