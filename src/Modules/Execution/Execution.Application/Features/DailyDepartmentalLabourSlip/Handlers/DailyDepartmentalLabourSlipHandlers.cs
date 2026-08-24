@@ -87,6 +87,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.ID,
             dd.UniqueID,
             dd.LabourCategoryTypeID,
+            dd.IsLumSumWork,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
@@ -131,12 +132,13 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         {
             foreach (var d in r.Details)
             {
-                var workingHours = CalculateWorkingHours(d.FromTime,d.ToTime,d.LunchHour);
+                var workingHours = CalculateWorkingHours(d.FromTime, d.ToTime, d.LunchHour);
                 var detail = new Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails
                 {
                     UniqueID = Guid.NewGuid(),
                     DDLSlipID = entity.ID,
                     LabourCategoryTypeID = d.LabourCategoryTypeId,
+                    IsLumSumWork = d.IsLumSumWork,
                     NumOfLabour = d.NumOfLabour,
                     FromTime = d.FromTime,
                     TOTime = d.ToTime,
@@ -167,6 +169,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.ID,
             dd.UniqueID,
             dd.LabourCategoryTypeID,
+            dd.IsLumSumWork,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
@@ -211,11 +214,12 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         {
             foreach (var d in r.Details)
             {
-                var workingHours = CalculateWorkingHours(d.FromTime,d.ToTime,d.LunchHour);
+                var workingHours = CalculateWorkingHours(d.FromTime, d.ToTime, d.LunchHour);
                 var detail = new Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails
                 {
                     UniqueID = Guid.NewGuid(),
                     LabourCategoryTypeID = d.LabourCategoryTypeId,
+                    IsLumSumWork = d.IsLumSumWork,
                     NumOfLabour = d.NumOfLabour,
                     FromTime = d.FromTime,
                     TOTime = d.ToTime,
@@ -245,6 +249,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.ID,
             dd.UniqueID,
             dd.LabourCategoryTypeID,
+            dd.IsLumSumWork,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
