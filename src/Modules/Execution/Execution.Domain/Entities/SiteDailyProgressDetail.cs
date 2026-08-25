@@ -1,10 +1,10 @@
-﻿namespace Himapp.Execution.Domain.Entities;
+﻿using Himapp.SharedKernel.Abstractions;
+
+namespace Himapp.Execution.Domain.Entities;
 
 // EF entity for schema table "DailyProgressDetails"  Page Name : Site DPR
-public class SiteDailyProgressDetail
+public class SiteDailyProgressDetail : BaseEntity
 {
-    public int ID { get; set; }
-    public Guid UniqueId { get; set; }
 
     public int SiteDailyProgressID { get; set; }
     public int ActivityID { get; set; }
@@ -25,10 +25,6 @@ public class SiteDailyProgressDetail
     public string? Remarks { get; set; }
     public bool IsActive { get; set; }
 
-    public int? CreatedBy { get; set; }
-    public DateTimeOffset CreatedDate { get; set; }
-    public int? LastModifiedBy { get; set; }
-    public DateTimeOffset LastModifiedDate { get; set; }
     public virtual SiteDailyProgress? DailyProgress { get; set; }
 }
 

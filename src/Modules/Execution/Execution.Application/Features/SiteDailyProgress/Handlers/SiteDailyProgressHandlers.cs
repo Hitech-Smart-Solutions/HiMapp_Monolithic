@@ -55,7 +55,7 @@ internal sealed class SiteDailyProgressHandlers :
 
         var details = d.SiteDailyProgressDetail?.Select(dd => new SiteDailyProgressDetailModel(
             dd.ID,
-            dd.UniqueId,
+            dd.UniqueID,
             dd.ActivityID,
             dd.Quantity,
             dd.UOMID,
@@ -92,9 +92,9 @@ internal sealed class SiteDailyProgressHandlers :
             TotalAmount = 0m,
             IsActive = true,
             CreatedBy = userId,
-            CreatedDate = DateTimeOffset.UtcNow,
+            CreatedDate = DateTime.UtcNow,
             LastModifiedBy = userId,
-            LastModifiedDate = DateTimeOffset.UtcNow
+            LastModifiedDate = DateTime.UtcNow
         };
 
         if (r.Details?.Any() == true)
@@ -103,7 +103,7 @@ internal sealed class SiteDailyProgressHandlers :
             {
                 var detail = new SiteDailyProgressDetail
                 {
-                    UniqueId = Guid.NewGuid(),
+                    UniqueID = Guid.NewGuid(),
                     ActivityID = d.ActivityId,
                     Quantity = d.Quantity,
                     UOMID = d.UomId,
@@ -112,9 +112,9 @@ internal sealed class SiteDailyProgressHandlers :
                     Remarks = d.Remarks,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.SiteDailyProgressDetail?.Add(detail);
@@ -132,9 +132,9 @@ internal sealed class SiteDailyProgressHandlers :
 
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.SiteDailyProgressHindrance.Add(hindrance);
@@ -155,9 +155,9 @@ internal sealed class SiteDailyProgressHandlers :
                     FileSize = p.FileSize,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.SiteDailyProgressPhoto.Add(photo);
@@ -169,7 +169,7 @@ internal sealed class SiteDailyProgressHandlers :
 
 
 
-        var details = entity.SiteDailyProgressDetail?.Select(dd => new SiteDailyProgressDetailModel(dd.ID, dd.UniqueId, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray()
+        var details = entity.SiteDailyProgressDetail?.Select(dd => new SiteDailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray()
             ?? Array.Empty<SiteDailyProgressDetailModel>();
 
         var hindrances = entity.SiteDailyProgressHindrance.Select(h => new SiteDailyProgressHindranceModel(h.ID, h.UniqueID, h.Hindrance, h.AudioUrl)).ToArray();
@@ -203,7 +203,7 @@ internal sealed class SiteDailyProgressHandlers :
         entity.SectionID = r.SectionID ?? entity.SectionID;
         entity.NextDayPlan = r.NextDayPlan ?? entity.NextDayPlan;
         entity.LastModifiedBy = userId;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         // ---------------------------------------------------------
         // Remove existing Details
@@ -227,7 +227,7 @@ internal sealed class SiteDailyProgressHandlers :
             {
                 var detail = new SiteDailyProgressDetail
                 {
-                    UniqueId = Guid.NewGuid(),
+                    UniqueID = Guid.NewGuid(),
                     ActivityID = d.ActivityId,
                     Quantity = d.Quantity,
                     UOMID = d.UomId,
@@ -237,9 +237,9 @@ internal sealed class SiteDailyProgressHandlers :
 
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.SiteDailyProgressDetail?.Add(detail);
@@ -272,9 +272,9 @@ internal sealed class SiteDailyProgressHandlers :
                     AudioUrl = h.AudioUrl,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.SiteDailyProgressHindrance?.Add(hindrance);
@@ -304,9 +304,9 @@ internal sealed class SiteDailyProgressHandlers :
                     FileSize = p.FileSize,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.SiteDailyProgressPhoto?.Add(photo);
@@ -317,7 +317,7 @@ internal sealed class SiteDailyProgressHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.SiteDailyProgressDetail?.Select(dd => new SiteDailyProgressDetailModel(dd.ID, dd.UniqueId, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<SiteDailyProgressDetailModel>();
+        var details = entity.SiteDailyProgressDetail?.Select(dd => new SiteDailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<SiteDailyProgressDetailModel>();
 
         var hindrances = entity.SiteDailyProgressHindrance?.Select(h => new SiteDailyProgressHindranceModel(h.ID, h.UniqueID, h.Hindrance, h.AudioUrl)).ToArray() ?? Array.Empty<SiteDailyProgressHindranceModel>();
 
@@ -337,7 +337,7 @@ internal sealed class SiteDailyProgressHandlers :
         // Soft delete header and child details
         entity.IsActive = false;
         entity.LastModifiedBy = userId;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.SiteDailyProgressDetail != null)
         {
@@ -345,7 +345,7 @@ internal sealed class SiteDailyProgressHandlers :
             {
                 dd.IsActive = false;
                 dd.LastModifiedBy = userId;
-                dd.LastModifiedDate = DateTimeOffset.UtcNow;
+                dd.LastModifiedDate = DateTime.UtcNow;
             }
         }
 

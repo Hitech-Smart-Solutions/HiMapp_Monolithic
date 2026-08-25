@@ -185,9 +185,9 @@ internal sealed class DailyLaborHandlers :
                     ActivityID = d.ActivityId,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow,
                     DailyLabor = entity
                 };
 
@@ -219,7 +219,7 @@ internal sealed class DailyLaborHandlers :
             {
                 dd.IsActive = false;
                 dd.LastModifiedBy = userId;
-                dd.LastModifiedDate = DateTimeOffset.UtcNow;
+                dd.LastModifiedDate = DateTime.UtcNow;
             }
         }
 
@@ -281,9 +281,9 @@ internal sealed class DailyLaborHandlers :
                     ActivityID = d.ActivityId,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow,
                     DailyLabor = entity
                 };
 

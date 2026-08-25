@@ -39,9 +39,9 @@ internal sealed class ActivityHandlers :
             OutputRequired = request.OutputRequired,
             IsActive = true,
             CreatedBy = request.CreateBy,
-            CreatedDate = DateTimeOffset.UtcNow,
+            CreatedDate = DateTime.UtcNow,
             LastModifiedBy = request.LastModifiedBy,
-            LastModifiedDate = DateTimeOffset.UtcNow
+            LastModifiedDate = DateTime.UtcNow
         };
 
         _db.Set<Activity>().Add(entity);
@@ -64,7 +64,7 @@ internal sealed class ActivityHandlers :
         entity.OtherLabourRate = request.OtherLabourRate;
         entity.OutputRequired = request.OutputRequired;
         entity.LastModifiedBy = request.LastModifiedBy;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
 

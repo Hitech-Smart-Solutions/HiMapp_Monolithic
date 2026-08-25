@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Himapp.SharedKernel.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -6,15 +7,12 @@ using System.Text;
 namespace Himapp.Execution.Domain.Entities
 {
     // EF entity for schema table "DailyDepartmentalLabourSlipDetails" Page Name : Daily Department Labour Slip (DDLS)
-    public class DailyDepartmentalLabourSlipDetails
+    public class DailyDepartmentalLabourSlipDetails : BaseEntity
     {
         public DailyDepartmentalLabourSlipDetails()
         {
 
         }
-
-        public int ID { get; set; }
-        public Guid UniqueID { get; set; }
 
         public int? DDLSlipID { get; set; }
         public int? LabourCategoryTypeID { get; set; }
@@ -35,10 +33,6 @@ namespace Himapp.Execution.Domain.Entities
 
         public short? StateID { get; set; }
         public bool IsActive { get; set; } = true;
-        public int CreatedBy { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public int LastModifiedBy { get; set; }
-        public DateTime LastModifiedDate { get; set; }
 
         public bool? IsLumSumWork { get; set; } = false;
 

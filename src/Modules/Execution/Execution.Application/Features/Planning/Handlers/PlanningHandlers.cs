@@ -7,6 +7,7 @@ using Himapp.Execution.Application.Features.Planning.Services;
 using Himapp.Execution.Application.Features.Planning.Services.IServices;
 using Himapp.Execution.Contracts;
 using Himapp.Execution.Domain.Entities;
+using Himapp.Files.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -27,11 +28,11 @@ internal sealed class PlanningHandlers :
     IRequestHandler<DownloadPlanningTemplateQuery, byte[]>
 {
     private readonly IExecutionDbContext _db;
-    private readonly Himapp.Files.Services.IFileService _fileService;
+    private readonly IFileService _fileService;
     private readonly IExcelPlanningImporter _excelImporter;
     private readonly IPlanningSectionService _planningSectionService;
 
-    public PlanningHandlers(IExecutionDbContext db, Himapp.Files.Services.IFileService fileService, IExcelPlanningImporter excelImporter, IPlanningSectionService planningSectionService) => (_db, _fileService, _excelImporter, _planningSectionService) = (db, fileService, excelImporter, planningSectionService);
+    public PlanningHandlers(IExecutionDbContext db, IFileService fileService, IExcelPlanningImporter excelImporter, IPlanningSectionService planningSectionService) => (_db, _fileService, _excelImporter, _planningSectionService) = (db, fileService, excelImporter, planningSectionService);
 
     public async Task<IReadOnlyCollection<PlanningModel>> Handle(GetAllPlanningsQuery request, CancellationToken cancellationToken)
     {

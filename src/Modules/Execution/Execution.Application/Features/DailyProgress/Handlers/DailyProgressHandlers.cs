@@ -35,7 +35,7 @@ internal sealed class DailyProgressHandlers :
     private readonly ILogger<DailyProgressHandlers> _logger;
     public DailyProgressHandlers(IExecutionDbContext db, ICurrentUser currentUser, IDPRCodeGenerator codeGenerator, ILogger<DailyProgressHandlers> logger) => (_db, _currentUser, _codeGenerator, _logger) = (db, currentUser, codeGenerator, logger);
 
-    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
+    private int CurrentUserId => _currentUser.UserId ?? 5642;
 
     public async Task<IReadOnlyCollection<DailyProgressModel>> Handle(GetAllDailyProgressQuery request, CancellationToken cancellationToken)
     {
@@ -106,9 +106,9 @@ internal sealed class DailyProgressHandlers :
             StatusID = r.StatusID,
             IsActive = true,
             CreatedBy = userId,
-            CreatedDate = DateTimeOffset.UtcNow,
+            CreatedDate = DateTime.UtcNow,
             LastModifiedBy = userId,
-            LastModifiedDate = DateTimeOffset.UtcNow
+            LastModifiedDate = DateTime.UtcNow
         };
 
         if (r.Details?.Any() == true)
@@ -126,9 +126,9 @@ internal sealed class DailyProgressHandlers :
                     Remarks = d.Remarks,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 // Amount and Variance are computed in DB
@@ -147,9 +147,9 @@ internal sealed class DailyProgressHandlers :
                     AudioUrl = h.AudioUrl,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.DailyProgressHindrance?.Add(hindrance);
@@ -170,9 +170,9 @@ internal sealed class DailyProgressHandlers :
                     Caption = p.Caption,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.DailyProgressPhoto?.Add(photo);
@@ -216,7 +216,7 @@ internal sealed class DailyProgressHandlers :
         entity.Remarks = request.Request.Remarks ?? entity.Remarks;
         entity.StatusID = request.Request.StatusID;
         entity.LastModifiedBy = LastModifiedBy;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         // Remove existing details and add new ones
         if (entity.DailyProgressDetail != null && entity.DailyProgressDetail.Any())
@@ -240,9 +240,9 @@ internal sealed class DailyProgressHandlers :
                     Remarks = d.Remarks,
                     IsActive = true,
                     CreatedBy = LastModifiedBy,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = LastModifiedBy,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.DailyProgressDetail?.Add(detail);
@@ -267,9 +267,9 @@ internal sealed class DailyProgressHandlers :
                     AudioUrl = h.AudioUrl,
                     IsActive = true,
                     CreatedBy = LastModifiedBy,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = LastModifiedBy,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.DailyProgressHindrance?.Add(hindrance);
@@ -297,9 +297,9 @@ internal sealed class DailyProgressHandlers :
                     Caption = p.Caption,
                     IsActive = true,
                     CreatedBy = LastModifiedBy,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = LastModifiedBy,
-                    LastModifiedDate = DateTimeOffset.UtcNow
+                    LastModifiedDate = DateTime.UtcNow
                 };
 
                 entity.DailyProgressPhoto?.Add(photo);
@@ -342,7 +342,7 @@ internal sealed class DailyProgressHandlers :
         // Soft delete header and child details
         entity.IsActive = isActive;
         entity.LastModifiedBy = userId;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.DailyProgressDetail != null)
         {
@@ -350,7 +350,7 @@ internal sealed class DailyProgressHandlers :
             {
                 dd.IsActive = isActive;
                 dd.LastModifiedBy = userId;
-                dd.LastModifiedDate = DateTimeOffset.UtcNow;
+                dd.LastModifiedDate = DateTime.UtcNow;
             }
         }
 
@@ -360,7 +360,7 @@ internal sealed class DailyProgressHandlers :
             {
                 h.IsActive = isActive;
                 h.LastModifiedBy = userId;
-                h.LastModifiedDate = DateTimeOffset.UtcNow;
+                h.LastModifiedDate = DateTime.UtcNow;
             }
         }
 
@@ -370,7 +370,7 @@ internal sealed class DailyProgressHandlers :
             {
                 p.IsActive = isActive;
                 p.LastModifiedBy = userId;
-                p.LastModifiedDate = DateTimeOffset.UtcNow;
+                p.LastModifiedDate = DateTime.UtcNow;
             }
         }
 

@@ -4,6 +4,7 @@ using Himapp.Execution.Application.Features.ProjectActivities.Models;
 using Himapp.Execution.Application.Features.ProjectActivities.Queries;
 using Himapp.Execution.Contracts;
 using Himapp.Execution.Domain.Entities;
+using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -22,7 +23,14 @@ internal sealed class ProjectActivityHandlers :
     IRequestHandler<GetProjectActivitiyDetailsByProjectID, List<ProjectActivityCategoryDetailsModel>>
 {
     private readonly IExecutionDbContext _db;
-    public ProjectActivityHandlers(IExecutionDbContext db) => _db = db;
+    private readonly ICurrentUser _currentUser;
+    public ProjectActivityHandlers(IExecutionDbContext db, ICurrentUser currentUser)
+    {
+        _db = db;
+        _currentUser = currentUser;
+    }
+
+    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
 
     public async Task<ProjectActivityModel> Handle(CreateProjectActivityCommand request, CancellationToken cancellationToken)
     {
@@ -42,15 +50,15 @@ internal sealed class ProjectActivityHandlers :
                 OtherLabourRate = r.OtherLabourRate,
                 OutputRequired = r.OutputRequired,
                 IsActive = true,
-                CreatedBy = r.CreatedBy,
-                CreatedDate = DateTimeOffset.UtcNow,
-                LastModifiedBy = r.LastModifiedBy,
-                LastModifiedDate = DateTimeOffset.UtcNow
+                CreatedBy = r.CreatedBy ?? 0,
+                CreatedDate = DateTime.UtcNow,
+                LastModifiedBy = r.LastModifiedBy ?? 0,
+                LastModifiedDate = DateTime.UtcNow
             };
 
             _db.Set<ProjectActivity>().Add(entity);
             await AddActivityCategoryDetailsAsync(entity, r.SkilledLabourRate, r.UnSkilledLabourRate, r.OtherLabourRate,
-                r.CreatedBy, r.LastModifiedBy, cancellationToken);
+                r.LastModifiedBy, cancellationToken);
             await _db.SaveChangesAsync(cancellationToken);
             return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
         }
@@ -64,8 +72,8 @@ internal sealed class ProjectActivityHandlers :
             entityExists.UnSkilledLabourRate = request.Request.UnSkilledLabourRate;
             entityExists.OtherLabourRate = request.Request.OtherLabourRate;
             entityExists.OutputRequired = request.Request.OutputRequired;
-            entityExists.LastModifiedBy = request.Request.LastModifiedBy;
-            entityExists.LastModifiedDate = DateTimeOffset.UtcNow;
+            entityExists.LastModifiedBy = request.Request.LastModifiedBy ?? 0;
+            entityExists.LastModifiedDate = DateTime.UtcNow;
 
             await UpdateActivityCategoryDetailsAsync(entityExists, request.Request.SkilledLabourRate,
                 request.Request.UnSkilledLabourRate, request.Request.OtherLabourRate,
@@ -91,8 +99,8 @@ internal sealed class ProjectActivityHandlers :
         entity.UnSkilledLabourRate = request.Request.UnSkilledLabourRate;
         entity.OtherLabourRate = request.Request.OtherLabourRate;
         entity.OutputRequired = request.Request.OutputRequired;
-        entity.LastModifiedBy = request.Request.LastModifiedBy;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedBy = request.Request.LastModifiedBy ?? 0;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         await UpdateActivityCategoryDetailsAsync(entity, request.Request.SkilledLabourRate,
             request.Request.UnSkilledLabourRate, request.Request.OtherLabourRate,
@@ -103,11 +111,11 @@ internal sealed class ProjectActivityHandlers :
         return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
 
-    private async Task AddActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate, decimal unskilledRate,
-        decimal otherRate, int? createdBy, int? lastModifiedBy, CancellationToken cancellationToken)
+    private async Task AddActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate, decimal unskilledRate, decimal otherRate, int? lastModifiedBy, CancellationToken cancellationToken)
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTime.UtcNow;
         var activityName = await GetActivityNameAsync(projectActivity.ActivityID, cancellationToken);
+        var userId = CurrentUserId;
 
         foreach (var (categoryType, rate) in GetCategoryRates(skilledRate, unskilledRate, otherRate))
         {
@@ -120,21 +128,20 @@ internal sealed class ProjectActivityHandlers :
                 Name = GetActivityCategoryDetailName(activityName, categoryType),
                 Rate = rate,
                 IsActive = true,
-                CreatedBy = createdBy,
+                CreatedBy = userId,
                 CreatedDate = now,
-                LastModifiedBy = lastModifiedBy,
+                LastModifiedBy = lastModifiedBy ?? 0,
                 LastModifiedDate = now
             });
         }
     }
 
-    private async Task UpdateActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate,
-        decimal unskilledRate, decimal otherRate, int? lastModifiedBy, CancellationToken cancellationToken)
+    private async Task UpdateActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate, decimal unskilledRate, decimal otherRate, int? lastModifiedBy, CancellationToken cancellationToken)
     {
         var existingDetails = await _db.Set<ActivityCategoryDetails>()
             .Where(detail => detail.ProjectID == projectActivity.ProjectID && detail.ActivityID == projectActivity.ActivityID)
             .ToListAsync(cancellationToken);
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTime.UtcNow;
         var activityName = await GetActivityNameAsync(projectActivity.ActivityID, cancellationToken);
 
         foreach (var (categoryType, rate) in GetCategoryRates(skilledRate, unskilledRate, otherRate))
@@ -151,9 +158,9 @@ internal sealed class ProjectActivityHandlers :
                     Name = GetActivityCategoryDetailName(activityName, categoryType),
                     Rate = rate,
                     IsActive = true,
-                    CreatedBy = lastModifiedBy,
+                    CreatedBy = lastModifiedBy ?? 0,
                     CreatedDate = now,
-                    LastModifiedBy = lastModifiedBy,
+                    LastModifiedBy = lastModifiedBy ?? 0,
                     LastModifiedDate = now
                 });
                 continue;
@@ -162,7 +169,7 @@ internal sealed class ProjectActivityHandlers :
             detail.Name = GetActivityCategoryDetailName(activityName, categoryType);
             detail.Rate = rate;
             detail.IsActive = true;
-            detail.LastModifiedBy = lastModifiedBy;
+            detail.LastModifiedBy = lastModifiedBy ?? 0;
             detail.LastModifiedDate = now;
         }
     }

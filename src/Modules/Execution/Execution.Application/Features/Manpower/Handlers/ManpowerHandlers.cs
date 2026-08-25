@@ -103,9 +103,9 @@ internal sealed class ManpowerHandlers :
             StateID = 3,
             IsActive = true,
             CreatedBy = r.CreatedBy,
-            CreatedDate = DateTimeOffset.UtcNow,
+            CreatedDate = DateTime.UtcNow,
             LastModifiedBy = r.LastModifiedBy,
-            LastModifiedDate = DateTimeOffset.UtcNow
+            LastModifiedDate = DateTime.UtcNow
         };
 
         if (r.Details?.Any() == true)
@@ -124,9 +124,9 @@ internal sealed class ManpowerHandlers :
                     IsDepartment = d.IsDepartment,
                     IsActive = true,
                     CreatedBy = r.CreatedBy,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = r.LastModifiedBy,
-                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow,
                     Manpower = entity
                 };
 
@@ -154,7 +154,7 @@ internal sealed class ManpowerHandlers :
         entity.StateID = r.StateId;
         entity.IsActive = r.IsActive;
         entity.LastModifiedBy = r.LastModifiedBy;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.ManpowerDetail != null && entity.ManpowerDetail.Any())
         {
@@ -178,9 +178,9 @@ internal sealed class ManpowerHandlers :
                     IsDepartment = d.IsDepartment,
                     IsActive = true,
                     CreatedBy = r.LastModifiedBy,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = r.LastModifiedBy,
-                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow,
                     Manpower = entity
                 };
 
@@ -203,7 +203,7 @@ internal sealed class ManpowerHandlers :
 
         entity.IsActive = false;
         entity.LastModifiedBy = userId;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.ManpowerDetail != null)
         {
@@ -211,7 +211,7 @@ internal sealed class ManpowerHandlers :
             {
                 dd.IsActive = false;
                 dd.LastModifiedBy = userId;
-                dd.LastModifiedDate = DateTimeOffset.UtcNow;
+                dd.LastModifiedDate = DateTime.UtcNow;
             }
         }
 
