@@ -10,8 +10,8 @@ public interface IWorkflowChangeApprovalService
     Task<ChangeApprovalModel?> ChangeApprovalAsync(
         int id,
         int projectId,
-        int entityId,
-        short statusId,
+        int programId,
+        int statusId, 
         string? remarks,
         int actionedBy,
         int nextApproverId,

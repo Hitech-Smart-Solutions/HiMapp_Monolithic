@@ -7,6 +7,6 @@ namespace Himapp.Workflow.Contracts.Models;
 public sealed record ChangeApprovalModel(
     int Id,
     int EntityId,
-    short StatusId,
+    int StatusId,
     int NextApproverId
 );

@@ -224,7 +224,7 @@ internal sealed class DailyLaborHandlers :
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }
-
+    
     public async Task<DailyLaborModel?> Handle(UpdateDailyLaborCommand request, CancellationToken cancellationToken)
     {
         var userId = CurrentUserId;
@@ -396,39 +396,43 @@ internal sealed class DailyLaborHandlers :
 
     public async Task<IReadOnlyCollection<DPRDailyLaborConsolidatedModel>> Handle(DPRGetConsolidatedDailyLaborQuery request, CancellationToken cancellationToken)
     {
-        var result = await _db.Set<Domain.Entities.DailyLabor>()
+        var result = await (
+            from dl in _db.Set<Domain.Entities.DailyLabor>()
             .AsNoTracking()
-            .Where(dl =>
+            from d in dl.DailyLaborDetail!
+
+            join a in _db.Set<Domain.Entities.Activity>()
+                on d.ActivityID equals a.ID
+
+            where
                 DateOnly.FromDateTime(dl.DLRDate) == request.Date &&
                 dl.ProjectID == request.ProjectId &&
-                dl.IsActive)
-            .SelectMany(dl => dl.DailyLaborDetail!
-                .Where(d => d.IsActive)
-                .Select(d => new
-                {
-                    d.ContractorID,
-                    d.ActivityID,
-                    Skilled = d.Skilled ?? 0,
-                    Unskilled = d.UnSkilled ?? 0,
-                    Other = d.Mat ?? 0
-                }))
-            .GroupBy(x => new
+                dl.IsActive &&
+                d.IsActive
+
+            group new { d, a } by new
             {
-                x.ContractorID,
-                x.ActivityID
-            })
-            .Select(g => new DPRDailyLaborConsolidatedModel(
+                d.ContractorID,
+                d.ContractorName,
+                d.ActivityID,
+                a.ActivityName
+            }
+            into g
+
+            select new DPRDailyLaborConsolidatedModel(
                 g.Key.ContractorID,
+                g.Key.ContractorName,
                 g.Key.ActivityID,
-                g.Sum(x => x.Skilled),
-                g.Sum(x => x.Unskilled),
-                g.Sum(x => x.Other),
+                g.Key.ActivityName,
+                g.Sum(x => x.d.Skilled ?? 0),
+                g.Sum(x => x.d.UnSkilled ?? 0),
+                g.Sum(x => x.d.Mat ?? 0),
                 g.Sum(x =>
-                    x.Skilled +
-                    x.Unskilled +
-                    x.Other)
-            ))
-            .ToArrayAsync(cancellationToken);
+                    (x.d.Skilled ?? 0) +
+                    (x.d.UnSkilled ?? 0) +
+                    (x.d.Mat ?? 0))
+            )
+        ).ToArrayAsync(cancellationToken);
 
         return result;
     }

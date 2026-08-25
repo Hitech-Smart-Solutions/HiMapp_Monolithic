@@ -1,3 +1,5 @@
+using Himapp.Workflow.Contracts.References;
+
 namespace Himapp.Execution.Application.Features.DailyProgress.Models;
 
 public sealed record DailyProgressModel(
@@ -18,30 +20,37 @@ public sealed record DailyProgressModel(
     IReadOnlyCollection<DailyProgressDetailModel> Details,
     IReadOnlyCollection<DailyProgressHindranceModel> Hindrances,
     IReadOnlyCollection<DailyProgressPhotoModel> Photos
-);
+) : IWorkflowApprovalResult;
 
 public sealed record CreateDailyProgressRequest(
     int ProjectId,
-    System.DateOnly ReportDate,
+    DateOnly ReportDate,
     string? NextDayPlan,
     string? Remarks,
     decimal TotalAmount,
     int StatusID,
     int CreatedBy,
-    System.DateTimeOffset CreatedDate,
+    DateTimeOffset CreatedDate,
     List<DailyProgressDetailRequest>? Details = null,
     List<DailyProgressHindranceRequest>? Hindrances = null,
     List<DailyProgressPhotoRequest>? Photos = null
-    );
+) : IWorkflowApprovalRequest
+{
+    int IWorkflowApprovalRequest.StatusId => StatusID;
+}
 public sealed record UpdateDailyProgressRequest(
     int Id,
+    int ProjectId,
     string? NextDayPlan,
     string? Remarks,
     decimal TotalAmount,
     int StatusID,
     int LastModifiedBy,
-    System.DateTimeOffset LastModifiedDate,
+    DateTimeOffset LastModifiedDate,
     List<DailyProgressDetailRequest>? Details = null,
     List<DailyProgressHindranceRequest>? Hindrances = null,
     List<DailyProgressPhotoRequest>? Photos = null
-    );
+) : IWorkflowApprovalRequest
+{
+    int IWorkflowApprovalRequest.StatusId => StatusID;
+}

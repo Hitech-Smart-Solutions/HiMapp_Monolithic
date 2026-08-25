@@ -92,7 +92,7 @@ internal sealed class DPRCodeGenerator : IDPRCodeGenerator
         }
 
         // Format: DPR-(ProjectCode)-0001 (4 digits)
-        var generated = $"DPR-({projectCode})-{nextNumber:D4}";
+        var generated = $"DPR-{projectCode}-{nextNumber:D4}";
         _logger.LogInformation("Generated DPRCode '{Code}' for ProjectId {ProjectId} (last: '{LastLogCode}')", generated, projectId, lastLogCode);
         return generated;
     }

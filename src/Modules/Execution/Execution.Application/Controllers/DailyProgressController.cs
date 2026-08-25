@@ -5,6 +5,7 @@ using Himapp.Execution.Application.Features.DailyProgress.Models;
 using Himapp.Execution.Application.Features.DailyProgress.Queries;
 using Himapp.Execution.Application.Features.Planning.Queries;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
+using Himapp.Workflow.Application.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,19 +37,27 @@ public sealed class DailyProgressController : ControllerBase
     }
 
     [HttpPost]
+    [RequiresApproval(programId: 97, priority: 1)]
     public async Task<IActionResult> Create([FromBody] CreateDailyProgressRequest request, CancellationToken cancellationToken)
     {
         if (request == null)
         {
             return BadRequest("Create request is required.");
         }
-        else if (request.ReportDate == default)
+
+        if (request.ReportDate == default)
         {
             return BadRequest("Report date is required.");
         }
 
-        var result = await _mediator.Send(new CreateDailyProgressCommand(request), cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        var result = await _mediator.Send(
+            new CreateDailyProgressCommand(request),
+            cancellationToken);
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = result.Id },
+            result);
     }
 
     [HttpPut("{id:int}")]

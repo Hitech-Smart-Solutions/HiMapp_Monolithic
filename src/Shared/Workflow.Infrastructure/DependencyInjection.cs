@@ -1,7 +1,9 @@
+using Himapp.Workflow.Application;
+using Himapp.Workflow.Application.Features.Workflow.Services;
+using Himapp.Workflow.Contracts.References;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Himapp.Workflow.Application;
 
 namespace Himapp.Workflow.Infrastructure;
 
@@ -17,6 +19,10 @@ public static class DependencyInjection
 
         services.AddScoped<IWorkflowDbContext>(sp => sp.GetRequiredService<WorkflowDbContext>());
 
+
+        services.AddScoped<IWorkflowGetNextApproverService,WorkflowGetNextApproverService>();
+
+        services.AddScoped<IWorkflowChangeApprovalService,WorkflowChangeApprovalService>();
         return services;
     }
 }
