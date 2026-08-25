@@ -4,6 +4,7 @@ using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Queries;
 using Himapp.Execution.Application.Features.Manpower.Queries;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
 using Himapp.Execution.Contracts;
+using Himapp.Execution.Contracts.References;
 using Himapp.Execution.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;
+using DDLSEntity = Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip;
 
 namespace Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Handlers;
 
@@ -24,13 +26,13 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
     IRequestHandler<GetDailyDepartmentalLabourSlipsByProjectID, DataSet>
 {
     private readonly IExecutionDbContext _db;
-    private readonly Himapp.Execution.Contracts.References.IDdlSlipCodeGenerator _codeGenerator;
-    private readonly Microsoft.Extensions.Logging.ILogger<DailyDepartmentalLabourSlipHandlers> _logger;
-    public DailyDepartmentalLabourSlipHandlers(IExecutionDbContext db, Himapp.Execution.Contracts.References.IDdlSlipCodeGenerator codeGenerator, Microsoft.Extensions.Logging.ILogger<DailyDepartmentalLabourSlipHandlers>? logger = null) => (_db, _codeGenerator, _logger) = (db, codeGenerator, logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DailyDepartmentalLabourSlipHandlers>.Instance);
+    private readonly IDdlSlipCodeGenerator _codeGenerator;
+    private readonly ILogger<DailyDepartmentalLabourSlipHandlers> _logger;
+    public DailyDepartmentalLabourSlipHandlers(IExecutionDbContext db, IDdlSlipCodeGenerator codeGenerator, ILogger<DailyDepartmentalLabourSlipHandlers>? logger = null) => (_db, _codeGenerator, _logger) = (db, codeGenerator, logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DailyDepartmentalLabourSlipHandlers>.Instance);
 
     public async Task<IEnumerable<DailyDepartmentalLabourSlipModel>> Handle(GetAllDailyDepartmentalLabourSlipsQuery request, CancellationToken cancellationToken)
     {
-        return await _db.Set<Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip>()
+        return await _db.Set<DDLSEntity>()
             .AsNoTracking()
             .Where(d => d.IsActive)
             .Select(d => new DailyDepartmentalLabourSlipModel(
@@ -54,12 +56,12 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
     public async Task<bool> Handle(DeleteDDLSCommand request, CancellationToken cancellationToken)
     {
         var model = request.addTransactionActionHistoryDTO;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip>().FirstOrDefaultAsync(a => a.ID == model.ProgramRowId, cancellationToken);
+        var entity = await _db.Set<DDLSEntity>().FirstOrDefaultAsync(a => a.ID == model.ProgramRowId, cancellationToken);
 
         if (entity is null) return false;
 
         // Mark child detail records active/inactive
-        var details = await _db.Set<Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails>()
+        var details = await _db.Set<DailyDepartmentalLabourSlipDetails>()
             .Where(x => x.DDLSlipID == model.ProgramRowId)
             .ToListAsync(cancellationToken);
 
@@ -77,7 +79,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
 
     public async Task<DailyDepartmentalLabourSlipModel?> Handle(GetDailyDepartmentalLabourSlipByIdQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.Set<Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip>()
+        var d = await _db.Set<DDLSEntity>()
             .AsNoTracking()
             .Include(x => x.DailyDepartmentalLabourSlipDetails)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
@@ -112,7 +114,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         var generatedCode = await _codeGenerator.GenerateDDLSlipCodeAsync(r.ProjectId, cancellationToken);
         _logger.LogDebug("DDL slip code generated for ProjectId {ProjectId}: '{Code}'", r.ProjectId, generatedCode);
 
-        var entity = new Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip
+        var entity = new DDLSEntity
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
@@ -133,7 +135,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             foreach (var d in r.Details)
             {
                 var workingHours = CalculateWorkingHours(d.FromTime, d.ToTime, d.LunchHour);
-                var detail = new Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails
+                var detail = new DailyDepartmentalLabourSlipDetails
                 {
                     UniqueID = Guid.NewGuid(),
                     DDLSlipID = entity.ID,
@@ -162,7 +164,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             }
         }
 
-        _db.Set<Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip>().Add(entity);
+        _db.Set<DDLSEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
         var details = entity.DailyDepartmentalLabourSlipDetails?.Select(dd => new DailyDepartmentalLabourSlipDetailsModel(
@@ -188,7 +190,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
 
     public async Task<DailyDepartmentalLabourSlipModel?> Handle(UpdateDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip>()
+        var entity = await _db.Set<DDLSEntity>()
             .Include(d => d.DailyDepartmentalLabourSlipDetails)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return null;
@@ -206,7 +208,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         // Remove existing details and add new ones
         if (entity.DailyDepartmentalLabourSlipDetails != null && entity.DailyDepartmentalLabourSlipDetails.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails>().RemoveRange(entity.DailyDepartmentalLabourSlipDetails);
+            _db.Set<DailyDepartmentalLabourSlipDetails>().RemoveRange(entity.DailyDepartmentalLabourSlipDetails);
             entity.DailyDepartmentalLabourSlipDetails.Clear();
         }
 
@@ -215,7 +217,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             foreach (var d in r.Details)
             {
                 var workingHours = CalculateWorkingHours(d.FromTime, d.ToTime, d.LunchHour);
-                var detail = new Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlipDetails
+                var detail = new DailyDepartmentalLabourSlipDetails
                 {
                     UniqueID = Guid.NewGuid(),
                     LabourCategoryTypeID = d.LabourCategoryTypeId,
@@ -268,7 +270,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
 
     public async Task<bool> Handle(DeleteDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip>()
+        var entity = await _db.Set<DDLSEntity>()
             .Include(d => d.DailyDepartmentalLabourSlipDetails)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;

@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Data;
+using DailyProgressEntity = Himapp.Execution.Domain.Entities.DailyProgress;
+using PlanningEntity = Himapp.Execution.Domain.Entities.Planning;
 
 namespace Himapp.Execution.Application.Features.DailyProgress.Handlers;
 
@@ -37,7 +39,7 @@ internal sealed class DailyProgressHandlers :
 
     public async Task<IReadOnlyCollection<DailyProgressModel>> Handle(GetAllDailyProgressQuery request, CancellationToken cancellationToken)
     {
-        return await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
+        return await _db.Set<DailyProgressEntity>()
             .AsNoTracking()
             .Select(d => new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, Array.Empty<DailyProgressDetailModel>(), Array.Empty<DailyProgressHindranceModel>(), Array.Empty<DailyProgressPhotoModel>()))
             .ToArrayAsync(cancellationToken);
@@ -45,7 +47,7 @@ internal sealed class DailyProgressHandlers :
 
     public async Task<DailyProgressModel?> Handle(GetDailyProgressByIdQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
+        var d = await _db.Set<DailyProgressEntity>()
             .AsNoTracking()
             .Include(x => x.DailyProgressDetail)
             .Include(x => x.DailyProgressHindrance)
@@ -92,7 +94,7 @@ internal sealed class DailyProgressHandlers :
         var generatedCode = await _codeGenerator.GenerateDPRCodeAsync(r.ProjectId, cancellationToken);
         _logger.LogDebug("DPR code generated for ProjectId {ProjectId}: '{Code}'", r.ProjectId, generatedCode);
 
-        var entity = new Himapp.Execution.Domain.Entities.DailyProgress
+        var entity = new DailyProgressEntity
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
@@ -177,7 +179,7 @@ internal sealed class DailyProgressHandlers :
             }
         }
 
-        _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>().Add(entity);
+        _db.Set<DailyProgressEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
         var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
@@ -201,7 +203,7 @@ internal sealed class DailyProgressHandlers :
     public async Task<DailyProgressModel?> Handle(UpdateDailyProgressCommand request, CancellationToken cancellationToken)
     {
         var userId = CurrentUserId;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
+        var entity = await _db.Set<DailyProgressEntity>()
             .Include(d => d.DailyProgressDetail)
             .Include(d => d.DailyProgressHindrance)
             .Include(d => d.DailyProgressPhoto)
@@ -327,7 +329,7 @@ internal sealed class DailyProgressHandlers :
     public async Task<bool> Handle(DeleteDailyProgressCommand request, CancellationToken cancellationToken)
     {
         var userId = CurrentUserId;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
+        var entity = await _db.Set<DailyProgressEntity>()
             .Include(d => d.DailyProgressDetail)
             .Include(d => d.DailyProgressHindrance)
             .Include(d => d.DailyProgressPhoto)
@@ -508,7 +510,7 @@ internal sealed class DailyProgressHandlers :
     {
         // Get planning details + activities
         var result = await (
-            from p in _db.Set<Himapp.Execution.Domain.Entities.Planning>()
+            from p in _db.Set<PlanningEntity>()
             join pd in _db.Set<PlanningDetail>()
                 on p.ID equals pd.PlanningID
             join activity in _db.Set<Activity>()
@@ -616,7 +618,7 @@ internal sealed class DailyProgressHandlers :
 
     public async Task<DailyProgressModel?> Handle(GetDailyProgressByProjectAndDateQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
+        var d = await _db.Set<DailyProgressEntity>()
             .AsNoTracking()
             .Include(x => x.DailyProgressDetail)
             .Include(x => x.DailyProgressHindrance)

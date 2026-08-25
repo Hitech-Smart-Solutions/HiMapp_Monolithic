@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;
+using ManpowerEntity = Himapp.Execution.Domain.Entities.Manpower;
+
 
 namespace Himapp.Execution.Application.Features.Manpower.Handlers;
 
@@ -31,7 +33,7 @@ internal sealed class ManpowerHandlers :
 
     public async Task<IReadOnlyCollection<ManpowerModel>> Handle(GetAllManpowersQuery request, CancellationToken cancellationToken)
     {
-        return await _db.Set<Himapp.Execution.Domain.Entities.Manpower>()
+        return await _db.Set<ManpowerEntity>()
             .AsNoTracking()
             .Select(m => new ManpowerModel(
                 m.ID,
@@ -65,7 +67,7 @@ internal sealed class ManpowerHandlers :
 
     public async Task<ManpowerModel?> Handle(GetManpowerByIdQuery request, CancellationToken cancellationToken)
     {
-        var m = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>()
+        var m = await _db.Set<ManpowerEntity>()
             .AsNoTracking()
             .Include(x => x.ManpowerDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
@@ -91,7 +93,7 @@ internal sealed class ManpowerHandlers :
     {
         var r = request.Request;
 
-        var entity = new Himapp.Execution.Domain.Entities.Manpower
+        var entity = new ManpowerEntity
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
@@ -110,7 +112,7 @@ internal sealed class ManpowerHandlers :
         {
             foreach (var d in r.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.ManpowerDetail
+                var detail = new ManpowerDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     ContractorID = d.ContractorId,
@@ -132,7 +134,7 @@ internal sealed class ManpowerHandlers :
             }
         }
 
-        _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Add(entity);
+        _db.Set<ManpowerEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
         var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, string.Empty, d.ActivityID, string.Empty, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.IsDepartment, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
@@ -142,7 +144,7 @@ internal sealed class ManpowerHandlers :
 
     public async Task<ManpowerModel?> Handle(UpdateManpowerCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Include(x => x.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+        var entity = await _db.Set<ManpowerEntity>().Include(x => x.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return null;
         var r = request.Request;
 
@@ -156,7 +158,7 @@ internal sealed class ManpowerHandlers :
 
         if (entity.ManpowerDetail != null && entity.ManpowerDetail.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.ManpowerDetail>().RemoveRange(entity.ManpowerDetail);
+            _db.Set<ManpowerDetail>().RemoveRange(entity.ManpowerDetail);
             entity.ManpowerDetail.Clear();
         }
 
@@ -164,7 +166,7 @@ internal sealed class ManpowerHandlers :
         {
             foreach (var d in r.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.ManpowerDetail
+                var detail = new ManpowerDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     ContractorID = d.ContractorId,
@@ -196,7 +198,7 @@ internal sealed class ManpowerHandlers :
     public async Task<bool> Handle(DeleteManpowerCommand request, CancellationToken cancellationToken)
     {
         var userId = CurrentUserId;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+        var entity = await _db.Set<ManpowerEntity>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;
 
         entity.IsActive = false;
@@ -220,7 +222,7 @@ internal sealed class ManpowerHandlers :
     public async Task<bool> Handle(DeleteManpowerActionCommand request, CancellationToken cancellationToken)
     {
         var model = request.addTransactionActionHistoryDTO;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == model.ProgramRowId, cancellationToken);
+        var entity = await _db.Set<ManpowerEntity>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == model.ProgramRowId, cancellationToken);
         if (entity is null) return false;
 
         // Mark child details active/inactive

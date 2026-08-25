@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;
+using SiteDailyProgressEntity = Himapp.Execution.Domain.Entities.SiteDailyProgress;
 
 namespace Himapp.Execution.Application.Features.SiteDailyProgress.Handlers;
 
@@ -34,7 +35,7 @@ internal sealed class SiteDailyProgressHandlers :
 
     public async Task<IEnumerable<SiteDailyProgressModel>> Handle(GetAllSiteDailyProgressesQuery request, CancellationToken cancellationToken)
     {
-        return await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>()
+        return await _db.Set<SiteDailyProgressEntity>()
             .AsNoTracking()
             .Where(d => d.IsActive)
             .Select(d => new SiteDailyProgressModel(d.ID, d.ProjectID, d.ReportDate, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, d.SectionID, d.NextDayPlan, Array.Empty<SiteDailyProgressDetailModel>(),
@@ -44,7 +45,7 @@ internal sealed class SiteDailyProgressHandlers :
 
     public async Task<SiteDailyProgressModel?> Handle(GetSiteDailyProgressByIdQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>()
+        var d = await _db.Set<SiteDailyProgressEntity>()
             .AsNoTracking()
             .Include(x => x.SiteDailyProgressDetail)
             .Include(x => x.SiteDailyProgressHindrance)
@@ -80,7 +81,7 @@ internal sealed class SiteDailyProgressHandlers :
         var r = request.Request;
         var userId = CurrentUserId;
 
-        var entity = new Himapp.Execution.Domain.Entities.SiteDailyProgress
+        var entity = new SiteDailyProgressEntity
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
@@ -100,7 +101,7 @@ internal sealed class SiteDailyProgressHandlers :
         {
             foreach (var d in r.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.SiteDailyProgressDetail
+                var detail = new SiteDailyProgressDetail
                 {
                     UniqueId = Guid.NewGuid(),
                     ActivityID = d.ActivityId,
@@ -124,7 +125,7 @@ internal sealed class SiteDailyProgressHandlers :
         {
             foreach (var h in r.Hindrances)
             {
-                var hindrance = new Himapp.Execution.Domain.Entities.SiteDailyProgressHindrance
+                var hindrance = new SiteDailyProgressHindrance
                 {
                     UniqueID = Guid.NewGuid(),
                     Hindrance = h.Hindrance,
@@ -144,7 +145,7 @@ internal sealed class SiteDailyProgressHandlers :
         {
             foreach (var p in r.Photos)
             {
-                var photo = new Himapp.Execution.Domain.Entities.SiteDailyProgressPhoto
+                var photo = new SiteDailyProgressPhoto
                 {
                     UniqueID = Guid.NewGuid(),
                     PhotoUrl = p.PhotoUrl,
@@ -163,7 +164,7 @@ internal sealed class SiteDailyProgressHandlers :
             }
         }
 
-        _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>().Add(entity);
+        _db.Set<SiteDailyProgressEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
 
@@ -188,7 +189,7 @@ internal sealed class SiteDailyProgressHandlers :
     public async Task<SiteDailyProgressModel?> Handle(UpdateSiteDailyProgressCommand request, CancellationToken cancellationToken)
     {
         var userId = CurrentUserId;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>()
+        var entity = await _db.Set<SiteDailyProgressEntity>()
             .Include(d => d.SiteDailyProgressDetail)
             .Include(d => d.SiteDailyProgressHindrance)
             .Include(d => d.SiteDailyProgressPhoto).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
@@ -210,7 +211,7 @@ internal sealed class SiteDailyProgressHandlers :
 
         if (entity.SiteDailyProgressDetail != null && entity.SiteDailyProgressDetail.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgressDetail>()
+            _db.Set<SiteDailyProgressDetail>()
                 .RemoveRange(entity.SiteDailyProgressDetail);
 
             entity.SiteDailyProgressDetail.Clear();
@@ -224,7 +225,7 @@ internal sealed class SiteDailyProgressHandlers :
         {
             foreach (var d in r.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.SiteDailyProgressDetail
+                var detail = new SiteDailyProgressDetail
                 {
                     UniqueId = Guid.NewGuid(),
                     ActivityID = d.ActivityId,
@@ -251,7 +252,7 @@ internal sealed class SiteDailyProgressHandlers :
 
         if (entity.SiteDailyProgressHindrance != null && entity.SiteDailyProgressHindrance.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgressHindrance>().RemoveRange(entity.SiteDailyProgressHindrance);
+            _db.Set<SiteDailyProgressHindrance>().RemoveRange(entity.SiteDailyProgressHindrance);
 
             entity.SiteDailyProgressHindrance.Clear();
         }
@@ -264,7 +265,7 @@ internal sealed class SiteDailyProgressHandlers :
         {
             foreach (var h in r.Hindrances)
             {
-                var hindrance = new Himapp.Execution.Domain.Entities.SiteDailyProgressHindrance
+                var hindrance = new SiteDailyProgressHindrance
                 {
                     UniqueID = Guid.NewGuid(),
                     Hindrance = h.Hindrance,
@@ -283,7 +284,7 @@ internal sealed class SiteDailyProgressHandlers :
         if (entity.SiteDailyProgressPhoto != null &&
     entity.SiteDailyProgressPhoto.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgressPhoto>()
+            _db.Set<SiteDailyProgressPhoto>()
                 .RemoveRange(entity.SiteDailyProgressPhoto);
 
             entity.SiteDailyProgressPhoto.Clear();
@@ -293,7 +294,7 @@ internal sealed class SiteDailyProgressHandlers :
         {
             foreach (var p in r.Photos)
             {
-                var photo = new Himapp.Execution.Domain.Entities.SiteDailyProgressPhoto
+                var photo = new SiteDailyProgressPhoto
                 {
                     UniqueID = Guid.NewGuid(),
                     PhotoUrl = p.PhotoUrl,
@@ -328,7 +329,7 @@ internal sealed class SiteDailyProgressHandlers :
     public async Task<bool> Handle(DeleteSiteDailyProgressCommand request, CancellationToken cancellationToken)
     {
         var userId = CurrentUserId;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>()
+        var entity = await _db.Set<SiteDailyProgressEntity>()
             .Include(d => d.SiteDailyProgressDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;
@@ -355,12 +356,12 @@ internal sealed class SiteDailyProgressHandlers :
     public async Task<bool> Handle(DeleteSiteDPRCommand request, CancellationToken cancellationToken)
     {
         var model = request.addTransactionActionHistoryDTO;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgress>().FirstOrDefaultAsync(a => a.ID == model.ProgramRowId, cancellationToken);
+        var entity = await _db.Set<SiteDailyProgressEntity>().FirstOrDefaultAsync(a => a.ID == model.ProgramRowId, cancellationToken);
 
         if (entity is null) return false;
 
         // Mark child detail records active/inactive
-        var details = await _db.Set<Himapp.Execution.Domain.Entities.SiteDailyProgressDetail>()
+        var details = await _db.Set<SiteDailyProgressDetail>()
             .Where(x => x.SiteDailyProgressID == model.ProgramRowId)
             .ToListAsync(cancellationToken);
 
