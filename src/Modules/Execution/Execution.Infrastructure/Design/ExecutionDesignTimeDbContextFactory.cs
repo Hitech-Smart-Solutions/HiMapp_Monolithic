@@ -10,7 +10,7 @@ internal sealed class ExecutionDesignTimeDbContextFactory : IDesignTimeDbContext
         var builder = new DbContextOptionsBuilder<ExecutionDbContext>();
         // Default local development connection string - adjust as needed for your environment.
         var connectionString = Environment.GetEnvironmentVariable("EXECUTION_CONNECTION")
-                               ?? "Host=localhost;Database=himapp_execution;Username=postgres;Password=postgres";
+                               ?? "Database connection does not found";
 
         builder.UseNpgsql(connectionString, b => b.UseRelationalNulls());
 

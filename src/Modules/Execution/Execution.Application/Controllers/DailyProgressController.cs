@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize]
 [Route("v1/execution/daily-progress")]
 public sealed class DailyProgressController : ControllerBase
 {
