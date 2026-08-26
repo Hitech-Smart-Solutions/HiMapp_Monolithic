@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using DailyProgressEntity = Himapp.Execution.Domain.Entities.DailyProgress;
+
 namespace Himapp.Execution.Application.Features.DailyProgress.Service;
 
 internal sealed class DPRCodeGenerator : IDPRCodeGenerator
@@ -61,7 +63,7 @@ internal sealed class DPRCodeGenerator : IDPRCodeGenerator
         // If still null, leave projectCode empty -- generator will return empty string
 
         // Get last DPRCode for project from Execution DB
-        var lastLogCode = await _db.Set<Himapp.Execution.Domain.Entities.DailyProgress>()
+        var lastLogCode = await _db.Set<DailyProgressEntity>()
             .AsNoTracking()
             .Where(l => l.ProjectID == projectId)
             .OrderByDescending(l => l.ID)

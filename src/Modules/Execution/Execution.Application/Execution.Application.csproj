@@ -14,6 +14,7 @@
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
 		<PackageReference Include="ClosedXML" Version="0.105.0" />
 		<PackageReference Include="Npgsql" Version="8.0.0" />
+		<ProjectReference Include="..\..\..\Shared\Workflow.Application\Workflow.Application.csproj" />
 		<ProjectReference Include="..\Execution.Contracts\Execution.Contracts.csproj" />
 		<ProjectReference Include="..\Execution.Domain\Execution.Domain.csproj" />
 		<ProjectReference Include="..\..\Admin\Admin.Contracts\Admin.Contracts.csproj" />

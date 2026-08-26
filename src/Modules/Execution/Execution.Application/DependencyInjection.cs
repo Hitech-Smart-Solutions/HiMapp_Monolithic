@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Himapp.Execution.Application.Features.Planning.Services.IServices;
 using Himapp.Execution.Contracts.References;
 using Himapp.Execution.Application.Features.DailyProgress.Service;
+using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Services;
 
 namespace Himapp.Execution.Application;
 
@@ -23,12 +24,12 @@ public static class DependencyInjection
         services.AddScoped<IDPRCodeGenerator, DPRCodeGenerator>();
 
         // DDL Slip code generator
-        services.AddScoped<Himapp.Execution.Contracts.References.IDdlSlipCodeGenerator, Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Services.DdlSlipCodeGenerator>();
+        services.AddScoped<IDdlSlipCodeGenerator, DdlSlipCodeGenerator>();
         // DLR code generator (for DailyLabor DLR-(ProjectCode)-0001 style codes)
-        services.AddScoped<Himapp.Execution.Contracts.References.IDlrCodeGenerator, Himapp.Execution.Application.Features.DailyLabor.Services.DlrCodeGenerator>();
+        services.AddScoped<IDlrCodeGenerator, Himapp.Execution.Application.Features.DailyLabor.Services.DlrCodeGenerator>();
 
         // Public schema project lookup (reads ProjectMaster from public schema using DB connection)
-        services.AddScoped<Himapp.Execution.Contracts.References.IReferenceLookupService, Himapp.Execution.Application.Lookups.PublicSchemaReferenceLookup>();
+        services.AddScoped<IReferenceLookupService, Himapp.Execution.Application.Lookups.PublicSchemaReferenceLookup>();
 
         return services;
     }

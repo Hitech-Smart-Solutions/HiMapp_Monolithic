@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;
+using ManpowerEntity = Himapp.Execution.Domain.Entities.Manpower;
+
 
 namespace Himapp.Execution.Application.Features.Manpower.Handlers;
 
@@ -31,7 +33,7 @@ internal sealed class ManpowerHandlers :
 
     public async Task<IReadOnlyCollection<ManpowerModel>> Handle(GetAllManpowersQuery request, CancellationToken cancellationToken)
     {
-        return await _db.Set<Himapp.Execution.Domain.Entities.Manpower>()
+        return await _db.Set<ManpowerEntity>()
             .AsNoTracking()
             .Select(m => new ManpowerModel(
                 m.ID,
@@ -65,7 +67,7 @@ internal sealed class ManpowerHandlers :
 
     public async Task<ManpowerModel?> Handle(GetManpowerByIdQuery request, CancellationToken cancellationToken)
     {
-        var m = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>()
+        var m = await _db.Set<ManpowerEntity>()
             .AsNoTracking()
             .Include(x => x.ManpowerDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
@@ -91,7 +93,7 @@ internal sealed class ManpowerHandlers :
     {
         var r = request.Request;
 
-        var entity = new Himapp.Execution.Domain.Entities.Manpower
+        var entity = new ManpowerEntity
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
@@ -101,16 +103,16 @@ internal sealed class ManpowerHandlers :
             StateID = 3,
             IsActive = true,
             CreatedBy = r.CreatedBy,
-            CreatedDate = DateTimeOffset.UtcNow,
+            CreatedDate = DateTime.UtcNow,
             LastModifiedBy = r.LastModifiedBy,
-            LastModifiedDate = DateTimeOffset.UtcNow
+            LastModifiedDate = DateTime.UtcNow
         };
 
         if (r.Details?.Any() == true)
         {
             foreach (var d in r.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.ManpowerDetail
+                var detail = new ManpowerDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     ContractorID = d.ContractorId,
@@ -122,9 +124,9 @@ internal sealed class ManpowerHandlers :
                     IsDepartment = d.IsDepartment,
                     IsActive = true,
                     CreatedBy = r.CreatedBy,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = r.LastModifiedBy,
-                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow,
                     Manpower = entity
                 };
 
@@ -132,7 +134,7 @@ internal sealed class ManpowerHandlers :
             }
         }
 
-        _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Add(entity);
+        _db.Set<ManpowerEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
         var details = entity.ManpowerDetail?.Select(d => new ManpowerDetailModel(d.ID, d.UniqueID, d.ContractorID, string.Empty, d.ActivityID, string.Empty, d.SkilledCount, d.UnskilledCount, d.OtherCount, d.IsDepartment, d.TotalCount)).ToArray() ?? Array.Empty<ManpowerDetailModel>();
@@ -142,7 +144,7 @@ internal sealed class ManpowerHandlers :
 
     public async Task<ManpowerModel?> Handle(UpdateManpowerCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Include(x => x.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+        var entity = await _db.Set<ManpowerEntity>().Include(x => x.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return null;
         var r = request.Request;
 
@@ -152,11 +154,11 @@ internal sealed class ManpowerHandlers :
         entity.StateID = r.StateId;
         entity.IsActive = r.IsActive;
         entity.LastModifiedBy = r.LastModifiedBy;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.ManpowerDetail != null && entity.ManpowerDetail.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.ManpowerDetail>().RemoveRange(entity.ManpowerDetail);
+            _db.Set<ManpowerDetail>().RemoveRange(entity.ManpowerDetail);
             entity.ManpowerDetail.Clear();
         }
 
@@ -164,7 +166,7 @@ internal sealed class ManpowerHandlers :
         {
             foreach (var d in r.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.ManpowerDetail
+                var detail = new ManpowerDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     ContractorID = d.ContractorId,
@@ -176,9 +178,9 @@ internal sealed class ManpowerHandlers :
                     IsDepartment = d.IsDepartment,
                     IsActive = true,
                     CreatedBy = r.LastModifiedBy,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = r.LastModifiedBy,
-                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow,
                     Manpower = entity
                 };
 
@@ -196,12 +198,12 @@ internal sealed class ManpowerHandlers :
     public async Task<bool> Handle(DeleteManpowerCommand request, CancellationToken cancellationToken)
     {
         var userId = CurrentUserId;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+        var entity = await _db.Set<ManpowerEntity>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;
 
         entity.IsActive = false;
         entity.LastModifiedBy = userId;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.ManpowerDetail != null)
         {
@@ -209,7 +211,7 @@ internal sealed class ManpowerHandlers :
             {
                 dd.IsActive = false;
                 dd.LastModifiedBy = userId;
-                dd.LastModifiedDate = DateTimeOffset.UtcNow;
+                dd.LastModifiedDate = DateTime.UtcNow;
             }
         }
 
@@ -220,7 +222,7 @@ internal sealed class ManpowerHandlers :
     public async Task<bool> Handle(DeleteManpowerActionCommand request, CancellationToken cancellationToken)
     {
         var model = request.addTransactionActionHistoryDTO;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == model.ProgramRowId, cancellationToken);
+        var entity = await _db.Set<ManpowerEntity>().Include(d => d.ManpowerDetail).FirstOrDefaultAsync(x => x.ID == model.ProgramRowId, cancellationToken);
         if (entity is null) return false;
 
         // Mark child details active/inactive
@@ -261,7 +263,7 @@ internal sealed class ManpowerHandlers :
         using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uspgetmanpowerbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd.CommandType = CommandType.Text;
-            cmd.CommandTimeout = 30;
+            cmd.CommandTimeout = 10;
             cmd.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
@@ -280,7 +282,7 @@ internal sealed class ManpowerHandlers :
         using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetmanpowercountbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd2.CommandType = CommandType.Text;
-            cmd2.CommandTimeout = 30;
+            cmd2.CommandTimeout = 10;
             cmd2.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd2.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);

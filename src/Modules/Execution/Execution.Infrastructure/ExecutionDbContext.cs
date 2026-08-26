@@ -37,6 +37,7 @@ public sealed class ExecutionDbContext : DbContext, IExecutionDbContext
         // Load IEntityTypeConfiguration implementations from the domain assembly so fluent configurations
         // placed in Execution.Domain are applied automatically.
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DailyLabor).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProjectActivity).Assembly);
 
         // ============================================================
         // DailyProgress
