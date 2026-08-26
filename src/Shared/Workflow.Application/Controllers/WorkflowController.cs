@@ -26,15 +26,18 @@ public sealed class WorkflowController : ControllerBase
 {
     private readonly IWorkflowGetNextApproverService _workflowGetNextApproverService;
     private readonly IWorkflowChangeApprovalService _workflowChangeApprovalService;
+    private readonly IWorkflowPendingApprovalsService _workflowPendingApprovalsService;
     private readonly ICurrentUser _currentUser;
 
     public WorkflowController(
         IWorkflowGetNextApproverService workflowGetNextApproverService,
         IWorkflowChangeApprovalService workflowChangeApprovalService,
+        IWorkflowPendingApprovalsService workflowPendingApprovalsService,
         ICurrentUser currentUser)
     {
         _workflowGetNextApproverService = workflowGetNextApproverService;
         _workflowChangeApprovalService = workflowChangeApprovalService;
+        _workflowPendingApprovalsService = workflowPendingApprovalsService;
         _currentUser = currentUser;
     }
 
@@ -88,6 +91,55 @@ public sealed class WorkflowController : ControllerBase
             request.NextApproverId,
             request.Priority,
             cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpGet("pending/daily-progress")]
+    public async Task<IActionResult> GetAwaitingDailyProgress(
+        CancellationToken cancellationToken)
+    {
+        var userId = _currentUser.UserId ?? 0;
+
+        if (userId <= 0)
+        {
+            return Unauthorized(new
+            {
+                Message = "Invalid or missing user."
+            });
+        }
+
+        var result =
+            await _workflowPendingApprovalsService.GetAwaitingDailyProgress(
+                userId,
+                cancellationToken);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Gets all departmental labour slips awaiting approval
+    /// for the currently logged-in user.
+    /// </summary>
+    [HttpGet("pending/departmental-labour-slip")]
+    public async Task<IActionResult> GetAwaitingDepartmentalLabourSlip(
+        CancellationToken cancellationToken)
+    {
+        var userId = _currentUser.UserId ?? 0;
+
+        if (userId <= 0)
+        {
+            return Unauthorized(new
+            {
+                Message = "Invalid or missing user."
+            });
+        }
+
+        var result =
+            await _workflowPendingApprovalsService
+                .GetAwaitingDepartmentalLabourSlip(
+                    userId,
+                    cancellationToken);
 
         return Ok(result);
     }
