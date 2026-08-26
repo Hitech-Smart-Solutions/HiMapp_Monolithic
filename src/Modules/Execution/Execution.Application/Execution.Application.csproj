@@ -19,6 +19,7 @@
 		<ProjectReference Include="..\Execution.Domain\Execution.Domain.csproj" />
 		<ProjectReference Include="..\..\Admin\Admin.Contracts\Admin.Contracts.csproj" />
 		<ProjectReference Include="..\..\..\Shared\Files\Files.csproj" />
+		<ProjectReference Include="..\..\..\Shared\Workflow.Application\Workflow.Application.csproj" />
 	</ItemGroup>
 	<PropertyGroup>
 		<RootNamespace>Himapp.Execution.Application</RootNamespace>
