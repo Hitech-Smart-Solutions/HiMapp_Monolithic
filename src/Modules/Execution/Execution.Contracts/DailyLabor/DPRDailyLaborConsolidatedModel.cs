@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Himapp.Execution.Application.Features.DailyLabor.Models;
+namespace Himapp.Execution.Contracts.DailyLabor;
 
 public sealed record DPRDailyLaborConsolidatedModel(
     int? ContractorID,

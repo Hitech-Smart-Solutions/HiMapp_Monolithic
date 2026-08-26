@@ -9,6 +9,7 @@ using Himapp.Execution.Application.Features.Manpower.Models;
 using Himapp.Execution.Application.Features.Manpower.Queries;
 using Himapp.Execution.Contracts;
 using Himapp.Execution.Domain.Entities;
+using Himapp.Execution.Contracts.DailyLabor;
 using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

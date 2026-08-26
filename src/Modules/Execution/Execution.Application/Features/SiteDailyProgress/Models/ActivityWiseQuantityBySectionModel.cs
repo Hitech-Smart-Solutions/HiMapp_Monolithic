@@ -12,5 +12,6 @@ namespace Himapp.Execution.Application.Features.SiteDailyProgress.Models
         public int UOMID { get; set; }
         public string? UOMName { get; set; }
         public string? UOMShortName { get; set; }
+        public decimal RevenueRate { get; set; }
     }
 }

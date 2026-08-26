@@ -1,4 +1,5 @@
 ﻿using Himapp.Execution.Application.Features.DailyLabor.Models;
+using Himapp.Execution.Contracts.DailyLabor;
 using MediatR;
 using System;
 using System.Collections.Generic;

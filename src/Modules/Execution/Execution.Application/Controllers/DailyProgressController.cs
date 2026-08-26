@@ -116,8 +116,8 @@ public sealed class DailyProgressController : ControllerBase
 
     }
 
-    [HttpGet("GetActivityWiseQuantityByProjectID/{projectId:int}")]
-    public async Task<IActionResult> GetActivityWiseQuantityByProjectID(int projectId, CancellationToken cancellationToken)
+    [HttpGet("GetActivityWiseQuantityByProjectID/{projectId:int}/{reportDate}")]
+    public async Task<IActionResult> GetActivityWiseQuantityByProjectID(int projectId, DateOnly reportDate, CancellationToken cancellationToken)
     {
         if (projectId <= 0)
         {
@@ -126,7 +126,7 @@ public sealed class DailyProgressController : ControllerBase
 
         try
         {
-            var result = await _mediator.Send(new GetActivityWiseQuantityByProjectQuery(projectId), cancellationToken);
+            var result = await _mediator.Send(new GetActivityWiseQuantityByProjectQuery(projectId, reportDate), cancellationToken);
             return Ok(result);
         }
         catch (Exception)

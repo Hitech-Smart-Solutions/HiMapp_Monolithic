@@ -506,112 +506,119 @@ internal sealed class DailyProgressHandlers :
 
     public async Task<List<ActivityWiseQuantityBySectionModel>> Handle(GetActivityWiseQuantityByProjectQuery request, CancellationToken cancellationToken)
     {
-        // Get planning details + activities
-        var result = await (
-            from p in _db.Set<Himapp.Execution.Domain.Entities.Planning>()
-            join pd in _db.Set<PlanningDetail>()
-                on p.ID equals pd.PlanningID
-            join activity in _db.Set<Activity>()
-                on pd.ActivityID equals activity.ID
-            where p.ProjectID == request.ProjectID
-                  && p != null && p.IsActive
-                  && pd.IsActive
-            select new
-            {
-                pd.ActivityID,
-                ActivityName = activity.ActivityName,
-                pd.TargetQuantity,
-                pd.UOMID
-            }
-        ).ToListAsync(cancellationToken);
+        var dbContext = _db as DbContext;
 
-        if (!result.Any())
+        if (dbContext is null)
         {
-            return new List<ActivityWiseQuantityBySectionModel>();
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
         }
 
-        // Get distinct UOM IDs
-        var uomIds = result
-            .Where(x => x.UOMID > 0)
-            .Select(x => x.UOMID)
-            .Distinct()
-            .ToArray();
+        var connection = dbContext.Database.GetDbConnection();
 
-        var uomMap = new Dictionary<int, (string Name, string ShortName)>();
+        var result = new List<ActivityWiseQuantityBySectionModel>();
 
-        if (uomIds.Length > 0)
+        if (connection.State != System.Data.ConnectionState.Open)
         {
-            var dbContext = _db as DbContext;
+            await connection.OpenAsync(cancellationToken);
+        }
 
-            if (dbContext == null)
+        try
+        {
+            using var command = connection.CreateCommand();
+
+            command.CommandText = """
+                SELECT
+                    pd."ActivityID" AS "ActivityID",
+                    activity."ActivityName" AS "ActivityName",
+                    pd."TargetQuantity" AS "TargetQuantity",
+                    pd."UOMID" AS "UOMID",
+                    uom."UOMName" AS "UOMName",
+                    uom."UOMShortName" AS "UOMShortName",
+                    am."RevenueRate" AS "RevenueRate"
+
+                FROM execution."Plannings" p
+
+                INNER JOIN execution."PlanningDetails" pd
+                    ON p."ID" = pd."PlanningID"
+
+                INNER JOIN execution."Activities" activity
+                    ON pd."ActivityID" = activity."ID"
+
+                INNER JOIN execution."ProjectActivities" am
+                	ON activity."ID" = am."ActivityID"
+
+                LEFT JOIN public."UnitOfMeasurement" uom
+                    ON pd."UOMID" = uom."ID"
+
+                WHERE
+                    p."ProjectID" = @ProjectID
+                    AND @ReportDate BETWEEN p."StartDate" AND p."EndDate"
+                    AND p."IsActive" = TRUE
+                    AND pd."IsActive" = TRUE
+
+                ORDER BY
+                    activity."ActivityName";
+                """;
+
+            var projectIdParameter = command.CreateParameter();
+            projectIdParameter.ParameterName = "@ProjectID";
+            projectIdParameter.Value = request.ProjectID;
+            command.Parameters.Add(projectIdParameter);
+
+            var reportDateParameter = command.CreateParameter();
+            reportDateParameter.ParameterName = "@ReportDate";
+            reportDateParameter.Value = request.ReportDate;
+            command.Parameters.Add(reportDateParameter);
+
+            using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+            var activityIdOrdinal = reader.GetOrdinal("ActivityID");
+            var activityNameOrdinal = reader.GetOrdinal("ActivityName");
+            var targetQuantityOrdinal = reader.GetOrdinal("TargetQuantity");
+            var uomIdOrdinal = reader.GetOrdinal("UOMID");
+            var uomNameOrdinal = reader.GetOrdinal("UOMName");
+            var uomShortNameOrdinal = reader.GetOrdinal("UOMShortName");
+            var revenueRate = reader.GetOrdinal("RevenueRate");
+
+            while (await reader.ReadAsync(cancellationToken))
             {
-                throw new InvalidOperationException(
-                    "IExecutionDbContext is not a DbContext.");
-            }
-
-            var connection = dbContext.Database.GetDbConnection();
-
-            if (connection.State != System.Data.ConnectionState.Open)
-            {
-                await connection.OpenAsync(cancellationToken);
-            }
-
-            try
-            {
-                using var command = connection.CreateCommand();
-
-                command.CommandText = @"
-                SELECT 
-                    ""ID"",
-                    ""UOMName"",
-                    ""UOMShortName""
-                FROM public.""UnitOfMeasurement""
-                WHERE ""ID"" = ANY(@uomIds)";
-
-                var parameter = command.CreateParameter();
-                parameter.ParameterName = "@uomIds";
-                parameter.Value = uomIds;
-
-                command.Parameters.Add(parameter);
-
-                using var reader = await command.ExecuteReaderAsync(cancellationToken);
-
-                while (await reader.ReadAsync(cancellationToken))
+                result.Add(new ActivityWiseQuantityBySectionModel
                 {
-                    var id = reader.GetInt32(0);
+                    ActivityID = reader.GetInt32(activityIdOrdinal),
 
-                    var name = reader.IsDBNull(1)
+                    ActivityName = reader.IsDBNull(activityNameOrdinal)
+                        ? null
+                        : reader.GetString(activityNameOrdinal),
+
+                    TargetQuantity = reader.GetDecimal(targetQuantityOrdinal),
+
+                    UOMID = reader.IsDBNull(uomIdOrdinal)
+                        ? 0
+                        : reader.GetInt32(uomIdOrdinal),
+
+                    UOMName = reader.IsDBNull(uomNameOrdinal)
                         ? string.Empty
-                        : reader.GetString(1);
+                        : reader.GetString(uomNameOrdinal),
 
-                    var shortName = reader.IsDBNull(2)
+                    UOMShortName = reader.IsDBNull(uomShortNameOrdinal)
                         ? string.Empty
-                        : reader.GetString(2);
+                        : reader.GetString(uomShortNameOrdinal),
 
-                    uomMap[id] = (name, shortName);
-                }
+                    RevenueRate = reader.IsDBNull(revenueRate)
+                        ? 0
+                        : reader.GetDecimal(revenueRate)
+                });
             }
-            finally
+        }
+        finally
+        {
+            if (connection.State == System.Data.ConnectionState.Open)
             {
                 await connection.CloseAsync();
             }
         }
 
-        // Map final response
-        return result.Select(x =>
-        {
-            uomMap.TryGetValue(x.UOMID, out var uom);
-
-            return new ActivityWiseQuantityBySectionModel
-            {
-                ActivityID = x.ActivityID,
-                ActivityName = x.ActivityName,
-                TargetQuantity = x.TargetQuantity,
-                UOMID = x.UOMID,
-                UOMName = uom.Name,
-                UOMShortName = uom.ShortName
-            };
-        }).ToList();
+        return result;
     }
 
     public async Task<DailyProgressModel?> Handle(GetDailyProgressByProjectAndDateQuery request, CancellationToken cancellationToken)
