@@ -4,6 +4,7 @@ using Amazon.S3;
 using Himapp.Admin.Application;
 // Admin.Contracts moved to Admin.Application
 using Himapp.Admin.Infrastructure;
+using Himapp.Api.src.Shared.Middleware;
 using Himapp.Audit;
 using Himapp.Execution.Application;
 // Execution.Contracts moved to Execution.Application
@@ -151,6 +152,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
 // Add a logging scope for application-wide enrichment (module/application name)
 var _startupLogger = app.Services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().CreateLogger("Himapp.Startup");
 app.Use(async (context, next) =>
@@ -162,7 +164,7 @@ app.Use(async (context, next) =>
 });
 
 #region 🔹 Middleware
-
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("AllowAllOrigins");

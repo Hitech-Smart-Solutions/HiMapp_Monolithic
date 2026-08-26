@@ -17,6 +17,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="src\Shared\Exceptions\AppFileNotFoundException.cs" />
+    <Compile Include="src\Shared\Exceptions\BadRequestException.cs" />
+    <Compile Include="src\Shared\Exceptions\DbException.cs" />
+    <Compile Include="src\Shared\Exceptions\AppException.cs" />
+    <Compile Include="src\Shared\Exceptions\NotFoundException.cs" />
+    <Compile Include="src\Shared\Exceptions\UnauthorizedException.cs" />
+    <Compile Include="src\Shared\Middleware\GlobalExceptionMiddleware.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="4.0.102.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
