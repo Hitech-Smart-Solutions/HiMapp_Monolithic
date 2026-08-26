@@ -1,25 +1,23 @@
-﻿using System;
+﻿using Himapp.SharedKernel.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Himapp.Execution.Domain.Entities
 {
     // EF entity for schema table "DailyDepartmentalLabourSlip" Page Name : Daily Department Labour Slip (DDLS)
-    public class DailyDepartmentalLabourSlip
+    public class DailyDepartmentalLabourSlip : BaseEntity
     {
         public DailyDepartmentalLabourSlip()
         {
             DailyDepartmentalLabourSlipDetails = new HashSet<DailyDepartmentalLabourSlipDetails>();
         }
 
-        public int ID { get; set; }
-        public Guid UniqueID { get; set; }
-
         public int? ProjectID { get; set; }
 
         public string? DDLSlipCode { get; set; }
         public DateTime? SlipDate { get; set; }
-        public int? IssueNumber { get; set; }
+        public string? IssueNumber { get; set; }
 
         public int? PartyID { get; set; }
         public bool? IsNewParty { get; set; }
@@ -28,12 +26,6 @@ namespace Himapp.Execution.Domain.Entities
         public string? Remarks { get; set; }
         public short? StateID { get; set; }
         public bool IsActive { get; set; } = true;
-
-        public int CreatedBy { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public int LastModifiedBy { get; set; }
-        public DateTime LastModifiedDate { get; set; }
-
         public string? DocumentName { get; set; }
         public string? DocumentContentType { get; set; }
         public string? DocumentPath { get; set; }

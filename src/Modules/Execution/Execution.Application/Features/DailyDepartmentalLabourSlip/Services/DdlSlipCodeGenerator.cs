@@ -2,6 +2,8 @@ using Himapp.Execution.Contracts.References;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+using DDLSEntity = Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip;
+
 namespace Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Services;
 
 internal sealed class DdlSlipCodeGenerator : IDdlSlipCodeGenerator
@@ -57,7 +59,7 @@ internal sealed class DdlSlipCodeGenerator : IDdlSlipCodeGenerator
         // If still null, leave projectCode empty -- generator will return empty string
 
         // Get last DDLSlipCode for project from Execution DB
-        var lastLogCode = await _db.Set<Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip>()
+        var lastLogCode = await _db.Set<DDLSEntity>()
             .AsNoTracking()
             .Where(l => l.ProjectID == projectId)
             .OrderByDescending(l => l.ID)
