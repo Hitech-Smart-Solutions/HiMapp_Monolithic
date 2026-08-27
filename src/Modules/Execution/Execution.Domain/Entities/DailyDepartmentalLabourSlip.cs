@@ -24,7 +24,7 @@ namespace Himapp.Execution.Domain.Entities
         public string? NewParty { get; set; }
 
         public string? Remarks { get; set; }
-        public short? StateID { get; set; }
+        public int StatusID { get; set; }
         public bool IsActive { get; set; } = true;
         public string? DocumentName { get; set; }
         public string? DocumentContentType { get; set; }

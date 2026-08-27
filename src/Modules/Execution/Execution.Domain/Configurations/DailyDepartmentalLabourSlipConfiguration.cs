@@ -52,9 +52,8 @@ namespace Himapp.Execution.Domain.Configurations
                 .HasColumnName("Remarks")
                 .HasMaxLength(1000);
 
-            builder.Property(x => x.StateID)
-                .HasColumnName("StateID")
-                .HasColumnType("smallint");
+            builder.Property(x => x.StatusID)
+                .HasColumnName("StatusID");
 
             builder.Property(x => x.IsActive)
                 .HasColumnName("IsActive");

@@ -42,6 +42,10 @@ public sealed class RequiresApprovalAttribute : Attribute, IAsyncActionFilter
             return;
         }
 
+        var responseValue = objectResult.Value;
+
+        var result = responseValue as IWorkflowApprovalResult;
+
         var nextApproverService =
             context.HttpContext.RequestServices
                 .GetRequiredService<IWorkflowGetNextApproverService>();
@@ -65,7 +69,7 @@ public sealed class RequiresApprovalAttribute : Attribute, IAsyncActionFilter
             return;
         }
 
-        var result = objectResult.Value as IWorkflowApprovalResult;
+        //var result = objectResult.Value as IWorkflowApprovalResult;
 
         if (result is null)
         {

@@ -6,6 +6,7 @@ using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
 using Himapp.Execution.Contracts;
 using Himapp.Execution.Contracts.References;
 using Himapp.Execution.Domain.Entities;
+using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -28,8 +29,10 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
     private readonly IExecutionDbContext _db;
     private readonly IDdlSlipCodeGenerator _codeGenerator;
     private readonly ILogger<DailyDepartmentalLabourSlipHandlers> _logger;
-    public DailyDepartmentalLabourSlipHandlers(IExecutionDbContext db, IDdlSlipCodeGenerator codeGenerator, ILogger<DailyDepartmentalLabourSlipHandlers>? logger = null) => (_db, _codeGenerator, _logger) = (db, codeGenerator, logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DailyDepartmentalLabourSlipHandlers>.Instance);
-
+    private readonly ICurrentUser _currentUser;
+    
+    public DailyDepartmentalLabourSlipHandlers(IExecutionDbContext db, ICurrentUser currentUser, IDdlSlipCodeGenerator codeGenerator, ILogger<DailyDepartmentalLabourSlipHandlers>? logger = null) => (_db,_currentUser, _codeGenerator, _logger) = (db, currentUser, codeGenerator, logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DailyDepartmentalLabourSlipHandlers>.Instance);
+    private int CurrentUserId => _currentUser.UserId ?? 0;
     public async Task<IEnumerable<DailyDepartmentalLabourSlipModel>> Handle(GetAllDailyDepartmentalLabourSlipsQuery request, CancellationToken cancellationToken)
     {
         return await _db.Set<DDLSEntity>()
@@ -44,6 +47,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 d.IssueNumber,
                 d.PartyID,
                 d.Remarks,
+                d.StatusID,
                 d.IsActive,
                 d.CreatedBy,
                 d.CreatedDate,
@@ -103,13 +107,13 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.DebitPartyID,
             dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
-        return new DailyDepartmentalLabourSlipModel(d.ID, d.UniqueID, d.ProjectID, d.SlipDate, d.DDLSlipCode, d.IssueNumber, d.PartyID, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details);
+        return new DailyDepartmentalLabourSlipModel(d.ID, d.UniqueID, d.ProjectID, d.SlipDate, d.DDLSlipCode, d.IssueNumber, d.PartyID, d.Remarks, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details);
     }
 
     public async Task<DailyDepartmentalLabourSlipModel> Handle(CreateDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
     {
         var r = request.Request;
-
+        var userId = CurrentUserId;
         // Generate DDLSlipCode project-wise before constructing the entity so we can log and inspect it
         var generatedCode = await _codeGenerator.GenerateDDLSlipCodeAsync(r.ProjectId, cancellationToken);
         _logger.LogDebug("DDL slip code generated for ProjectId {ProjectId}: '{Code}'", r.ProjectId, generatedCode);
@@ -123,10 +127,11 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             PartyID = r.PartyID,
             SlipDate = r.SlipDate.HasValue ? DateTime.SpecifyKind(r.SlipDate.Value.Date, DateTimeKind.Utc) : DateTime.UtcNow.Date,
             Remarks = r.Remarks,
+            StatusID = r.StatusID,
             IsActive = true,
-            CreatedBy = r.CreatedBy,
+            CreatedBy = userId,
             CreatedDate = DateTime.UtcNow,
-            LastModifiedBy = r.LastModifiedBy,
+            LastModifiedBy = userId,
             LastModifiedDate = DateTime.UtcNow
         };
 
@@ -154,9 +159,9 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                     DebitPartyID = d.DebitPartyId,
                     Remarks = d.Remarks,
                     IsActive = true,
-                    CreatedBy = r.CreatedBy,
+                    CreatedBy = userId,
                     CreatedDate = DateTime.UtcNow,
-                    LastModifiedBy = r.LastModifiedBy,
+                    LastModifiedBy = userId,
                     LastModifiedDate = DateTime.UtcNow
                 };
 
@@ -185,7 +190,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.DebitPartyID,
             dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
-        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<DailyDepartmentalLabourSlipModel?> Handle(UpdateDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
@@ -202,6 +207,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         entity.SlipDate = r.SlipDate.HasValue ? DateTime.SpecifyKind(r.SlipDate.Value.Date, DateTimeKind.Utc) : entity.SlipDate;
         entity.PartyID = r.PartyID;
         entity.Remarks = r.Remarks ?? entity.Remarks;
+        entity.StatusID = r.StatusID;
         entity.LastModifiedBy = r.LastModifiedBy;
         entity.LastModifiedDate = DateTime.UtcNow;
 
@@ -265,7 +271,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.DebitPartyID,
             dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
-        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<bool> Handle(DeleteDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
