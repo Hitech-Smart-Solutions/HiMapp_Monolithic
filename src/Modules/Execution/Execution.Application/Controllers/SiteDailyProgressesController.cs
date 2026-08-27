@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("v1/execution/site-daily-progresses")]
 public sealed class SiteDailyProgressesController : ControllerBase
 {
@@ -65,12 +65,14 @@ public sealed class SiteDailyProgressesController : ControllerBase
 
 
     [HttpGet("GetActivityWiseQuantityBySectionID")]
-    public async Task<IActionResult> GetActivityWiseQuantityBySectionID([FromQuery] int areaID, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetActivityWiseQuantityBySectionID([FromQuery] int areaID, [FromQuery] int projectID, [FromQuery] DateOnly reportDate, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(
             new GetActivityWiseQuantityBySectionIDQuery
             {
-                AreaID = areaID
+                AreaID = areaID,
+                ProjectID = projectID,
+                ReportDate = reportDate
             },
             cancellationToken);
 
