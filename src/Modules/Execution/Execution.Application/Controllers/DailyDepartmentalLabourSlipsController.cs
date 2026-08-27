@@ -1,10 +1,11 @@
+using Himapp.Execution.Application.Features;
+using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Commands;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Models;
+using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Queries;
+using Himapp.Workflow.Application.Filters;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MediatR;
-using Himapp.Execution.Application.Features;
-using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Queries;
-using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Commands;
 
 namespace Himapp.Execution.Application.Controllers;
 
@@ -26,6 +27,7 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
         OkOrNotFound(await _mediator.Send(new GetDailyDepartmentalLabourSlipByIdQuery(id), cancellationToken));
 
     [HttpPost]
+    [RequiresApproval(programId: 63, priority: 1)]
     public async Task<IActionResult> Create([FromBody] CreateDailyDepartmentalLabourSlipRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new CreateDailyDepartmentalLabourSlipCommand(request), cancellationToken);
