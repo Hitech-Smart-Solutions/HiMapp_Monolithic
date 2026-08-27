@@ -38,7 +38,8 @@ internal sealed class SiteDailyProgressHandlers :
         return await _db.Set<SiteDailyProgressEntity>()
             .AsNoTracking()
             .Where(d => d.IsActive)
-            .Select(d => new SiteDailyProgressModel(d.ID, d.ProjectID, d.ReportDate, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, d.SectionID, d.NextDayPlan, Array.Empty<SiteDailyProgressDetailModel>(),
+            .Select(d => new SiteDailyProgressModel(d.ID, d.ProjectID, d.ReportDate, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, d.SectionID, d.NextDayPlan,
+            d.TotalAmount, Array.Empty<SiteDailyProgressDetailModel>(),
             Array.Empty<SiteDailyProgressHindranceModel>(), Array.Empty<SiteDailyProgressPhotoModel>()))
             .ToArrayAsync(cancellationToken);
     }
@@ -73,7 +74,7 @@ internal sealed class SiteDailyProgressHandlers :
 
         var photos = d.SiteDailyProgressPhoto.Where(p => p.IsActive).Select(p => new SiteDailyProgressPhotoModel(p.ID, p.UniqueID, p.FileName, p.FileType, p.FileSize, p.PhotoUrl, p.Caption)).ToArray();
 
-        return new SiteDailyProgressModel(d.ID, d.ProjectID, d.ReportDate, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, d.SectionID, d.NextDayPlan, details, hindrances, photos);
+        return new SiteDailyProgressModel(d.ID, d.ProjectID, d.ReportDate, d.Remarks, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, d.SectionID, d.NextDayPlan, d.TotalAmount, details, hindrances, photos);
     }
 
     public async Task<SiteDailyProgressModel> Handle(CreateSiteDailyProgressCommand request, CancellationToken cancellationToken)
@@ -89,7 +90,7 @@ internal sealed class SiteDailyProgressHandlers :
             ReportDate = r.ReportDate.HasValue ? DateOnly.FromDateTime(r.ReportDate.Value.DateTime) : DateOnly.FromDateTime(DateTime.UtcNow),
             Remarks = r.Remarks,
             NextDayPlan = r.NextDayPlan,
-            TotalAmount = 0m,
+            TotalAmount = r.TotalAmount,
             IsActive = true,
             CreatedBy = userId,
             CreatedDate = DateTime.UtcNow,
@@ -183,7 +184,8 @@ internal sealed class SiteDailyProgressHandlers :
             p.PhotoUrl,
             p.Caption)).ToArray() ?? Array.Empty<SiteDailyProgressPhotoModel>();
 
-        return new SiteDailyProgressModel(entity.ID, entity.ProjectID, entity.ReportDate, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, entity.SectionID, r.NextDayPlan, details, hindrances, photos);
+        return new SiteDailyProgressModel(entity.ID, entity.ProjectID, entity.ReportDate, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, entity.SectionID,
+            r.NextDayPlan, r.TotalAmount, details, hindrances, photos);
     }
 
     public async Task<SiteDailyProgressModel?> Handle(UpdateSiteDailyProgressCommand request, CancellationToken cancellationToken)
@@ -202,6 +204,7 @@ internal sealed class SiteDailyProgressHandlers :
         entity.Remarks = r.Remarks ?? entity.Remarks;
         entity.SectionID = r.SectionID ?? entity.SectionID;
         entity.NextDayPlan = r.NextDayPlan ?? entity.NextDayPlan;
+        entity.TotalAmount = r.TotalAmount;
         entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTime.UtcNow;
 
@@ -323,7 +326,8 @@ internal sealed class SiteDailyProgressHandlers :
 
         var photos = entity.SiteDailyProgressPhoto?.Select(p => new SiteDailyProgressPhotoModel(p.ID, p.UniqueID, p.FileName, p.FileType, p.FileSize, p.PhotoUrl, p.Caption)).ToArray() ?? Array.Empty<SiteDailyProgressPhotoModel>();
 
-        return new SiteDailyProgressModel(entity.ID, entity.ProjectID, entity.ReportDate, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, entity.SectionID, entity.NextDayPlan, details, hindrances, photos);
+        return new SiteDailyProgressModel(entity.ID, entity.ProjectID, entity.ReportDate, entity.Remarks, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, entity.SectionID,
+            entity.NextDayPlan, entity.TotalAmount, details, hindrances, photos);
     }
 
     public async Task<bool> Handle(DeleteSiteDailyProgressCommand request, CancellationToken cancellationToken)
@@ -437,111 +441,146 @@ internal sealed class SiteDailyProgressHandlers :
 
     public async Task<List<ActivityWiseQuantityBySectionModel>> Handle(GetActivityWiseQuantityBySectionIDQuery request, CancellationToken cancellationToken)
     {
-        // Get planning details + activities
-        var result = await (
-            from pd in _db.Set<PlanningDetail>()
-            join activity in _db.Set<Activity>()
-                on pd.ActivityID equals activity.ID
-            where pd.AreaID == request.AreaID
-                  && pd.IsActive
-                  && pd.Planning != null
-                  && pd.Planning.IsActive
-            select new
-            {
-                pd.ActivityID,
-                ActivityName = activity.ActivityName,
-                pd.TargetQuantity,
-                pd.UOMID
-            }
-        ).ToListAsync(cancellationToken);
+        var dbContext = _db as DbContext;
 
-        if (!result.Any())
+        if (dbContext is null)
         {
-            return new List<ActivityWiseQuantityBySectionModel>();
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext.");
         }
 
-        // Get distinct UOM IDs
-        var uomIds = result
-            .Where(x => x.UOMID > 0)
-            .Select(x => x.UOMID)
-            .Distinct()
-            .ToArray();
+        var connection = dbContext.Database.GetDbConnection();
 
-        var uomMap = new Dictionary<int, (string Name, string ShortName)>();
+        var result = new List<ActivityWiseQuantityBySectionModel>();
 
-        if (uomIds.Length > 0)
+        if (connection.State != System.Data.ConnectionState.Open)
         {
-            var dbContext = _db as DbContext;
+            await connection.OpenAsync(cancellationToken);
+        }
 
-            if (dbContext == null)
+        try
+        {
+            using var command = connection.CreateCommand();
+
+            command.CommandText = """
+            SELECT
+                pd."ActivityID" AS "ActivityID",
+                activity."ActivityName" AS "ActivityName",
+                pd."TargetQuantity" AS "TargetQuantity",
+                pd."UOMID" AS "UOMID",
+                uom."UOMName" AS "UOMName",
+                uom."UOMShortName" AS "UOMShortName",
+                am."RevenueRate" AS "RevenueRate"
+
+            FROM execution."Plannings" p
+
+            INNER JOIN execution."PlanningDetails" pd
+                ON p."ID" = pd."PlanningID"
+
+            INNER JOIN execution."Activities" activity
+                ON pd."ActivityID" = activity."ID"
+
+            INNER JOIN execution."ProjectActivities" am
+                ON activity."ID" = am."ActivityID"
+                AND am."ProjectID" = p."ProjectID"
+
+            LEFT JOIN public."UnitOfMeasurement" uom
+                ON pd."UOMID" = uom."ID"
+
+            WHERE
+                p."ProjectID" = @ProjectID
+                AND pd."AreaID" = @AreaID
+                AND @ReportDate BETWEEN p."StartDate" AND p."EndDate"
+                AND p."IsActive" = TRUE
+                AND pd."IsActive" = TRUE
+
+            ORDER BY
+                activity."ActivityName";
+            """;
+
+            // ProjectID
+            var projectIdParameter = command.CreateParameter();
+            projectIdParameter.ParameterName = "@ProjectID";
+            projectIdParameter.Value = request.ProjectID;
+            command.Parameters.Add(projectIdParameter);
+
+            // AreaID
+            var areaIdParameter = command.CreateParameter();
+            areaIdParameter.ParameterName = "@AreaID";
+            areaIdParameter.Value = request.AreaID;
+            command.Parameters.Add(areaIdParameter);
+
+            // ReportDate
+            var reportDateParameter = command.CreateParameter();
+            reportDateParameter.ParameterName = "@ReportDate";
+            reportDateParameter.Value = request.ReportDate;
+            command.Parameters.Add(reportDateParameter);
+
+            using var reader = await command.ExecuteReaderAsync(
+                cancellationToken);
+
+            var activityIdOrdinal =
+                reader.GetOrdinal("ActivityID");
+
+            var activityNameOrdinal =
+                reader.GetOrdinal("ActivityName");
+
+            var targetQuantityOrdinal =
+                reader.GetOrdinal("TargetQuantity");
+
+            var uomIdOrdinal =
+                reader.GetOrdinal("UOMID");
+
+            var uomNameOrdinal =
+                reader.GetOrdinal("UOMName");
+
+            var uomShortNameOrdinal =
+                reader.GetOrdinal("UOMShortName");
+
+            var revenueRateOrdinal =
+                reader.GetOrdinal("RevenueRate");
+
+            while (await reader.ReadAsync(cancellationToken))
             {
-                throw new InvalidOperationException(
-                    "IExecutionDbContext is not a DbContext.");
-            }
-
-            var connection = dbContext.Database.GetDbConnection();
-
-            if (connection.State != System.Data.ConnectionState.Open)
-            {
-                await connection.OpenAsync(cancellationToken);
-            }
-
-            try
-            {
-                using var command = connection.CreateCommand();
-
-                command.CommandText = @"
-                SELECT 
-                    ""ID"",
-                    ""UOMName"",
-                    ""UOMShortName""
-                FROM public.""UnitOfMeasurement""
-                WHERE ""ID"" = ANY(@uomIds)";
-
-                var parameter = command.CreateParameter();
-                parameter.ParameterName = "@uomIds";
-                parameter.Value = uomIds;
-
-                command.Parameters.Add(parameter);
-
-                using var reader = await command.ExecuteReaderAsync(cancellationToken);
-
-                while (await reader.ReadAsync(cancellationToken))
+                result.Add(new ActivityWiseQuantityBySectionModel
                 {
-                    var id = reader.GetInt32(0);
+                    ActivityID = reader.GetInt32(activityIdOrdinal),
 
-                    var name = reader.IsDBNull(1)
+                    ActivityName = reader.IsDBNull(activityNameOrdinal)
+                        ? null
+                        : reader.GetString(activityNameOrdinal),
+
+                    TargetQuantity = reader.IsDBNull(targetQuantityOrdinal)
+                        ? 0
+                        : reader.GetDecimal(targetQuantityOrdinal),
+
+                    UOMID = reader.IsDBNull(uomIdOrdinal)
+                        ? 0
+                        : reader.GetInt32(uomIdOrdinal),
+
+                    UOMName = reader.IsDBNull(uomNameOrdinal)
                         ? string.Empty
-                        : reader.GetString(1);
+                        : reader.GetString(uomNameOrdinal),
 
-                    var shortName = reader.IsDBNull(2)
+                    UOMShortName = reader.IsDBNull(uomShortNameOrdinal)
                         ? string.Empty
-                        : reader.GetString(2);
+                        : reader.GetString(uomShortNameOrdinal),
 
-                    uomMap[id] = (name, shortName);
-                }
+                    RevenueRate = reader.IsDBNull(revenueRateOrdinal)
+                        ? 0
+                        : reader.GetDecimal(revenueRateOrdinal)
+                });
             }
-            finally
+        }
+        finally
+        {
+            if (connection.State == System.Data.ConnectionState.Open)
             {
                 await connection.CloseAsync();
             }
         }
 
-        // Map final response
-        return result.Select(x =>
-        {
-            uomMap.TryGetValue(x.UOMID, out var uom);
-
-            return new ActivityWiseQuantityBySectionModel
-            {
-                ActivityID = x.ActivityID,
-                ActivityName = x.ActivityName,
-                TargetQuantity = x.TargetQuantity,
-                UOMID = x.UOMID,
-                UOMName = uom.Name,
-                UOMShortName = uom.ShortName
-            };
-        }).ToList();
+        return result;
     }
 
     public async Task<SiteDailyProgressModel?> Handle(GetLastSiteDPRBySectionIDQuery request, CancellationToken cancellationToken)
@@ -572,7 +611,7 @@ internal sealed class SiteDailyProgressHandlers :
             siteDpr.LastModifiedDate,
             siteDpr.SectionID,
             siteDpr.NextDayPlan,
-
+            siteDpr.TotalAmount,
             // No details required for duplicate-date validation
             Array.Empty<SiteDailyProgressDetailModel>(),
 

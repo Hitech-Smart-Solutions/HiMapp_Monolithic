@@ -162,8 +162,7 @@ public sealed class WorkflowPendingApprovalsService
         return results;
     }
 
-    public async Task<IReadOnlyList<AwaitingDepartmentalLabourSlipModel>>
-    GetAwaitingDepartmentalLabourSlip(
+    public async Task<IReadOnlyList<AwaitingDepartmentalLabourSlipModel>> GetAwaitingDepartmentalLabourSlip(
         int userId,
         CancellationToken cancellationToken)
     {
