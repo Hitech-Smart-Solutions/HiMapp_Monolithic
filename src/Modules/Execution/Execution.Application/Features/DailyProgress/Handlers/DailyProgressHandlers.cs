@@ -532,11 +532,11 @@ internal sealed class DailyProgressHandlers :
                 SELECT
                     pd."ActivityID" AS "ActivityID",
                     activity."ActivityName" AS "ActivityName",
-                    pd."TargetQuantity" AS "TargetQuantity",
+                    SUM(pd."TargetQuantity") AS "TargetQuantity",
                     pd."UOMID" AS "UOMID",
                     uom."UOMName" AS "UOMName",
                     uom."UOMShortName" AS "UOMShortName",
-                    am."RevenueRate" AS "RevenueRate"
+                    MAX(am."RevenueRate") AS "RevenueRate"
 
                 FROM execution."Plannings" p
 
@@ -557,6 +557,13 @@ internal sealed class DailyProgressHandlers :
                     AND @ReportDate BETWEEN p."StartDate" AND p."EndDate"
                     AND p."IsActive" = TRUE
                     AND pd."IsActive" = TRUE
+
+                GROUP BY
+                    pd."ActivityID",
+                    activity."ActivityName",
+                    pd."UOMID",
+                    uom."UOMName",
+                    uom."UOMShortName"
 
                 ORDER BY
                     activity."ActivityName";
