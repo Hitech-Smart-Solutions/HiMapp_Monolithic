@@ -37,7 +37,7 @@ public sealed class DailyProgressController : ControllerBase
     }
 
     [HttpPost]
-    [RequiresApproval(programId: 97, priority: 1)]
+    [RequiresApproval(programId: 97, priority: 0)]
     public async Task<IActionResult> Create([FromBody] CreateDailyProgressRequest request, CancellationToken cancellationToken)
     {
         if (request == null)

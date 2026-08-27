@@ -22,7 +22,7 @@ public sealed class RequiresApprovalAttribute : Attribute, IAsyncActionFilter
 
     public RequiresApprovalAttribute(
         int programId,
-        int priority = 1)
+        int priority = 0)
     {
         ProgramId = programId;
         Priority = priority;
