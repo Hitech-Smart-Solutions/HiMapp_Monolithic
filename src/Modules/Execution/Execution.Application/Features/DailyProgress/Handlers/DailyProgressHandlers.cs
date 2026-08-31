@@ -21,7 +21,7 @@ namespace Himapp.Execution.Application.Features.DailyProgress.Handlers;
 
 internal sealed class DailyProgressHandlers :
     IRequestHandler<GetAllDailyProgressQuery, IReadOnlyCollection<DailyProgressModel>>,
-    IRequestHandler<GetDailyProgressByIdQuery, DailyProgressModel?>,
+    IRequestHandler<GetDailyProgressByIdQuery, DailyProgressByIDModel?>,
     IRequestHandler<CreateDailyProgressCommand, DailyProgressModel>,
     IRequestHandler<UpdateDailyProgressCommand, DailyProgressModel?>,
     IRequestHandler<DeleteDailyProgressCommand, bool>,
@@ -46,44 +46,204 @@ internal sealed class DailyProgressHandlers :
             .ToArrayAsync(cancellationToken);
     }
 
-    public async Task<DailyProgressModel?> Handle(GetDailyProgressByIdQuery request, CancellationToken cancellationToken)
+    public async Task<DailyProgressByIDModel?> Handle(GetDailyProgressByIdQuery request, CancellationToken cancellationToken)
     {
-        var d = await _db.Set<DailyProgressEntity>()
-            .AsNoTracking()
-            .Include(x => x.DailyProgressDetail)
-            .Include(x => x.DailyProgressHindrance)
-            .Include(x => x.DailyProgressPhoto)
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+        }
+
+        var connection = dbContext.Database.GetDbConnection();
+
+        if (connection.State != System.Data.ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
+
+        var entity = await _db.Set<DailyProgressEntity>()
+            .Include(d => d.DailyProgressDetail)
+            .Include(d => d.DailyProgressHindrance)
+            .Include(d => d.DailyProgressPhoto)
             .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
-        if (d is null) return null;
+        if (entity is null) return null;
 
-        var details = d.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(
-            dd.ID,
-            dd.UniqueID,
-            dd.ActivityID,
-            dd.Quantity,
-            dd.UOMID,
-            dd.Rate,
-            dd.Amount,
-            dd.PlanQuantity,
-            dd.Variance,
-            dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
+        try
+        {
+            using var command = connection.CreateCommand();
 
-        var hindrances = d.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
-            h.ID,
-            h.UniqueID,
-            h.Hindrance,
-            h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
+            command.CommandText = """
+            SELECT
+                dp."ID",
+                dp."UniqueID",
+                dp."ProjectID",
+                dp."DPRCode",
+                dp."ReportDate",
+                dp."NextDayPlan",
+                dp."Remarks",
+                dp."TotalAmount",
+                dp."StatusID",
+                dp."IsActive",
+                dp."CreatedBy",
+                dp."CreatedDate",
+                dp."LastModifiedBy",
+                dp."LastModifiedDate",
 
-        var photos = d.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
-            p.ID,
-            p.UniqueID,
-            p.FileName,
-            p.FileType,
-            p.FileSize,
-            p.PhotoUrl,
-            p.Caption)).ToArray() ?? Array.Empty<DailyProgressPhotoModel>();
+                aa."NextActionOn" AS "NextApproverId"
 
-        return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details, hindrances, photos);
+            FROM execution."DailyProgress" dp
+
+            LEFT JOIN "ApprovalActions" aa
+                ON aa."ProgramRowID" = dp."ID"
+                AND aa."ProgramID" = @ProgramID
+                AND aa."IsActive" = TRUE
+                AND aa."StatusID" = 2
+
+            WHERE dp."ID" = @ID
+
+            ORDER BY aa."ID" DESC
+            LIMIT 1;
+            """;
+
+            var idParameter = command.CreateParameter();
+            idParameter.ParameterName = "@ID";
+            idParameter.Value = request.Id;
+            command.Parameters.Add(idParameter);
+
+            var programIdParameter = command.CreateParameter();
+            programIdParameter.ParameterName = "@ProgramID";
+            programIdParameter.Value = request.programId;
+            command.Parameters.Add(programIdParameter);
+
+            using var reader =
+                await command.ExecuteReaderAsync(cancellationToken);
+
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            var idOrdinal = reader.GetOrdinal("ID");
+            var uniqueIdOrdinal = reader.GetOrdinal("UniqueID");
+            var projectIdOrdinal = reader.GetOrdinal("ProjectID");
+            var dprCodeOrdinal = reader.GetOrdinal("DPRCode");
+            var reportDateOrdinal = reader.GetOrdinal("ReportDate");
+            var nextDayPlanOrdinal = reader.GetOrdinal("NextDayPlan");
+            var remarksOrdinal = reader.GetOrdinal("Remarks");
+            var totalAmountOrdinal = reader.GetOrdinal("TotalAmount");
+            var statusIdOrdinal = reader.GetOrdinal("StatusID");
+            var isActiveOrdinal = reader.GetOrdinal("IsActive");
+            var createdByOrdinal = reader.GetOrdinal("CreatedBy");
+            var createdDateOrdinal = reader.GetOrdinal("CreatedDate");
+            var lastModifiedByOrdinal = reader.GetOrdinal("LastModifiedBy");
+            var lastModifiedDateOrdinal = reader.GetOrdinal("LastModifiedDate");
+            var nextApproverIdOrdinal = reader.GetOrdinal("NextApproverId");
+
+            //var details = new List<DailyProgressDetailModel>();
+            //var hindrances = new List<DailyProgressHindranceModel>();
+            //var photos = new List<DailyProgressPhotoModel>();
+
+            var details =
+                entity.DailyProgressDetail?
+                    .Select(dd => new DailyProgressDetailModel(
+                        dd.ID,
+                        dd.UniqueID,
+                        dd.ActivityID,
+                        dd.Quantity,
+                        dd.UOMID,
+                        dd.Rate,
+                        dd.Amount,
+                        dd.PlanQuantity,
+                        dd.Variance,
+                        dd.Remarks))
+                    .ToArray()
+                ?? Array.Empty<DailyProgressDetailModel>();
+
+            var hindrances =
+                entity.DailyProgressHindrance?
+                    .Select(h => new DailyProgressHindranceModel(
+                        h.ID,
+                        h.UniqueID,
+                        h.Hindrance,
+                        h.AudioUrl))
+                    .ToArray()
+                ?? Array.Empty<DailyProgressHindranceModel>();
+
+            var photos =
+                entity.DailyProgressPhoto?
+                    .Select(p => new DailyProgressPhotoModel(
+                        p.ID,
+                        p.UniqueID,
+                        p.FileName,
+                        p.FileType,
+                        p.FileSize,
+                        p.PhotoUrl,
+                        p.Caption))
+                    .ToArray()
+                ?? Array.Empty<DailyProgressPhotoModel>();
+
+            var dailyProgress = new DailyProgressByIDModel(
+                reader.GetInt32(idOrdinal),
+
+                reader.GetGuid(uniqueIdOrdinal),
+
+                reader.GetInt32(projectIdOrdinal),
+
+                reader.IsDBNull(dprCodeOrdinal)
+                    ? string.Empty
+                    : reader.GetString(dprCodeOrdinal),
+
+                reader.GetFieldValue<DateOnly>(reportDateOrdinal),
+
+                reader.IsDBNull(nextDayPlanOrdinal)
+                    ? string.Empty
+                    : reader.GetString(nextDayPlanOrdinal),
+
+                reader.IsDBNull(remarksOrdinal)
+                    ? string.Empty
+                    : reader.GetString(remarksOrdinal),
+
+                reader.IsDBNull(totalAmountOrdinal)
+                    ? 0
+                    : reader.GetDecimal(totalAmountOrdinal),
+
+                reader.GetInt32(statusIdOrdinal),
+
+                reader.GetBoolean(isActiveOrdinal),
+
+                reader.GetInt32(createdByOrdinal),
+
+                reader.GetFieldValue<DateTime>(createdDateOrdinal),
+
+                reader.IsDBNull(lastModifiedByOrdinal)
+                    ? 0
+                    : reader.GetInt32(lastModifiedByOrdinal),
+
+                reader.IsDBNull(lastModifiedDateOrdinal)
+                    ? DateTimeOffset.MinValue
+                    : new DateTimeOffset(
+                        reader.GetFieldValue<DateTime>(
+                            lastModifiedDateOrdinal)),
+
+                reader.IsDBNull(nextApproverIdOrdinal)
+                    ? 0
+                    : reader.GetInt32(nextApproverIdOrdinal),
+
+                details,
+                hindrances,
+                photos
+            );
+
+            return dailyProgress;
+        }
+        finally
+        {
+            if (connection.State == System.Data.ConnectionState.Open)
+            {
+                await connection.CloseAsync();
+            }
+        }
     }
 
     public async Task<DailyProgressModel> Handle(CreateDailyProgressCommand request, CancellationToken cancellationToken)

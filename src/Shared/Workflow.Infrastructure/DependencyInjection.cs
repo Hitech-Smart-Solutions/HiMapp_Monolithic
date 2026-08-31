@@ -25,6 +25,9 @@ public static class DependencyInjection
         services.AddScoped<IWorkflowChangeApprovalService,WorkflowChangeApprovalService>();
 
         services.AddScoped<IWorkflowPendingApprovalsService, WorkflowPendingApprovalsService>();
+
+        services.AddScoped<IWorkflowDisApproveTransactionService, WorkflowDisApproveTransactionService>();
+
         return services;
     }
 }
