@@ -62,5 +62,15 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("GetDailyDepartmentalLabourSlipByIdAndProgramId/{id}/program/{programId}")]
+    public async Task<IActionResult> GetDailyDepartmentalLabourSlipByIdAndProgramId(int id,int programId,CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDailyDepartmentalLabourSlipByIdAndProgramId(id,programId), cancellationToken);
+
+        if (result is null)
+            return NotFound();
+
+        return Ok(result);
+    }
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }

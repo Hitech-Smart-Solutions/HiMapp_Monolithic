@@ -7,8 +7,8 @@ public sealed class DailyDepartmentalLabourSlipDetailsModel
     public int? LabourCategoryTypeId { get; init; }
     public bool? IsLumSumWork { get; set; }
     public int? NumOfLabour { get; init; }
-    public DateTime FromTime { get; init; }
-    public DateTime ToTime { get; init; }
+    public DateTime? FromTime { get; init; }
+    public DateTime? ToTime { get; init; }
     public decimal? LunchHour { get; init; }
     public decimal? WorkingHours { get; init; }
     public int? WorkLocationId { get; init; }
@@ -19,7 +19,7 @@ public sealed class DailyDepartmentalLabourSlipDetailsModel
     public int? DebitPartyId { get; init; }
     public string? Remarks { get; init; }
 
-    public DailyDepartmentalLabourSlipDetailsModel(int id, Guid uniqueId, int? labourCategoryTypeId, bool? isLumSumWork, int? numOfLabour, DateTime fromTime, DateTime toTime, decimal? lunchHour, decimal? workingHours, int? workLocationId, int? activityId, string? activityDetails, int? uomId, decimal? quantity, int? debitPartyId, string? remarks)
+    public DailyDepartmentalLabourSlipDetailsModel(int id, Guid uniqueId, int? labourCategoryTypeId, bool? isLumSumWork, int? numOfLabour, DateTime? fromTime, DateTime? toTime, decimal? lunchHour, decimal? workingHours, int? workLocationId, int? activityId, string? activityDetails, int? uomId, decimal? quantity, int? debitPartyId, string? remarks)
     {
         Id = id;
         UniqueId = uniqueId;

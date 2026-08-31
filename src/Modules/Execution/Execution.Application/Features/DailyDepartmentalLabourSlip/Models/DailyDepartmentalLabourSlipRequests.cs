@@ -63,9 +63,12 @@ public sealed class DailyDepartmentalLabourSlipModel : IWorkflowApprovalResult
     public DateTime CreatedDate { get; init; }
     public int LastModifiedBy { get; init; }
     public DateTime LastModifiedDate { get; init; }
+    public int? IsAwaitingApprovalForId { get; init; }
     public IReadOnlyCollection<DailyDepartmentalLabourSlipDetailsModel> Details { get; init; }
 
-    public DailyDepartmentalLabourSlipModel(int id, Guid uniqueId, int? projectId, DateTime? slipDate, string? ddlSlipCode, string? issueNumber, int? partyId, string? remarks, int statusId, bool isActive, int createdBy, DateTime createdDate, int lastModifiedBy, DateTime lastModifiedDate, IReadOnlyCollection<DailyDepartmentalLabourSlipDetailsModel> details)
+    public DailyDepartmentalLabourSlipModel(int id, Guid uniqueId, int? projectId, DateTime? slipDate, string? ddlSlipCode, string? issueNumber, int? partyId, 
+        string? remarks, int statusId, bool isActive, int createdBy, DateTime createdDate, int lastModifiedBy, DateTime lastModifiedDate, 
+        IReadOnlyCollection<DailyDepartmentalLabourSlipDetailsModel> details, int? isAwaitingApprovalForId = null)
     {
         Id = id;
         UniqueId = uniqueId;
@@ -82,6 +85,7 @@ public sealed class DailyDepartmentalLabourSlipModel : IWorkflowApprovalResult
         LastModifiedBy = lastModifiedBy;
         LastModifiedDate = lastModifiedDate;
         Details = details ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
+        IsAwaitingApprovalForId = isAwaitingApprovalForId;
     }
 }
 
