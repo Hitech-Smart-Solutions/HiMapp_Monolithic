@@ -27,17 +27,20 @@ public sealed class WorkflowController : ControllerBase
     private readonly IWorkflowGetNextApproverService _workflowGetNextApproverService;
     private readonly IWorkflowChangeApprovalService _workflowChangeApprovalService;
     private readonly IWorkflowPendingApprovalsService _workflowPendingApprovalsService;
+    private readonly IWorkflowDisApproveTransactionService _workflowDisApproveTransactionService;
     private readonly ICurrentUser _currentUser;
 
     public WorkflowController(
         IWorkflowGetNextApproverService workflowGetNextApproverService,
         IWorkflowChangeApprovalService workflowChangeApprovalService,
         IWorkflowPendingApprovalsService workflowPendingApprovalsService,
+        IWorkflowDisApproveTransactionService workflowDisApproveTransactionService,
         ICurrentUser currentUser)
     {
         _workflowGetNextApproverService = workflowGetNextApproverService;
         _workflowChangeApprovalService = workflowChangeApprovalService;
         _workflowPendingApprovalsService = workflowPendingApprovalsService;
+        _workflowDisApproveTransactionService = workflowDisApproveTransactionService;
         _currentUser = currentUser;
     }
 
@@ -69,6 +72,33 @@ public sealed class WorkflowController : ControllerBase
         }
 
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Disapproves a transaction in the centralized common workflow.
+    /// </summary>
+    [HttpPost("disapprove-transaction")]
+    public async Task<IActionResult> DisApproveTransaction(
+        [FromQuery] int id,
+        [FromQuery] int programId,
+        [FromQuery] string disApprovalRemarks,
+        [FromQuery] int remarksId = 0,
+        CancellationToken cancellationToken = default)
+    {
+        var actionedBy = _currentUser.UserId ?? 0;
+
+        await _workflowDisApproveTransactionService.DisApproveTransactionAsync(
+            id,
+            programId,
+            disApprovalRemarks,
+            actionedBy,
+            remarksId,
+            cancellationToken);
+
+        return Ok(new
+        {
+            Message = "Transaction disapproved successfully."
+        });
     }
 
     /// <summary>

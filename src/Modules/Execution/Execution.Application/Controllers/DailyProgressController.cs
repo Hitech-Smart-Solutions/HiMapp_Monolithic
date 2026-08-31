@@ -25,15 +25,15 @@ public sealed class DailyProgressController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllDailyProgressQuery(), cancellationToken));
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    [HttpGet("{id:int}/{programId:int}")]
+    public async Task<IActionResult> GetById(int id, int programId, CancellationToken cancellationToken)
     {
         if (id <= 0)
         {
             return BadRequest("Project DPR ID is required.");
         }
 
-        return OkOrNotFound(await _mediator.Send(new GetDailyProgressByIdQuery(id), cancellationToken));
+        return OkOrNotFound(await _mediator.Send(new GetDailyProgressByIdQuery(id, programId), cancellationToken));
     }
 
     [HttpPost]
