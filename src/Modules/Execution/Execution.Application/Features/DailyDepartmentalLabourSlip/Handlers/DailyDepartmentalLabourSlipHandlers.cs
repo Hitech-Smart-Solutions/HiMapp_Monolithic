@@ -24,7 +24,8 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
     IRequestHandler<UpdateDailyDepartmentalLabourSlipCommand, DailyDepartmentalLabourSlipModel?>,
     IRequestHandler<DeleteDailyDepartmentalLabourSlipCommand, bool>,
     IRequestHandler<DeleteDDLSCommand, bool>,
-    IRequestHandler<GetDailyDepartmentalLabourSlipsByProjectID, DataSet>
+    IRequestHandler<GetDailyDepartmentalLabourSlipsByProjectID, DataSet>,
+    IRequestHandler<GetDailyDepartmentalLabourSlipByIdAndProgramId, DailyDepartmentalLabourSlipModel?>
 {
     private readonly IExecutionDbContext _db;
     private readonly IDdlSlipCodeGenerator _codeGenerator;
@@ -372,5 +373,353 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         );
 
         return Math.Round(workingMinutes / 60m, 2);
+    }
+
+    public async Task<DailyDepartmentalLabourSlipModel?> Handle(GetDailyDepartmentalLabourSlipByIdAndProgramId request,CancellationToken cancellationToken)
+    {
+        var connection = _db.Database.GetDbConnection();
+
+        const string sql = """
+            SELECT
+                ddl."ID",
+                ddl."UniqueID",
+                ddl."ProjectID",
+                ddl."SlipDate",
+                ddl."DDLSlipCode",
+                ddl."IssueNumber",
+                ddl."PartyID",
+                ddl."Remarks",
+                ddl."StatusID",
+                ddl."IsActive",
+                ddl."CreatedBy",
+                ddl."CreatedDate",
+                ddl."LastModifiedBy",
+                ddl."LastModifiedDate",
+
+                approval."NextActionOn" AS "IsAwaitingApprovalForId"
+
+            FROM execution."DailyDepartmentalLabourSlips" ddl
+
+            LEFT JOIN public."ApprovalActions" approval
+                ON approval."ProgramRowID" = ddl."ID"
+                AND approval."ProgramID" = @ProgramId
+                AND approval."StatusID" = 2
+
+            WHERE
+                ddl."ID" = @Id
+                AND ddl."IsActive" = TRUE;
+
+
+            SELECT
+                detail."ID",
+                detail."UniqueID",
+                detail."LabourCategoryTypeID",
+                detail."IsLumSumWork",
+                detail."NumOfLabour",
+                detail."FromTime",
+                detail."TOTime",
+                detail."LunchHour",
+                detail."WorkingHours",
+                detail."WorkLocationID",
+                detail."ActivityID",
+                detail."ActivityDetails",
+                detail."UOMID",
+                detail."Quantity",
+                detail."DebitPartyID",
+                detail."Remarks"
+
+            FROM execution."DailyDepartmentalLabourSlipDetails" detail
+
+            WHERE
+                detail."DDLSlipID" = @Id
+
+            ORDER BY detail."ID";
+            """;
+
+        try
+        {
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            using var command = connection.CreateCommand();
+
+            command.CommandText = sql;
+
+            // ID parameter
+            var idParameter = command.CreateParameter();
+            idParameter.ParameterName = "@Id";
+            idParameter.Value = request.Id;
+            command.Parameters.Add(idParameter);
+
+            // ProgramID parameter
+            var programIdParameter = command.CreateParameter();
+            programIdParameter.ParameterName = "@ProgramId";
+            programIdParameter.Value = request.ProgramId;
+            command.Parameters.Add(programIdParameter);
+
+            using var reader =
+                await command.ExecuteReaderAsync(cancellationToken);
+
+            // =========================================================
+            // HEADER
+            // =========================================================
+
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            var idOrdinal =
+                reader.GetOrdinal("ID");
+
+            var uniqueIdOrdinal =
+                reader.GetOrdinal("UniqueID");
+
+            var projectIdOrdinal =
+                reader.GetOrdinal("ProjectID");
+
+            var slipDateOrdinal =
+                reader.GetOrdinal("SlipDate");
+
+            var ddlSlipCodeOrdinal =
+                reader.GetOrdinal("DDLSlipCode");
+
+            var issueNumberOrdinal =
+                reader.GetOrdinal("IssueNumber");
+
+            var partyIdOrdinal =
+                reader.GetOrdinal("PartyID");
+
+            var remarksOrdinal =
+                reader.GetOrdinal("Remarks");
+
+            var statusIdOrdinal =
+                reader.GetOrdinal("StatusID");
+
+            var isActiveOrdinal =
+                reader.GetOrdinal("IsActive");
+
+            var createdByOrdinal =
+                reader.GetOrdinal("CreatedBy");
+
+            var createdDateOrdinal =
+                reader.GetOrdinal("CreatedDate");
+
+            var lastModifiedByOrdinal =
+                reader.GetOrdinal("LastModifiedBy");
+
+            var lastModifiedDateOrdinal =
+                reader.GetOrdinal("LastModifiedDate");
+
+            var awaitingApprovalOrdinal =
+                reader.GetOrdinal("IsAwaitingApprovalForId");
+
+            var id = reader.GetInt32(idOrdinal);
+
+            var uniqueId = reader.GetGuid(uniqueIdOrdinal);
+
+            int? projectId =
+                reader.IsDBNull(projectIdOrdinal)
+                    ? null
+                    : reader.GetInt32(projectIdOrdinal);
+
+            DateTime? slipDate =
+                reader.IsDBNull(slipDateOrdinal)
+                    ? null
+                    : reader.GetDateTime(slipDateOrdinal);
+
+            string? ddlSlipCode =
+                reader.IsDBNull(ddlSlipCodeOrdinal)
+                    ? null
+                    : reader.GetString(ddlSlipCodeOrdinal);
+
+            string? issueNumber =
+                reader.IsDBNull(issueNumberOrdinal)
+                    ? null
+                    : reader.GetString(issueNumberOrdinal);
+
+            int? partyId =
+                reader.IsDBNull(partyIdOrdinal)
+                    ? null
+                    : reader.GetInt32(partyIdOrdinal);
+
+            string? remarks =
+                reader.IsDBNull(remarksOrdinal)
+                    ? null
+                    : reader.GetString(remarksOrdinal);
+
+            var statusId =
+                reader.GetInt32(statusIdOrdinal);
+
+            var isActive =
+                reader.GetBoolean(isActiveOrdinal);
+
+            var createdBy =
+                reader.GetInt32(createdByOrdinal);
+
+            var createdDate =
+                reader.GetDateTime(createdDateOrdinal);
+
+            var lastModifiedBy =
+                reader.GetInt32(lastModifiedByOrdinal);
+
+            var lastModifiedDate =
+                reader.GetDateTime(lastModifiedDateOrdinal);
+
+            int? isAwaitingApprovalForId =
+                reader.IsDBNull(awaitingApprovalOrdinal)
+                    ? null
+                    : reader.GetInt32(awaitingApprovalOrdinal);
+
+            // =========================================================
+            // DETAILS
+            // =========================================================
+
+            var details =
+                new List<DailyDepartmentalLabourSlipDetailsModel>();
+
+            if (await reader.NextResultAsync(cancellationToken))
+            {
+                var detailIdOrdinal =
+                    reader.GetOrdinal("ID");
+
+                var detailUniqueIdOrdinal =
+                    reader.GetOrdinal("UniqueID");
+
+                var labourCategoryTypeIdOrdinal =
+                    reader.GetOrdinal("LabourCategoryTypeID");
+
+                var isLumSumWorkOrdinal =
+                    reader.GetOrdinal("IsLumSumWork");
+
+                var numOfLabourOrdinal =
+                    reader.GetOrdinal("NumOfLabour");
+
+                var fromTimeOrdinal =
+                    reader.GetOrdinal("FromTime");
+
+                var toTimeOrdinal =
+                    reader.GetOrdinal("TOTime");
+
+                var lunchHourOrdinal =
+                    reader.GetOrdinal("LunchHour");
+
+                var workingHoursOrdinal =
+                    reader.GetOrdinal("WorkingHours");
+
+                var workLocationIdOrdinal =
+                    reader.GetOrdinal("WorkLocationID");
+
+                var activityIdOrdinal =
+                    reader.GetOrdinal("ActivityID");
+
+                var activityDetailsOrdinal =
+                    reader.GetOrdinal("ActivityDetails");
+
+                var uomIdOrdinal =
+                    reader.GetOrdinal("UOMID");
+
+                var quantityOrdinal =
+                    reader.GetOrdinal("Quantity");
+
+                var debitPartyIdOrdinal =
+                    reader.GetOrdinal("DebitPartyID");
+
+                var detailRemarksOrdinal =
+                    reader.GetOrdinal("Remarks");
+
+                while (await reader.ReadAsync(cancellationToken))
+                {
+                    details.Add(
+                        new DailyDepartmentalLabourSlipDetailsModel(
+                            reader.GetInt32(detailIdOrdinal),
+
+                            reader.GetGuid(detailUniqueIdOrdinal),
+
+                            reader.GetInt32(labourCategoryTypeIdOrdinal),
+
+                            reader.GetBoolean(isLumSumWorkOrdinal),
+
+                            reader.GetInt32(numOfLabourOrdinal),
+
+                            reader.IsDBNull(fromTimeOrdinal)
+                                ? null
+                                : reader.GetDateTime(fromTimeOrdinal),
+
+                            reader.IsDBNull(toTimeOrdinal)
+                                ? null
+                                : reader.GetDateTime(toTimeOrdinal),
+
+                            reader.IsDBNull(lunchHourOrdinal)
+                                ? null
+                                : reader.GetDecimal(lunchHourOrdinal),
+
+                            reader.IsDBNull(workingHoursOrdinal)
+                                ? null
+                                : reader.GetDecimal(workingHoursOrdinal),
+
+                            reader.IsDBNull(workLocationIdOrdinal)
+                                ? null
+                                : reader.GetInt32(workLocationIdOrdinal),
+
+                            reader.IsDBNull(activityIdOrdinal)
+                                ? null
+                                : reader.GetInt32(activityIdOrdinal),
+
+                            reader.IsDBNull(activityDetailsOrdinal)
+                                ? null
+                                : reader.GetString(activityDetailsOrdinal),
+
+                            reader.IsDBNull(uomIdOrdinal)
+                                ? null
+                                : reader.GetInt32(uomIdOrdinal),
+
+                            reader.IsDBNull(quantityOrdinal)
+                                ? null
+                                : reader.GetDecimal(quantityOrdinal),
+
+                            reader.IsDBNull(debitPartyIdOrdinal)
+                                ? null
+                                : reader.GetInt32(debitPartyIdOrdinal),
+
+                            reader.IsDBNull(detailRemarksOrdinal)
+                                ? null
+                                : reader.GetString(detailRemarksOrdinal)
+                        )
+                    );
+                }
+            }
+
+            return new DailyDepartmentalLabourSlipModel(
+                id,
+                uniqueId,
+                projectId,
+                slipDate,
+                ddlSlipCode,
+                issueNumber,
+                partyId,
+                remarks,
+                statusId,
+                isActive,
+                createdBy,
+                createdDate,
+                lastModifiedBy,
+                lastModifiedDate,
+                details,
+                isAwaitingApprovalForId
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error getting DDLS by Id {Id} and ProgramId {ProgramId}",
+                request.Id,
+                request.ProgramId);
+
+            throw;
+        }
     }
 }
