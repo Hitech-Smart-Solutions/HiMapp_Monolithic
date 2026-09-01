@@ -56,7 +56,7 @@ public sealed class DailyProgressController : ControllerBase
 
         return CreatedAtAction(
             nameof(GetById),
-            new { id = result.Id },
+            new { id = result.Id, programId = 97 },
             result);
     }
 
