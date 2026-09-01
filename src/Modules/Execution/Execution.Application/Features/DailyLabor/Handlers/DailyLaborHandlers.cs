@@ -227,7 +227,7 @@ internal sealed class DailyLaborHandlers :
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }
-    
+
     public async Task<DailyLaborModel?> Handle(UpdateDailyLaborCommand request, CancellationToken cancellationToken)
     {
         var userId = CurrentUserId;
@@ -257,6 +257,8 @@ internal sealed class DailyLaborHandlers :
         entity.StateID = (short?)r.Status;
         entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTime.UtcNow;
+        entity.ConstraintsAndReasons = r.ConstraintsAndReasons;
+        entity.ProposedActionPlan = r.ProposedActionPlan;
 
         // Remove existing details (physically) and add new ones
         if (entity.DailyLaborDetail != null && entity.DailyLaborDetail.Any())
@@ -341,9 +343,6 @@ internal sealed class DailyLaborHandlers :
     public async Task<DataSet> Handle(GetDailyLaborByProjectID request, CancellationToken cancellationToken)
     {
         var p = request.SearchParamsProjectWise ?? new SearchParamsProjectWise();
-
-        // Prepare DataSet
-        var ds = new System.Data.DataSet("ActivitiesResult");
 
         // Force Npgsql path: require the underlying DbContext to obtain connection string
         var dbContext = _db as DbContext;

@@ -303,9 +303,6 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
     {
         var p = request.SearchParamsProjectWise ?? new SearchParamsProjectWise();
 
-        // Prepare DataSet
-        var ds = new System.Data.DataSet("ActivitiesResult");
-
         // Force Npgsql path: require the underlying DbContext to obtain connection string
         var dbContext = _db as DbContext;
         if (dbContext is null)

@@ -58,6 +58,11 @@ public sealed class DailyDepartmentalLabourSlipModel : IWorkflowApprovalResult
     public int? PartyID { get; set; }
     public string? Remarks { get; init; }
     public int StatusID { get; set; }
+    public IWorkflowApprovalResult WithStatus(int statusId)
+    {
+        StatusID = statusId;
+        return this;
+    }
     public bool IsActive { get; init; }
     public int CreatedBy { get; init; }
     public DateTime CreatedDate { get; init; }
@@ -94,3 +99,4 @@ public sealed class DailyDepartmentalLabourSlipDto
     public int Id { get; set; }
     public int ProgramId { get; set; }
 }
+

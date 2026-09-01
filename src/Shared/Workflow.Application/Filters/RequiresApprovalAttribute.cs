@@ -42,9 +42,11 @@ public sealed class RequiresApprovalAttribute : Attribute, IAsyncActionFilter
             return;
         }
 
-        var responseValue = objectResult.Value;
+        if (objectResult.Value is not IWorkflowApprovalResult result)
+        {
+            return;
+        }
 
-        var result = responseValue as IWorkflowApprovalResult;
 
         var nextApproverService =
             context.HttpContext.RequestServices
@@ -65,13 +67,6 @@ public sealed class RequiresApprovalAttribute : Attribute, IAsyncActionFilter
             .FirstOrDefault();
 
         if (request is null)
-        {
-            return;
-        }
-
-        //var result = objectResult.Value as IWorkflowApprovalResult;
-
-        if (result is null)
         {
             return;
         }
@@ -105,10 +100,10 @@ public sealed class RequiresApprovalAttribute : Attribute, IAsyncActionFilter
             projectId,
             ProgramId,
             statusId,
-            string.Empty,
+            remarks,
             userId,
             nextApprover?.UserID ?? 0,
-            nextApprover?.Priority   ?? 0,
+            nextApprover?.Priority ?? 0,
             context.HttpContext.RequestAborted);
     }
 }
