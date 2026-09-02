@@ -1,6 +1,11 @@
+using Amazon;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.S3;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Himapp.Admin.Application;
 // Admin.Contracts moved to Admin.Application
 using Himapp.Admin.Infrastructure;
+using Himapp.Api.src.Shared.Middleware;
 using Himapp.Audit;
 using Himapp.Execution.Application;
 // Execution.Contracts moved to Execution.Application
@@ -15,12 +20,13 @@ using Himapp.Safety.Application;
 // Safety.Contracts moved to Safety.Application
 using Himapp.Safety.Infrastructure;
 using Himapp.SharedKernel;
+using Himapp.SharedKernel.Abstractions;
 using Himapp.SharedKernel.Logging;
 using Himapp.Store.Application;
 // Store.Contracts moved to Store.Application
 using Himapp.Store.Infrastructure;
-using Himapp.Workflow;
-using Himapp.Workflow.Controllers;
+using Himapp.Workflow.Application;
+using Himapp.Workflow.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,7 +43,7 @@ builder.Logging.AddSharedLogging(builder.Configuration);
 // Core services
 builder.Services.AddAuthorization();
 builder.Services.AddControllers()
-    .AddApplicationPart(typeof(Himapp.Workflow.DependencyInjection).Assembly)
+    .AddApplicationPart(typeof(Himapp.Workflow.Application.DependencyInjection).Assembly)
     .AddAuditActionFilter().AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
@@ -47,6 +53,13 @@ builder.Services.AddControllers()
     );  // 🔥 Registers the global auto-log action filter for ALL controllers
 builder.Services.AddHealthChecks();
 builder.Services.AddSignalR();
+
+var awsSection = builder.Configuration.GetSection("AWS");
+var accessKey = awsSection["AWS_ACCESS_KEY_ID"];
+var secretKey = awsSection["AWS_SECRET_ACCESS_KEY"];
+var region = RegionEndpoint.GetBySystemName(awsSection["Region"] ?? "ap-south-1");
+
+builder.Services.AddSingleton<IAmazonS3>(sp => new AmazonS3Client(accessKey, secretKey, region));
 
 // Authentication (JWT) - read values from configuration: Jwt:Issuer, Jwt:Audience, Jwt:Key
 builder.Services.AddAuthentication(options =>
@@ -72,12 +85,15 @@ builder.Services.AddAuthentication(options =>
 
 // Swagger (VERY IMPORTANT)
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.CustomSchemaIds(type => type.FullName);
+});
 
 // Shared Services
 builder.Services
     .AddHimappNotifications()
-    .AddHimappWorkflow()
+    .AddWorkflowModule()
     .AddHimappFiles()
     .AddD365Integration()
     .AddAuditLogging(builder.Configuration); // 🔥 Registers audit services (DbContext, Channel, Background consumer)
@@ -95,6 +111,7 @@ builder.Services
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
     .AddDbContext<StoreDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")))
+    .AddWorkflowInfrastructure(builder.Configuration)
 
     // Register shared kernel services (Outbox, logging helpers, etc.) will be added from SharedKernel.DependencyInjection
     .AddAdminModule()
@@ -137,6 +154,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
 // Add a logging scope for application-wide enrichment (module/application name)
 var _startupLogger = app.Services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().CreateLogger("Himapp.Startup");
 app.Use(async (context, next) =>
@@ -148,8 +166,9 @@ app.Use(async (context, next) =>
 });
 
 #region 🔹 Middleware
-
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseCors("AllowAllOrigins");
 app.UseAuthentication();
 app.UseAuthorization();

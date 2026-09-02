@@ -41,7 +41,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
@@ -50,7 +50,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
+                    b.Property<DateTime>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("OtherLabourRate")
@@ -83,43 +83,55 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<int>("ActivityID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ActivityID");
 
                     b.Property<int>("CategoryTypeID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("CategoryTypeID");
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("Name");
 
                     b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ProjectID");
 
                     b.Property<decimal>("Rate")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("Rate");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.HasKey("ID");
 
@@ -130,93 +142,114 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("CompanyID")
-                        .HasColumnType("integer");
-
                     b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<string>("DDLSlipCode")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("DDLSlipCode");
 
                     b.Property<int?>("DPRSlipIssueID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("DPRSlipIssueID");
 
                     b.Property<string>("DocumentContentType")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("DocumentContentType");
 
                     b.Property<string>("DocumentName")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("DocumentName");
 
                     b.Property<string>("DocumentPath")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("FinancialYearID")
-                        .HasColumnType("integer");
+                        .HasColumnType("text")
+                        .HasColumnName("DocumentPath");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
                     b.Property<int?>("IsDisapproved")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("IsDisapproved");
 
                     b.Property<bool?>("IsNewParty")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsNewParty");
+
+                    b.Property<string>("IssueNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("IssueNumber");
 
                     b.Property<int>("LastModifiedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
                     b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("LocationID")
-                        .HasColumnType("integer");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<int?>("Mat")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("Mat");
 
                     b.Property<string>("NewParty")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("NewParty");
 
                     b.Property<int?>("PartyID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("PartyID");
 
                     b.Property<int?>("ProjectID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ProjectID");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Remarks");
 
                     b.Property<int?>("Skilled")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("Skilled");
 
                     b.Property<DateTime?>("SlipDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("SlipDate");
 
-                    b.Property<int?>("SlipNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<short?>("StateID")
-                        .HasColumnType("smallint");
+                    b.Property<int>("StatusID")
+                        .HasColumnType("integer")
+                        .HasColumnName("StatusID");
 
                     b.Property<int?>("TotalDPRManpower")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("TotalDPRManpower");
 
                     b.Property<int?>("TotalWrkMins")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("TotalWrkMins");
 
                     b.Property<int?>("UnSkilled")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("UnSkilled");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.HasKey("ID");
 
@@ -227,82 +260,103 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("ActivityCategoryID")
-                        .HasColumnType("integer");
-
                     b.Property<string>("ActivityDetails")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("ActivityDetails");
+
+                    b.Property<int?>("ActivityID")
+                        .HasColumnType("integer")
+                        .HasColumnName("ActivityID");
 
                     b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<int?>("DDLSlipID")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("DailyDepartmentalLabourSlipID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("DDLSlipID");
 
                     b.Property<int?>("DebitPartyID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("DebitPartyID");
 
                     b.Property<DateTime>("FromTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("FromTime");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
                     b.Property<bool?>("IsLumSumWork")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsLumSumWork");
 
                     b.Property<int?>("LabourCategoryTypeID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("LabourCategoryTypeID");
 
                     b.Property<int>("LastModifiedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
                     b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<decimal?>("LunchHour")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("LunchHour");
 
                     b.Property<int?>("NumOfLabour")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("NumOfLabour");
 
                     b.Property<decimal?>("Quantity")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("Quantity");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Remarks");
 
                     b.Property<short?>("StateID")
-                        .HasColumnType("smallint");
+                        .HasColumnType("smallint")
+                        .HasColumnName("StateID");
 
                     b.Property<DateTime>("TOTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("TOTime");
 
                     b.Property<int?>("UOMID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("UOMID");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.Property<int?>("WorkLocationID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("WorkLocationID");
 
                     b.Property<decimal?>("WorkingHours")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("WorkingHours");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("DailyDepartmentalLabourSlipID");
+                    b.HasIndex("DDLSlipID");
 
                     b.ToTable("DailyDepartmentalLabourSlipDetails", "execution");
                 });
@@ -311,7 +365,8 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
@@ -322,15 +377,18 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("text");
 
                     b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<string>("DLRCode")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<DateTimeOffset>("DLRDate")
+                    b.Property<DateTime>("DLRDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ReportDate");
 
@@ -338,10 +396,12 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("boolean");
 
                     b.Property<int>("LastModifiedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
                     b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<int?>("ProjectID")
                         .HasColumnType("integer");
@@ -360,9 +420,13 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("smallint");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("DLRCode")
+                        .IsUnique();
 
                     b.ToTable("DailyLabor", "execution");
                 });
@@ -390,7 +454,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("DailyLabourID")
@@ -402,7 +466,7 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
+                    b.Property<DateTime>("LastModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("Mat")
@@ -432,111 +496,155 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
-                    b.Property<string>("HindranceAudioUrl")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Hindrances")
-                        .HasColumnType("text");
+                    b.Property<string>("DPRCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("DPRCode");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<string>("NextDayPlan")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("NextDayPlan");
 
                     b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ProjectID");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Remarks");
 
                     b.Property<DateOnly>("ReportDate")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("ReportDate");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("StatusID")
+                        .HasColumnType("integer")
+                        .HasColumnName("StatusID");
 
                     b.Property<decimal>("TotalAmount")
-                        .HasColumnType("numeric");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric")
+                        .HasColumnName("TotalAmount");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.HasKey("ID");
 
-                    b.ToTable("DailyProgresses", "execution");
+                    b.ToTable("DailyProgress", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressDetail", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<int>("ActivityID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ActivityID");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric")
+                        .HasColumnName("Amount");
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<int>("DailyProgressID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("DailyProgressID");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<decimal?>("PlanQuantity")
-                        .HasColumnType("numeric");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric")
+                        .HasColumnName("PlanQuantity");
 
                     b.Property<decimal>("Quantity")
-                        .HasColumnType("numeric");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric")
+                        .HasColumnName("Quantity");
 
                     b.Property<decimal>("Rate")
-                        .HasColumnType("numeric");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric")
+                        .HasColumnName("Rate");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Remarks");
+
+                    b.Property<int?>("UOMID")
+                        .HasColumnType("integer")
+                        .HasColumnName("UOMID");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
-                    b.Property<string>("Uom")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("Variance")
-                        .HasColumnType("numeric");
+                    b.Property<decimal?>("Variance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric")
+                        .HasColumnName("Variance");
 
                     b.HasKey("ID");
 
@@ -545,47 +653,134 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.ToTable("DailyProgressDetails", "execution");
                 });
 
-            modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressPhoto", b =>
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressHindrance", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("Caption")
-                        .HasColumnType("text");
+                    b.Property<string>("AudioUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("AudioUrl");
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<int>("DailyProgressID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("DailyProgressID");
+
+                    b.Property<string>("Hindrance")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("Hindrance");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("PhotoUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.HasKey("ID");
 
                     b.HasIndex("DailyProgressID");
 
-                    b.ToTable("DailyProgressPhoto", "execution");
+                    b.ToTable("DailyProgressHindrances", "execution");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressPhoto", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("Caption")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Caption");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<int>("DailyProgressID")
+                        .HasColumnType("integer")
+                        .HasColumnName("DailyProgressID");
+
+                    b.Property<string>("FileName")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("FileName");
+
+                    b.Property<int?>("FileSize")
+                        .HasColumnType("integer")
+                        .HasColumnName("FileSize");
+
+                    b.Property<string>("FileType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("FileType");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("PhotoUrl");
+
+                    b.Property<Guid>("UniqueID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DailyProgressID");
+
+                    b.ToTable("DailyProgressPhotos", "execution");
                 });
 
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.ExecutionProjectConfig", b =>
@@ -632,42 +827,55 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<DateOnly>("EntryDate")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("EntryDate");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
                     b.Property<int>("LastModifiedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ProjectID");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Remarks");
 
                     b.Property<int>("SectionID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("SectionID");
 
-                    b.Property<int>("StateID")
-                        .HasColumnType("integer");
+                    b.Property<short>("StateID")
+                        .HasColumnType("smallint")
+                        .HasColumnName("StateID");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.HasKey("ID");
 
@@ -678,48 +886,66 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<int>("ActivityID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ActivityID");
 
                     b.Property<int>("ContractorID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ContractorID");
 
                     b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
+
+                    b.Property<bool?>("IsDepartment")
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsDepartment");
 
                     b.Property<int>("LastModifiedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<int>("ManpowerID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ManpowerID");
 
                     b.Property<int>("OtherCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("OtherCount");
 
                     b.Property<int>("SkilledCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("SkilledCount");
 
                     b.Property<int>("TotalCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("TotalCount");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.Property<int>("UnskilledCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("UnskilledCount");
 
                     b.HasKey("ID");
 
@@ -732,48 +958,63 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<int>("AreaID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("AreaID");
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<DateOnly?>("EndDate")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("EndDate");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
                     b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<int>("PlanTypeID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("PlanTypeID");
 
                     b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ProjectID");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Remarks");
 
                     b.Property<DateOnly>("StartDate")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("StartDate");
 
                     b.Property<int>("StatusID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("StatusID");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.HasKey("ID");
 
@@ -784,45 +1025,59 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<int>("ActivityID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ActivityID");
 
                     b.Property<int>("AreaID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("AreaID");
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
                     b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<int>("PlanningID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("PlanningID");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Remarks");
 
                     b.Property<decimal>("TargetQuantity")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("TargetQuantity");
 
                     b.Property<int>("UOMID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("UOMID");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.HasKey("ID");
 
@@ -835,54 +1090,75 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<string>("ContentType")
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("ContentType");
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<string>("DocumentName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("DocumentName");
 
                     b.Property<string>("FileExtension")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("FileExtension");
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("FileName");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("FilePath");
 
                     b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("FileSize");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
                     b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<int>("PlanningID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("PlanningID");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Remarks");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.HasKey("ID");
 
@@ -895,51 +1171,66 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<int>("ActivityID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ActivityID");
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<bool>("Enabled")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("Enabled");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<decimal>("OtherLabourRate")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("OtherLabourRate");
 
                     b.Property<bool>("OutputRequired")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("OutputRequired");
 
                     b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ProjectID");
 
                     b.Property<decimal>("RevenueRate")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("RevenueRate");
 
                     b.Property<decimal>("SkilledLabourRate")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("SkilledLabourRate");
 
                     b.Property<decimal>("UnSkilledLabourRate")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("UnSkilledLabourRate");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.HasKey("ID");
 
@@ -950,51 +1241,60 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("HindranceAudioUrl")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Hindrances")
-                        .HasColumnType("text");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<string>("NextDayPlan")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("NextDayPlan");
 
                     b.Property<int>("ProjectID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ProjectID");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Remarks");
 
                     b.Property<DateOnly>("ReportDate")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("ReportDate");
 
-                    b.Property<int>("SectionID")
-                        .HasColumnType("integer");
+                    b.Property<int?>("SectionID")
+                        .HasColumnType("integer")
+                        .HasColumnName("SectionID");
 
                     b.Property<decimal>("TotalAmount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("TotalAmount");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.HasKey("ID");
 
@@ -1005,54 +1305,71 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<int>("ActivityID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ActivityID");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("Amount");
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<decimal?>("PlanQuantity")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("PlanQuantity");
 
                     b.Property<decimal>("Quantity")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("Quantity");
 
                     b.Property<decimal>("Rate")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("Rate");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Remarks");
 
                     b.Property<int>("SiteDailyProgressID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("SiteDailyProgressID");
 
                     b.Property<int>("UOMID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("UOMID");
 
-                    b.Property<Guid>("UniqueId")
-                        .HasColumnType("uuid");
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.Property<decimal>("Variance")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric")
+                        .HasColumnName("Variance");
 
                     b.HasKey("ID");
 
@@ -1061,41 +1378,120 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.ToTable("SiteDailyProgressDetail", "execution");
                 });
 
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgressHindrance", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("AudioUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("AudioUrl");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<int>("DailyProgressID")
+                        .HasColumnType("integer")
+                        .HasColumnName("DailyProgressID");
+
+                    b.Property<string>("Hindrance")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("Hindrance");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DailyProgressID");
+
+                    b.ToTable("SiteDailyProgressHindrance", "execution");
+                });
+
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgressPhoto", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Caption")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("Caption");
 
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedBy");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreatedDate");
 
                     b.Property<int>("DailyProgressID")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("DailyProgressID");
+
+                    b.Property<string>("FileName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("FileName");
+
+                    b.Property<int?>("FileSize")
+                        .HasColumnType("integer")
+                        .HasColumnName("FileSize");
+
+                    b.Property<string>("FileType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("FileType");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("IsActive");
 
-                    b.Property<int?>("LastModifiedBy")
-                        .HasColumnType("integer");
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("LastModifiedBy");
 
-                    b.Property<DateTimeOffset>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModifiedDate");
 
                     b.Property<string>("PhotoUrl")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("PhotoUrl");
 
                     b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("UniqueID");
 
                     b.HasKey("ID");
 
@@ -1108,7 +1504,8 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.HasOne("Himapp.Execution.Domain.Entities.DailyDepartmentalLabourSlip", "DailyDepartmentalLabourSlip")
                         .WithMany("DailyDepartmentalLabourSlipDetails")
-                        .HasForeignKey("DailyDepartmentalLabourSlipID");
+                        .HasForeignKey("DDLSlipID")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("DailyDepartmentalLabourSlip");
                 });
@@ -1128,6 +1525,17 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.HasOne("Himapp.Execution.Domain.Entities.DailyProgress", "DailyProgress")
                         .WithMany("DailyProgressDetail")
+                        .HasForeignKey("DailyProgressID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DailyProgress");
+                });
+
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.DailyProgressHindrance", b =>
+                {
+                    b.HasOne("Himapp.Execution.Domain.Entities.DailyProgress", "DailyProgress")
+                        .WithMany("DailyProgressHindrance")
                         .HasForeignKey("DailyProgressID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1190,6 +1598,17 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Navigation("DailyProgress");
                 });
 
+            modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgressHindrance", b =>
+                {
+                    b.HasOne("Himapp.Execution.Domain.Entities.SiteDailyProgress", "DailyProgress")
+                        .WithMany("SiteDailyProgressHindrance")
+                        .HasForeignKey("DailyProgressID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DailyProgress");
+                });
+
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgressPhoto", b =>
                 {
                     b.HasOne("Himapp.Execution.Domain.Entities.SiteDailyProgress", "DailyProgress")
@@ -1215,6 +1634,8 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 {
                     b.Navigation("DailyProgressDetail");
 
+                    b.Navigation("DailyProgressHindrance");
+
                     b.Navigation("DailyProgressPhoto");
                 });
 
@@ -1233,6 +1654,8 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
             modelBuilder.Entity("Himapp.Execution.Domain.Entities.SiteDailyProgress", b =>
                 {
                     b.Navigation("SiteDailyProgressDetail");
+
+                    b.Navigation("SiteDailyProgressHindrance");
 
                     b.Navigation("SiteDailyProgressPhoto");
                 });

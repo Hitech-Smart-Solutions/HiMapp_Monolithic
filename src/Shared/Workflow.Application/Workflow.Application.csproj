@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>net10.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<RootNamespace>Himapp.Workflow.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.100.9" />
+	<PackageReference Include="MediatR" Version="12.4.1" />
+	<PackageReference Include="Npgsql" Version="8.0.0" />
+	<ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
+	<ProjectReference Include="..\Workflow.Domain\Workflow.Domain.csproj" />
+	<ProjectReference Include="..\Workflow.Contracts\Workflow.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\CentralUserRoleMapping\Commands\" />
+    <Folder Include="Features\CentralUserRoleMapping\Handlers\" />
+    <Folder Include="Features\CentralUserRoleMapping\Models\" />
+    <Folder Include="Features\CentralUserRoleMapping\Services\" />
+    <Folder Include="Features\CentralUserRoleMapping\Queries\" />
+  </ItemGroup>
+
+  <!-- Rely on SDK default Compile items -->
+
+</Project>

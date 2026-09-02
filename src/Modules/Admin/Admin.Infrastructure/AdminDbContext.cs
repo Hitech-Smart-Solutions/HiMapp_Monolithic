@@ -31,7 +31,6 @@ public sealed class AdminDbContext : DbContext, IAdminDbContext
             b.Property(x => x.ContractorId).IsRequired();
             b.Property(x => x.PhotoFileId).IsRequired();
             b.Property(x => x.CreatedAt).IsRequired();
-            b.Property(x => x.RowVersion).IsRowVersion();
         });
     }
 }

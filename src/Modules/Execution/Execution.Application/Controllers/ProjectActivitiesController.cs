@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize]
 [Route("v1/execution/project-activities")]
 public sealed class ProjectActivitiesController : ControllerBase
 {
@@ -17,7 +17,7 @@ public sealed class ProjectActivitiesController : ControllerBase
     public ProjectActivitiesController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] SearchParamsCompanyProjectWise searchParams, CancellationToken cancellationToken) => 
+    public async Task<IActionResult> GetAll([FromQuery] SearchParamsCompanyProjectWise searchParams, CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllProjectActivitiesQuery(searchParams), cancellationToken));
 
     [HttpGet("{id:int}")]
@@ -27,7 +27,6 @@ public sealed class ProjectActivitiesController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProjectActivityRequest request, CancellationToken cancellationToken)
     {
@@ -43,18 +42,25 @@ public sealed class ProjectActivitiesController : ControllerBase
     }
 
     [HttpDelete("{id:int}/{projectid:int}")]
-    public async Task<IActionResult> Delete(int id,int projectid, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(int id, int projectid, CancellationToken cancellationToken)
     {
         var deleted = await _mediator.Send(new DeleteProjectActivityCommand(id, projectid), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 
-
-    [AllowAnonymous]
     [HttpGet("GetProjectActivitiesByProjectId/{projectid:int}")]
     public async Task<IActionResult> GetProjectActivitiesByProjectId(int projectid, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetProjectActivitiesByProjectIdQuery(projectid), cancellationToken);
         return result is null ? NotFound() : Ok(result);
+    }
+
+
+    [HttpGet("GetProjectActivityCategoryDetailsByProjectID/{projectId:int}")]
+    public async Task<IActionResult> GetProjectActivityCategoryDetailsByProjectID(int projectId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetProjectActivitiyDetailsByProjectID(projectId), cancellationToken);
+
+        return Ok(result);
     }
 }

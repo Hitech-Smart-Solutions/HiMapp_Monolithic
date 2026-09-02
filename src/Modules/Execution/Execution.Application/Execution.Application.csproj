@@ -6,15 +6,20 @@
 	</ItemGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.100.9" />
+		<PackageReference Include="AWSSDK.S3" Version="4.0.102.2" />
 		<PackageReference Include="MediatR" Version="12.4.1" />
 		<PackageReference Include="ExcelDataReader" Version="3.7.0" />
 		<PackageReference Include="ExcelDataReader.DataSet" Version="3.7.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
 		<PackageReference Include="ClosedXML" Version="0.105.0" />
+		<PackageReference Include="Npgsql" Version="8.0.0" />
+		<ProjectReference Include="..\..\..\Shared\Workflow.Application\Workflow.Application.csproj" />
 		<ProjectReference Include="..\Execution.Contracts\Execution.Contracts.csproj" />
 		<ProjectReference Include="..\Execution.Domain\Execution.Domain.csproj" />
-		<ProjectReference Include="..\..\..\Shared\Workflow\Workflow.csproj" />
+		<ProjectReference Include="..\..\Admin\Admin.Contracts\Admin.Contracts.csproj" />
 		<ProjectReference Include="..\..\..\Shared\Files\Files.csproj" />
+		<ProjectReference Include="..\..\..\Shared\Workflow.Application\Workflow.Application.csproj" />
 	</ItemGroup>
 	<PropertyGroup>
 		<RootNamespace>Himapp.Execution.Application</RootNamespace>

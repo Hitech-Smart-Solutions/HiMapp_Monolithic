@@ -28,7 +28,6 @@ public sealed class StoreDbContext : DbContext, IStoreDbContext
             b.Property(x => x.CancelReason).HasMaxLength(500);
             b.Property(x => x.ProjectId).IsRequired();
             b.Property(x => x.CreatedAt).IsRequired();
-            b.Property(x => x.RowVersion).IsRowVersion();
             b.Ignore(x => x.Lines);
         });
     }

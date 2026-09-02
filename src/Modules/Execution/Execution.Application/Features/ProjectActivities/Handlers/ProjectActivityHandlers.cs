@@ -1,8 +1,11 @@
+using DocumentFormat.OpenXml.InkML;
+using Himapp.Api.src.Shared.Exceptions;
 using Himapp.Execution.Application.Features.ProjectActivities.Commands;
 using Himapp.Execution.Application.Features.ProjectActivities.Models;
 using Himapp.Execution.Application.Features.ProjectActivities.Queries;
 using Himapp.Execution.Contracts;
 using Himapp.Execution.Domain.Entities;
+using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -17,10 +20,18 @@ internal sealed class ProjectActivityHandlers :
     IRequestHandler<DeleteProjectActivityCommand, bool>,
     IRequestHandler<GetAllProjectActivitiesQuery, System.Data.DataSet>,
     IRequestHandler<GetProjectActivityByIdQuery, ProjectActivityModel?>,
-    IRequestHandler<GetProjectActivitiesByProjectIdQuery, System.Data.DataSet>
+    IRequestHandler<GetProjectActivitiesByProjectIdQuery, System.Data.DataSet>,
+    IRequestHandler<GetProjectActivitiyDetailsByProjectID, List<ProjectActivityCategoryDetailsModel>>
 {
     private readonly IExecutionDbContext _db;
-    public ProjectActivityHandlers(IExecutionDbContext db) => _db = db;
+    private readonly ICurrentUser _currentUser;
+    public ProjectActivityHandlers(IExecutionDbContext db, ICurrentUser currentUser)
+    {
+        _db = db;
+        _currentUser = currentUser;
+    }
+
+    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
 
     public async Task<ProjectActivityModel> Handle(CreateProjectActivityCommand request, CancellationToken cancellationToken)
     {
@@ -40,15 +51,15 @@ internal sealed class ProjectActivityHandlers :
                 OtherLabourRate = r.OtherLabourRate,
                 OutputRequired = r.OutputRequired,
                 IsActive = true,
-                CreatedBy = r.CreatedBy,
-                CreatedDate = DateTimeOffset.UtcNow,
-                LastModifiedBy = r.LastModifiedBy,
-                LastModifiedDate = DateTimeOffset.UtcNow
+                CreatedBy = r.CreatedBy ?? 0,
+                CreatedDate = DateTime.UtcNow,
+                LastModifiedBy = r.LastModifiedBy ?? 0,
+                LastModifiedDate = DateTime.UtcNow
             };
 
             _db.Set<ProjectActivity>().Add(entity);
             await AddActivityCategoryDetailsAsync(entity, r.SkilledLabourRate, r.UnSkilledLabourRate, r.OtherLabourRate,
-                r.CreatedBy, r.LastModifiedBy, cancellationToken);
+                r.LastModifiedBy, cancellationToken);
             await _db.SaveChangesAsync(cancellationToken);
             return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
         }
@@ -62,8 +73,8 @@ internal sealed class ProjectActivityHandlers :
             entityExists.UnSkilledLabourRate = request.Request.UnSkilledLabourRate;
             entityExists.OtherLabourRate = request.Request.OtherLabourRate;
             entityExists.OutputRequired = request.Request.OutputRequired;
-            entityExists.LastModifiedBy = request.Request.LastModifiedBy;
-            entityExists.LastModifiedDate = DateTimeOffset.UtcNow;
+            entityExists.LastModifiedBy = request.Request.LastModifiedBy ?? 0;
+            entityExists.LastModifiedDate = DateTime.UtcNow;
 
             await UpdateActivityCategoryDetailsAsync(entityExists, request.Request.SkilledLabourRate,
                 request.Request.UnSkilledLabourRate, request.Request.OtherLabourRate,
@@ -89,8 +100,8 @@ internal sealed class ProjectActivityHandlers :
         entity.UnSkilledLabourRate = request.Request.UnSkilledLabourRate;
         entity.OtherLabourRate = request.Request.OtherLabourRate;
         entity.OutputRequired = request.Request.OutputRequired;
-        entity.LastModifiedBy = request.Request.LastModifiedBy;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedBy = request.Request.LastModifiedBy ?? 0;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         await UpdateActivityCategoryDetailsAsync(entity, request.Request.SkilledLabourRate,
             request.Request.UnSkilledLabourRate, request.Request.OtherLabourRate,
@@ -101,11 +112,11 @@ internal sealed class ProjectActivityHandlers :
         return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
     }
 
-    private async Task AddActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate, decimal unskilledRate,
-        decimal otherRate, int? createdBy, int? lastModifiedBy, CancellationToken cancellationToken)
+    private async Task AddActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate, decimal unskilledRate, decimal otherRate, int? lastModifiedBy, CancellationToken cancellationToken)
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTime.UtcNow;
         var activityName = await GetActivityNameAsync(projectActivity.ActivityID, cancellationToken);
+        var userId = CurrentUserId;
 
         foreach (var (categoryType, rate) in GetCategoryRates(skilledRate, unskilledRate, otherRate))
         {
@@ -118,21 +129,20 @@ internal sealed class ProjectActivityHandlers :
                 Name = GetActivityCategoryDetailName(activityName, categoryType),
                 Rate = rate,
                 IsActive = true,
-                CreatedBy = createdBy,
+                CreatedBy = userId,
                 CreatedDate = now,
-                LastModifiedBy = lastModifiedBy,
+                LastModifiedBy = lastModifiedBy ?? 0,
                 LastModifiedDate = now
             });
         }
     }
 
-    private async Task UpdateActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate,
-        decimal unskilledRate, decimal otherRate, int? lastModifiedBy, CancellationToken cancellationToken)
+    private async Task UpdateActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate, decimal unskilledRate, decimal otherRate, int? lastModifiedBy, CancellationToken cancellationToken)
     {
         var existingDetails = await _db.Set<ActivityCategoryDetails>()
             .Where(detail => detail.ProjectID == projectActivity.ProjectID && detail.ActivityID == projectActivity.ActivityID)
             .ToListAsync(cancellationToken);
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTime.UtcNow;
         var activityName = await GetActivityNameAsync(projectActivity.ActivityID, cancellationToken);
 
         foreach (var (categoryType, rate) in GetCategoryRates(skilledRate, unskilledRate, otherRate))
@@ -149,9 +159,9 @@ internal sealed class ProjectActivityHandlers :
                     Name = GetActivityCategoryDetailName(activityName, categoryType),
                     Rate = rate,
                     IsActive = true,
-                    CreatedBy = lastModifiedBy,
+                    CreatedBy = lastModifiedBy ?? 0,
                     CreatedDate = now,
-                    LastModifiedBy = lastModifiedBy,
+                    LastModifiedBy = lastModifiedBy ?? 0,
                     LastModifiedDate = now
                 });
                 continue;
@@ -160,7 +170,7 @@ internal sealed class ProjectActivityHandlers :
             detail.Name = GetActivityCategoryDetailName(activityName, categoryType);
             detail.Rate = rate;
             detail.IsActive = true;
-            detail.LastModifiedBy = lastModifiedBy;
+            detail.LastModifiedBy = lastModifiedBy ?? 0;
             detail.LastModifiedDate = now;
         }
     }
@@ -180,7 +190,7 @@ internal sealed class ProjectActivityHandlers :
             .Select(activity => activity.ActivityName)
             .FirstOrDefaultAsync(cancellationToken);
 
-        return activityName ?? throw new InvalidOperationException($"Activity {activityId} was not found.");
+        return activityName ?? throw new NotFoundException($"Activity {activityId} was not found.");
     }
 
     private static string GetActivityCategoryDetailName(string activityName, CategoryType categoryType) =>
@@ -199,9 +209,6 @@ internal sealed class ProjectActivityHandlers :
     {
         var p = request.SearchParams ?? new SearchParamsCompanyProjectWise();
 
-        // Prepare DataSet
-        var ds = new System.Data.DataSet("ActivitiesResult");
-
         // Force Npgsql path: require the underlying DbContext to obtain connection string
         var dbContext = _db as DbContext;
         if (dbContext is null)
@@ -217,7 +224,7 @@ internal sealed class ProjectActivityHandlers :
         using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uuspgetexecutionactivitiesforactivitymapping(@p_companyid,@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd.CommandType = CommandType.Text;
-            cmd.CommandTimeout = 1800;
+            cmd.CommandTimeout = 30;
             cmd.Parameters.AddWithValue("@p_companyid", NpgsqlDbType.Integer, p.CompanyID);
             cmd.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
@@ -237,7 +244,7 @@ internal sealed class ProjectActivityHandlers :
         using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetexecutionactivitiescountforactivitymapping(@p_companyid,@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd2.CommandType = CommandType.Text;
-            cmd2.CommandTimeout = 1800;
+            cmd2.CommandTimeout = 10;
             cmd2.Parameters.AddWithValue("@p_companyid", NpgsqlDbType.Integer, p.CompanyID);
             cmd2.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
@@ -265,7 +272,7 @@ internal sealed class ProjectActivityHandlers :
 
     public async Task<System.Data.DataSet> Handle(GetProjectActivitiesByProjectIdQuery request, CancellationToken cancellationToken)
     {
-       
+
         // Prepare DataSet
         var ds = new System.Data.DataSet("ProjectActivitiesResult");
 
@@ -284,7 +291,7 @@ internal sealed class ProjectActivityHandlers :
         using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uspgetprojectactivitiesbyprojectid(@p_projectid)", conn))
         {
             cmd.CommandType = CommandType.Text;
-            cmd.CommandTimeout = 1800;
+            cmd.CommandTimeout = 30;
             cmd.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, request.ProjectId);
 
             var da = new NpgsqlDataAdapter(cmd);
@@ -294,6 +301,24 @@ internal sealed class ProjectActivityHandlers :
         }
 
         return dsLocal;
+    }
+
+    public async Task<List<ProjectActivityCategoryDetailsModel>> Handle(GetProjectActivitiyDetailsByProjectID request, CancellationToken cancellationToken)
+    {
+        var result = await _db.Set<ActivityCategoryDetails>()
+            .Where(x =>
+                x.ProjectID == request.ProjectId &&
+                x.IsActive)
+            .Select(x => new ProjectActivityCategoryDetailsModel
+            {
+                ID = x.ID,
+                ProjectID = x.ProjectID,
+                Name = x.Name,
+                Rate = x.Rate
+            })
+            .ToListAsync(cancellationToken);
+
+        return result;
     }
 }
 

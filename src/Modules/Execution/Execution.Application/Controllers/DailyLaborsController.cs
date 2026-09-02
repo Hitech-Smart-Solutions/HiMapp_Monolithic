@@ -3,7 +3,6 @@ using Himapp.Execution.Application.Features.DailyLabor.Commands;
 using Himapp.Execution.Application.Features.DailyLabor.Models;
 using Himapp.Execution.Application.Features.DailyLabor.Queries;
 using Himapp.Execution.Application.Features.Manpower.Queries;
-using Himapp.Workflow.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize]
 [Route("v1/execution/daily-labors")]
 public sealed class DailyLaborsController : ControllerBase
 {
@@ -59,6 +58,31 @@ public sealed class DailyLaborsController : ControllerBase
     {
         var deleted = await _mediator.Send(new DeleteDailyLaborCommand(id), cancellationToken);
         return deleted ? Ok() : NotFound();
+    }
+
+    [HttpPut("SetActiveInActiveForDailyLabour")]
+    public async Task<IActionResult> SetActiveInActiveForDailyLabour(AddTransactionActionHistoryDTO dto, CancellationToken cancellationToken)
+    {
+        var deleted = await _mediator.Send(new DeleteDailyLaborActionCommand(dto), cancellationToken);
+        return deleted ? Ok() : NotFound();
+    }
+
+    [HttpGet("GetConsolidatedForDPR")]
+    public async Task<IActionResult> GetConsolidatedForDPR([FromQuery] DateOnly date, [FromQuery] int projectId, CancellationToken cancellationToken)
+    {
+        if (projectId <= 0)
+        {
+            return BadRequest("ProjectID is required.");
+        }
+
+        if (date == default)
+        {
+            return BadRequest("date is required.");
+        }
+
+        var result = await _mediator.Send(new DPRGetConsolidatedDailyLaborQuery(date, projectId), cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
     }
 
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
