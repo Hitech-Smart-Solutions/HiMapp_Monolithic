@@ -62,15 +62,7 @@ public sealed class WorkflowController : ControllerBase
             userId,
             priority,
             cancellationToken);
-
-        if (result is null)
-        {
-            return NotFound(new
-            {
-                Message = "No next approver found."
-            });
-        }
-
+    
         return Ok(result);
     }
 
