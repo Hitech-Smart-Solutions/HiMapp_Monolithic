@@ -27,7 +27,7 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
         OkOrNotFound(await _mediator.Send(new GetDailyDepartmentalLabourSlipByIdQuery(id), cancellationToken));
 
     [HttpPost]
-    [RequiresApproval(programId: 63, priority: 1)]
+    [RequiresApproval(programId: 63, priority: 0)]
     public async Task<IActionResult> Create([FromBody] CreateDailyDepartmentalLabourSlipRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new CreateDailyDepartmentalLabourSlipCommand(request), cancellationToken);

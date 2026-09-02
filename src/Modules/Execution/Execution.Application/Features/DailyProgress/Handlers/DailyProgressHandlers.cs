@@ -681,7 +681,7 @@ internal sealed class DailyProgressHandlers :
 
         var result = new List<ActivityWiseQuantityBySectionModel>();
 
-        if (connection.State != System.Data.ConnectionState.Open)
+        if (connection.State != ConnectionState.Open)
         {
             await connection.OpenAsync(cancellationToken);
         }
@@ -691,44 +691,11 @@ internal sealed class DailyProgressHandlers :
             using var command = connection.CreateCommand();
 
             command.CommandText = """
-                SELECT
-                    pd."ActivityID" AS "ActivityID",
-                    activity."ActivityName" AS "ActivityName",
-                    SUM(pd."TargetQuantity") AS "TargetQuantity",
-                    pd."UOMID" AS "UOMID",
-                    uom."UOMName" AS "UOMName",
-                    uom."UOMShortName" AS "UOMShortName",
-                    MAX(am."RevenueRate") AS "RevenueRate"
-
-                FROM execution."Plannings" p
-
-                INNER JOIN execution."PlanningDetails" pd
-                    ON p."ID" = pd."PlanningID"
-
-                INNER JOIN execution."Activities" activity
-                    ON pd."ActivityID" = activity."ID"
-
-                INNER JOIN execution."ProjectActivities" am
-                	ON activity."ID" = am."ActivityID"
-
-                LEFT JOIN public."UnitOfMeasurement" uom
-                    ON pd."UOMID" = uom."ID"
-
-                WHERE
-                    p."ProjectID" = @ProjectID
-                    AND @ReportDate BETWEEN p."StartDate" AND p."EndDate"
-                    AND p."IsActive" = TRUE
-                    AND pd."IsActive" = TRUE
-
-                GROUP BY
-                    pd."ActivityID",
-                    activity."ActivityName",
-                    pd."UOMID",
-                    uom."UOMName",
-                    uom."UOMShortName"
-
-                ORDER BY
-                    activity."ActivityName";
+                SELECT *
+                FROM execution."uspGetActivityWiseQuantityByProjectID"(
+                    @ProjectID,
+                    @ReportDate
+                );
                 """;
 
             var projectIdParameter = command.CreateParameter();
@@ -743,25 +710,35 @@ internal sealed class DailyProgressHandlers :
 
             using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
+            var sectionIdOrdinal = reader.GetOrdinal("SectionID");
+            var sectionNameOrdinal = reader.GetOrdinal("SectionName");
             var activityIdOrdinal = reader.GetOrdinal("ActivityID");
             var activityNameOrdinal = reader.GetOrdinal("ActivityName");
             var targetQuantityOrdinal = reader.GetOrdinal("TargetQuantity");
             var uomIdOrdinal = reader.GetOrdinal("UOMID");
             var uomNameOrdinal = reader.GetOrdinal("UOMName");
             var uomShortNameOrdinal = reader.GetOrdinal("UOMShortName");
-            var revenueRate = reader.GetOrdinal("RevenueRate");
+            var revenueRateOrdinal = reader.GetOrdinal("RevenueRate");
 
             while (await reader.ReadAsync(cancellationToken))
             {
                 result.Add(new ActivityWiseQuantityBySectionModel
                 {
+                    SectionID = reader.GetInt32(sectionIdOrdinal),
+
+                    SectionName = reader.IsDBNull(sectionNameOrdinal)
+                        ? string.Empty
+                        : reader.GetString(sectionNameOrdinal),
+
                     ActivityID = reader.GetInt32(activityIdOrdinal),
 
                     ActivityName = reader.IsDBNull(activityNameOrdinal)
-                        ? null
+                        ? string.Empty
                         : reader.GetString(activityNameOrdinal),
 
-                    TargetQuantity = reader.GetDecimal(targetQuantityOrdinal),
+                    TargetQuantity = reader.IsDBNull(targetQuantityOrdinal)
+                        ? 0
+                        : reader.GetDecimal(targetQuantityOrdinal),
 
                     UOMID = reader.IsDBNull(uomIdOrdinal)
                         ? 0
@@ -775,15 +752,15 @@ internal sealed class DailyProgressHandlers :
                         ? string.Empty
                         : reader.GetString(uomShortNameOrdinal),
 
-                    RevenueRate = reader.IsDBNull(revenueRate)
+                    RevenueRate = reader.IsDBNull(revenueRateOrdinal)
                         ? 0
-                        : reader.GetDecimal(revenueRate)
+                        : reader.GetDecimal(revenueRateOrdinal)
                 });
             }
         }
         finally
         {
-            if (connection.State == System.Data.ConnectionState.Open)
+            if (connection.State == ConnectionState.Open)
             {
                 await connection.CloseAsync();
             }
