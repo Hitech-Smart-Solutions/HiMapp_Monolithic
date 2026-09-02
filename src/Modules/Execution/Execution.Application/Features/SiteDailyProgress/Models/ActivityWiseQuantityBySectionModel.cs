@@ -6,6 +6,8 @@ namespace Himapp.Execution.Application.Features.SiteDailyProgress.Models
 {
     public class ActivityWiseQuantityBySectionModel
     {
+        public int SectionID { get; set; }
+        public string? SectionName { get; set; }
         public int ActivityID { get; set; }
         public string? ActivityName { get; set; }
         public decimal TargetQuantity { get; set; }
