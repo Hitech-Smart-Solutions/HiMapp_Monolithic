@@ -16,8 +16,7 @@ public sealed class WorkflowPendingApprovalsService
         _context = context;
     }
 
-    public async Task<IReadOnlyList<AwaitingDailyProgressModel>>
-        GetAwaitingDailyProgress(
+    public async Task<IReadOnlyList<AwaitingDailyProgressModel?>>GetAwaitingDailyProgress(
             int userId,
             CancellationToken cancellationToken)
     {
@@ -162,7 +161,7 @@ public sealed class WorkflowPendingApprovalsService
         return results;
     }
 
-    public async Task<IReadOnlyList<AwaitingDepartmentalLabourSlipModel>> GetAwaitingDepartmentalLabourSlip(
+    public async Task<IReadOnlyList<AwaitingDepartmentalLabourSlipModel?>> GetAwaitingDepartmentalLabourSlip(
         int userId,
         CancellationToken cancellationToken)
     {

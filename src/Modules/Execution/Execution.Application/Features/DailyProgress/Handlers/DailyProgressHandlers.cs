@@ -263,7 +263,7 @@ internal sealed class DailyProgressHandlers :
             NextDayPlan = r.NextDayPlan,
             Remarks = r.Remarks,
             DPRCode = generatedCode,
-            TotalAmount = 0m,
+            TotalAmount = r.TotalAmount,
             StatusID = r.StatusID,
             IsActive = true,
             CreatedBy = userId,
@@ -373,8 +373,9 @@ internal sealed class DailyProgressHandlers :
 
         int LastModifiedBy = request.Request.LastModifiedBy;
 
-        entity.NextDayPlan = request.Request.NextDayPlan ?? entity.NextDayPlan;
-        entity.Remarks = request.Request.Remarks ?? entity.Remarks;
+        entity.NextDayPlan = request.Request.NextDayPlan;
+        entity.Remarks = request.Request.Remarks;
+        entity.TotalAmount = request.Request.TotalAmount;
         entity.StatusID = request.Request.StatusID;
         entity.LastModifiedBy = LastModifiedBy;
         entity.LastModifiedDate = DateTime.UtcNow;
