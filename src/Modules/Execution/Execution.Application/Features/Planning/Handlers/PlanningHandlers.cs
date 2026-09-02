@@ -14,6 +14,7 @@ using Npgsql;
 using System.Data;
 using System.Linq;
 using PlanningEntity = Himapp.Execution.Domain.Entities.Planning;
+using Himapp.Api.src.Shared.Exceptions;
 
 namespace Himapp.Execution.Application.Features.Planning.Handlers;
 
@@ -408,7 +409,7 @@ internal sealed class PlanningHandlers :
         var parseResult = await _excelImporter.ParseAsync(r.ExcelFile, r.ProjectId, cancellationToken);
         if (parseResult.Errors.Any())
         {
-            throw new InvalidOperationException(string.Join("||", parseResult.Errors));
+            throw new BadRequestException(string.Join("||", parseResult.Errors));
         }
 
         // Handle attachment via file service (register once and reuse for all plannings)
@@ -479,7 +480,7 @@ internal sealed class PlanningHandlers :
 
             if (sections == null || !sections.Any())
             {
-                throw new InvalidOperationException("No active sections configured for this project.");
+                throw new NotFoundException("No active sections configured for this project.");
             }
 
             var sectionsList = sections.ToList();
@@ -494,7 +495,7 @@ internal sealed class PlanningHandlers :
 
             if (!paList.Any())
             {
-                throw new InvalidOperationException("No applicable activities found for this project.");
+                throw new NotFoundException("No applicable activities found for this project.");
             }
 
             // Get activity IDs
@@ -502,7 +503,7 @@ internal sealed class PlanningHandlers :
 
             if (!activityIds.Any())
             {
-                throw new InvalidOperationException($"No Activity IDs found for project {request.ProjectId}.");
+                throw new NotFoundException($"No Activity IDs found for project {request.ProjectId}.");
             }
 
             // Get activity masters
@@ -514,7 +515,7 @@ internal sealed class PlanningHandlers :
             // GET UOM NAMES
             if (!activityMasters.Any())
             {
-                throw new InvalidOperationException($"No active activities found for project {request.ProjectId}.");
+                throw new NotFoundException($"No active activities found for project {request.ProjectId}.");
             }
 
             // Get UOM IDs from activities
@@ -695,14 +696,12 @@ internal sealed class PlanningHandlers :
             wb.SaveAs(ms);
             return ms.ToArray();
         }
-        catch (InvalidOperationException)
+        catch (AppException)
         {
-            // Preserve business validation errors
             throw;
         }
         catch (Exception ex)
         {
-            // IMPORTANT: log the actual exception and inner exception
             var innerMessage = ex.InnerException?.Message;
 
             throw new InvalidOperationException(
@@ -710,7 +709,8 @@ internal sealed class PlanningHandlers :
                 $"Error: {ex.Message}" +
                 (!string.IsNullOrWhiteSpace(innerMessage)
                     ? $" | Inner Exception: {innerMessage}"
-                    : string.Empty), ex);
+                    : string.Empty),
+                ex);
         }
     }
 }

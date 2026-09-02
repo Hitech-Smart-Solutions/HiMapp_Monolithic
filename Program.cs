@@ -1,6 +1,7 @@
 using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Himapp.Admin.Application;
 // Admin.Contracts moved to Admin.Application
 using Himapp.Admin.Infrastructure;
@@ -19,6 +20,7 @@ using Himapp.Safety.Application;
 // Safety.Contracts moved to Safety.Application
 using Himapp.Safety.Infrastructure;
 using Himapp.SharedKernel;
+using Himapp.SharedKernel.Abstractions;
 using Himapp.SharedKernel.Logging;
 using Himapp.Store.Application;
 // Store.Contracts moved to Store.Application

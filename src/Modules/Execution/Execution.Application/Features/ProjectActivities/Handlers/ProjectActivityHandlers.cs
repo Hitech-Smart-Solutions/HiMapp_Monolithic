@@ -1,4 +1,5 @@
 using DocumentFormat.OpenXml.InkML;
+using Himapp.Api.src.Shared.Exceptions;
 using Himapp.Execution.Application.Features.ProjectActivities.Commands;
 using Himapp.Execution.Application.Features.ProjectActivities.Models;
 using Himapp.Execution.Application.Features.ProjectActivities.Queries;
@@ -189,7 +190,7 @@ internal sealed class ProjectActivityHandlers :
             .Select(activity => activity.ActivityName)
             .FirstOrDefaultAsync(cancellationToken);
 
-        return activityName ?? throw new InvalidOperationException($"Activity {activityId} was not found.");
+        return activityName ?? throw new NotFoundException($"Activity {activityId} was not found.");
     }
 
     private static string GetActivityCategoryDetailName(string activityName, CategoryType categoryType) =>
@@ -207,9 +208,6 @@ internal sealed class ProjectActivityHandlers :
     public async Task<System.Data.DataSet> Handle(GetAllProjectActivitiesQuery request, CancellationToken cancellationToken)
     {
         var p = request.SearchParams ?? new SearchParamsCompanyProjectWise();
-
-        // Prepare DataSet
-        var ds = new System.Data.DataSet("ActivitiesResult");
 
         // Force Npgsql path: require the underlying DbContext to obtain connection string
         var dbContext = _db as DbContext;

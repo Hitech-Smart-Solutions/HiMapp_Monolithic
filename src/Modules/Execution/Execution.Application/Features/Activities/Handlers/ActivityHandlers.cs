@@ -99,9 +99,6 @@ internal sealed class ActivityHandlers :
     {
         var p = request.SearchParams ?? new SearchParams();
 
-        // Prepare DataSet
-        var ds = new System.Data.DataSet("ActivitiesResult");
-
         // Force Npgsql path: require the underlying DbContext to obtain connection string
         var dbContext = _db as DbContext;
         if (dbContext is null)
