@@ -12,7 +12,7 @@ public class DailyProgressDetail : BaseEntity
 
     public int DailyProgressID { get; set; }
     public int ActivityID { get; set; }
-
+    public int SectionID { get; set; }
     public decimal Quantity { get; set; }
     public int? UOMID { get; set; }
 
