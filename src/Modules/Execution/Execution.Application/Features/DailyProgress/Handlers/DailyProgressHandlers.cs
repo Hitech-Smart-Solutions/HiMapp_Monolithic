@@ -150,6 +150,7 @@ internal sealed class DailyProgressHandlers :
                         dd.ID,
                         dd.UniqueID,
                         dd.ActivityID,
+                        dd.SectionID,
                         dd.Quantity,
                         dd.UOMID,
                         dd.Rate,
@@ -280,11 +281,14 @@ internal sealed class DailyProgressHandlers :
                 {
                     UniqueID = Guid.NewGuid(),
                     ActivityID = d.ActivityId,
+                    SectionID = d.SectionId,
                     Quantity = d.Quantity,
                     UOMID = d.UOMID,
                     Rate = d.Rate,
                     PlanQuantity = d.PlanQuantity,
                     Remarks = d.Remarks,
+                    Amount = d.Amount,
+                    Variance = d.Variance,
                     IsActive = true,
                     CreatedBy = userId,
                     CreatedDate = DateTime.UtcNow,
@@ -343,7 +347,7 @@ internal sealed class DailyProgressHandlers :
         _db.Set<DailyProgressEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
+        var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.SectionID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
         var hindrances = entity.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
             h.ID,
             h.UniqueID,
@@ -395,11 +399,14 @@ internal sealed class DailyProgressHandlers :
                 {
                     UniqueID = Guid.NewGuid(),
                     ActivityID = d.ActivityId,
+                    SectionID = d.SectionId,
                     Quantity = d.Quantity,
                     UOMID = d.UOMID,
                     Rate = d.Rate,
                     PlanQuantity = d.PlanQuantity,
                     Remarks = d.Remarks,
+                    Amount = d.Amount,
+                    Variance = d.Variance,
                     IsActive = true,
                     CreatedBy = LastModifiedBy,
                     CreatedDate = DateTime.UtcNow,
@@ -470,7 +477,7 @@ internal sealed class DailyProgressHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
+        var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.SectionID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
         var hindrances = entity.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
             h.ID,
             h.UniqueID,
@@ -719,6 +726,7 @@ internal sealed class DailyProgressHandlers :
             var uomNameOrdinal = reader.GetOrdinal("UOMName");
             var uomShortNameOrdinal = reader.GetOrdinal("UOMShortName");
             var revenueRateOrdinal = reader.GetOrdinal("RevenueRate");
+            var quantityOrdinal = reader.GetOrdinal("ActualQuantity");
 
             while (await reader.ReadAsync(cancellationToken))
             {
@@ -740,6 +748,10 @@ internal sealed class DailyProgressHandlers :
                         ? 0
                         : reader.GetDecimal(targetQuantityOrdinal),
 
+                    ActualQuantity = reader.IsDBNull(quantityOrdinal)
+                        ? 0
+                        : reader.GetDecimal(quantityOrdinal),
+
                     UOMID = reader.IsDBNull(uomIdOrdinal)
                         ? 0
                         : reader.GetInt32(uomIdOrdinal),
@@ -757,6 +769,13 @@ internal sealed class DailyProgressHandlers :
                         : reader.GetDecimal(revenueRateOrdinal)
                 });
             }
+        }
+        catch (Exception ex)
+        {
+            // PUT BREAKPOINT HERE
+            Console.WriteLine(ex.ToString());
+
+            throw;
         }
         finally
         {
@@ -783,6 +802,7 @@ internal sealed class DailyProgressHandlers :
             dd.ID,
             dd.UniqueID,
             dd.ActivityID,
+            dd.SectionID,
             dd.Quantity,
             dd.UOMID,
             dd.Rate,
