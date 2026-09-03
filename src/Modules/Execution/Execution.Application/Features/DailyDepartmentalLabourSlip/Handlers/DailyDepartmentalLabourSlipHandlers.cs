@@ -444,7 +444,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 detail."ActivityDetails",
 
                 detail."UOMID",
-                uomDetails."UOMShortName",
+                uomDetails."SYMBOL",
                 
                 detail."Quantity",
                 
@@ -458,7 +458,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             LEFT JOIN public."DynamicsVendorMaster" debitVendor
                 ON debitVendor."ID" = detail."DebitPartyID"
             
-            LEFT JOIN public."UnitOfMeasurement" uomDetails
+            LEFT JOIN public."DynamicsUnitMaster" uomDetails
                 ON uomDetails."ID" = detail."UOMID"
 
             LEFT JOIN execution."Activities" act
@@ -686,7 +686,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
 
 
                 var uomShortNameOrdinal =
-                    reader.GetOrdinal("UOMShortName");
+                    reader.GetOrdinal("SYMBOL");
 
                 var quantityOrdinal =
                     reader.GetOrdinal("Quantity");

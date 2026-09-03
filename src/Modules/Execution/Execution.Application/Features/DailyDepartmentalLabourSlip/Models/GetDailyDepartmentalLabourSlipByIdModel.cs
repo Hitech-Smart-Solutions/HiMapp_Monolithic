@@ -96,7 +96,7 @@ namespace Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Mode
         public string? ActivityName { get; init; }
         public string? ActivityDetails { get; init; }
         public int? UomId { get; init; }
-        public string? UOMShortName { get; set; }
+        public string? SYMBOL { get; set; }
         public decimal? Quantity { get; init; }
 
         public int? DebitPartyId { get; init; }
@@ -120,7 +120,7 @@ namespace Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Mode
             string? activityName,
             string? activityDetails,
             int? uomId,
-            string? uomShortName,
+            string? symbol,
             decimal? quantity,
             int? debitPartyId,
             string? debitPartyName,
@@ -141,7 +141,7 @@ namespace Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Mode
             ActivityName = activityName;
             ActivityDetails = activityDetails;
             UomId = uomId;
-            UOMShortName = uomShortName;
+            SYMBOL = symbol;
             Quantity = quantity;
             DebitPartyId = debitPartyId;
             DebitPartyName = debitPartyName;
