@@ -19,7 +19,8 @@ internal sealed class ActivityHandlers :
     IRequestHandler<UpdateActivityCommand, ActivityDto?>,
     IRequestHandler<DeleteActivityCommand, bool>,
     IRequestHandler<GetAllActivitiesQuery, System.Data.DataSet>,
-    IRequestHandler<GetActivityByIdQuery, ActivityDto?>
+    IRequestHandler<GetActivityByIdQuery, ActivityDto?>,
+    IRequestHandler<GetActivityDuplicateQuery, bool>
 {
     private readonly IExecutionDbContext _db;
     public ActivityHandlers(IExecutionDbContext db) => _db = db;
@@ -172,6 +173,20 @@ internal sealed class ActivityHandlers :
                         .FirstOrDefaultAsync(cancellationToken);
 
         return dto;
+    }
+
+    public async Task<bool> Handle(GetActivityDuplicateQuery request, CancellationToken cancellationToken)
+    {
+        var query = _db.Set<Activity>().AsNoTracking()
+            .Where(a => a.CompanyID == request.CompanyID 
+                && a.ActivityName.ToLower() == request.ActivityName.ToLower());
+
+        if (request.ExcludeActivityId.HasValue)
+        {
+            query = query.Where(a => a.ID != request.ExcludeActivityId.Value);
+        }
+
+        return await query.AnyAsync(cancellationToken);
     }
 
     // removed AddParameter helper; using NpgsqlDataAdapter and AddWithValue for parameter handling
