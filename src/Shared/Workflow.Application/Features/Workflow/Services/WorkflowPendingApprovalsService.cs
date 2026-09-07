@@ -262,7 +262,11 @@ public sealed class WorkflowPendingApprovalsService
 
                 ApprovalLevel =
                     reader.GetInt16(
-                        reader.GetOrdinal("ApprovalLevel"))
+                        reader.GetOrdinal("ApprovalLevel")),
+
+                UserID =
+                    reader.GetInt32(
+                        reader.GetOrdinal("UserID"))
             });
         }
 
