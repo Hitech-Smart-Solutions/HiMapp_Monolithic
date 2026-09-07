@@ -34,6 +34,7 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [RequiresApproval(programId: 63, priority: 0)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateDailyDepartmentalLabourSlipRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new UpdateDailyDepartmentalLabourSlipCommand(id, request), cancellationToken);

@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Data;
+using System.Text.Json;
 using DailyProgressEntity = Himapp.Execution.Domain.Entities.DailyProgress;
 using PlanningEntity = Himapp.Execution.Domain.Entities.Planning;
 
@@ -27,7 +28,8 @@ internal sealed class DailyProgressHandlers :
     IRequestHandler<DeleteDailyProgressCommand, bool>,
     IRequestHandler<GetDailyProgressListByProjectQuery, DataSet>,
     IRequestHandler<GetActivityWiseQuantityByProjectQuery, List<ActivityWiseQuantityBySectionModel>>,
-    IRequestHandler<GetDailyProgressByProjectAndDateQuery, DailyProgressModel?>
+    IRequestHandler<GetDailyProgressByProjectAndDateQuery, DailyProgressModel?>,
+    IRequestHandler<GetDailyProgressForApprovalByIdQuery, DailyProgressForApprovalByIDModel?>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
@@ -827,5 +829,166 @@ internal sealed class DailyProgressHandlers :
             p.Caption)).ToArray() ?? Array.Empty<DailyProgressPhotoModel>();
 
         return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details, hindrances, photos);
+    }
+
+    public async Task<DailyProgressForApprovalByIDModel?> Handle(GetDailyProgressForApprovalByIdQuery request, CancellationToken cancellationToken)
+    {
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext.");
+        }
+
+        var connection = dbContext.Database.GetDbConnection();
+
+        try
+        {
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            using var command = connection.CreateCommand();
+
+            command.CommandText = """
+            SELECT
+                "Header",
+                "Details",
+                "Hindrances",
+                "Photos"
+            FROM execution."uspGetDailyProgressForApprovalByID"(
+                @Id,
+                @ProgramId
+            );
+            """;
+
+            var idParameter = command.CreateParameter();
+            idParameter.ParameterName = "@Id";
+            idParameter.Value = request.Id;
+            command.Parameters.Add(idParameter);
+
+            var programIdParameter = command.CreateParameter();
+            programIdParameter.ParameterName = "@ProgramId";
+            programIdParameter.Value = request.programId;
+            command.Parameters.Add(programIdParameter);
+
+            using var reader =
+                await command.ExecuteReaderAsync(cancellationToken);
+
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            // =========================================================
+            // HEADER
+            // =========================================================
+
+            var headerJson = reader.IsDBNull(0)
+                ? null
+                : reader.GetFieldValue<string>(0);
+
+            if (string.IsNullOrWhiteSpace(headerJson))
+            {
+                return null;
+            }
+
+            var header =
+                JsonSerializer.Deserialize<DailyProgressApprovalHeaderDbModel>(
+                    headerJson,
+                    jsonOptions);
+
+            if (header is null)
+            {
+                return null;
+            }
+
+            // =========================================================
+            // DETAILS
+            // =========================================================
+
+            var detailsJson = reader.IsDBNull(1)
+                ? "[]"
+                : reader.GetFieldValue<string>(1);
+
+            var details =
+                JsonSerializer.Deserialize<
+                    DailyProgressDetailForApprovalModel[]>(
+                    detailsJson,
+                    jsonOptions)
+                ?? Array.Empty<DailyProgressDetailForApprovalModel>();
+
+            // =========================================================
+            // HINDRANCES
+            // =========================================================
+
+            var hindrancesJson = reader.IsDBNull(2)
+                ? "[]"
+                : reader.GetFieldValue<string>(2);
+
+            var hindrances =
+                JsonSerializer.Deserialize<
+                    DailyProgressHindranceModel[]>(
+                    hindrancesJson,
+                    jsonOptions)
+                ?? Array.Empty<DailyProgressHindranceModel>();
+
+            // =========================================================
+            // PHOTOS
+            // =========================================================
+
+            var photosJson = reader.IsDBNull(3)
+                ? "[]"
+                : reader.GetFieldValue<string>(3);
+
+            var photos =
+                JsonSerializer.Deserialize<
+                    DailyProgressPhotoModel[]>(
+                    photosJson,
+                    jsonOptions)
+                ?? Array.Empty<DailyProgressPhotoModel>();
+
+            // =========================================================
+            // FINAL MODEL
+            // =========================================================
+
+            return new DailyProgressForApprovalByIDModel
+            {
+                ID = header.ID,
+                UniqueID = header.UniqueID,
+                ProjectID = header.ProjectID,
+                ProjectName = header.ProjectName,
+                DPRCode = header.DPRCode,
+                ReportDate = header.ReportDate,
+                NextDayPlan = header.NextDayPlan,
+                Remarks = header.Remarks,
+                TotalAmount = header.TotalAmount,
+                StatusID = header.StatusID,
+                IsActive = header.IsActive,
+                CreatedBy = header.CreatedBy,
+                CreatedByName = header.CreatedByName,
+                CreatedDate = header.CreatedDate,
+                LastModifiedBy = header.LastModifiedBy,
+                LastModifiedDate = header.LastModifiedDate,
+                NextApproverId = header.NextApproverId,
+                Details = details,
+                Hindrances = hindrances,
+                Photos = photos
+            };
+        }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                await connection.CloseAsync();
+            }
+        }
     }
 }

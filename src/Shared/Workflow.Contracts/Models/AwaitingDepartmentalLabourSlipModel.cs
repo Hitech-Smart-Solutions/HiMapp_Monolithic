@@ -41,4 +41,6 @@ public sealed class AwaitingDepartmentalLabourSlipModel
     public bool IsReference { get; set; }
 
     public short ApprovalLevel { get; set; }
+
+    public int UserID { get; set; }
 }

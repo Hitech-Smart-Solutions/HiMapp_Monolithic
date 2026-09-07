@@ -13,7 +13,7 @@ namespace Himapp.Workflow.Application.Filters;
 /// </summary>
 [AttributeUsage(
     AttributeTargets.Class | AttributeTargets.Method,
-    AllowMultiple = false,
+    AllowMultiple = true,
     Inherited = true)]
 public sealed class RequiresApprovalAttribute : Attribute, IAsyncActionFilter
 {
