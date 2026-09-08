@@ -70,6 +70,9 @@ public sealed class WorkflowPendingApprovalsService
         var statusNameOrdinal =
             reader.GetOrdinal("StatusName");
 
+        var createdByIDOrdinal =
+            reader.GetOrdinal("CreatedByID");
+
         var createdByOrdinal =
             reader.GetOrdinal("CreatedBy");
 
@@ -128,6 +131,11 @@ public sealed class WorkflowPendingApprovalsService
                     reader.IsDBNull(statusNameOrdinal)
                         ? null
                         : reader.GetString(statusNameOrdinal),
+
+                CreatedByID =
+                    reader.IsDBNull(createdByIDOrdinal)
+                        ? null
+                        : reader.GetInt32(createdByIDOrdinal),
 
                 CreatedBy =
                     reader.IsDBNull(createdByOrdinal)
