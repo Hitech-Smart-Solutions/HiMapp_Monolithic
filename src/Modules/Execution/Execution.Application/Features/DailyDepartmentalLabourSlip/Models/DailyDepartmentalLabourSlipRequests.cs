@@ -34,6 +34,8 @@ public sealed class UpdateDailyDepartmentalLabourSlipRequest : IWorkflowApproval
 
     public DateTime? SlipDate { get; set; }
 
+    public string? IssueNumber { get; set; }
+
     public int? PartyID { get; set; }
 
     public string? Remarks { get; set; }
