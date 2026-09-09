@@ -95,6 +95,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.UniqueID,
             dd.LabourCategoryTypeID,
             dd.IsLumSumWork,
+            dd.Justification,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
@@ -147,6 +148,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                     DDLSlipID = entity.ID,
                     LabourCategoryTypeID = d.LabourCategoryTypeId,
                     IsLumSumWork = d.IsLumSumWork,
+                    Justification = d.Justification,
                     NumOfLabour = d.NumOfLabour,
                     FromTime = d.FromTime,
                     TOTime = d.ToTime,
@@ -178,6 +180,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.UniqueID,
             dd.LabourCategoryTypeID,
             dd.IsLumSumWork,
+            dd.Justification,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
@@ -206,6 +209,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         entity.ProjectID = r.ProjectId;
         entity.IssueNumber = entity.IssueNumber;
         entity.SlipDate = r.SlipDate.HasValue ? DateTime.SpecifyKind(r.SlipDate.Value.Date, DateTimeKind.Utc) : entity.SlipDate;
+        entity.IssueNumber = r.IssueNumber;
         entity.PartyID = r.PartyID;
         entity.Remarks = r.Remarks ?? entity.Remarks;
         entity.StatusID = r.StatusID;
@@ -229,6 +233,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                     UniqueID = Guid.NewGuid(),
                     LabourCategoryTypeID = d.LabourCategoryTypeId,
                     IsLumSumWork = d.IsLumSumWork,
+                    Justification = d.Justification,
                     NumOfLabour = d.NumOfLabour,
                     FromTime = d.FromTime,
                     TOTime = d.ToTime,
@@ -259,6 +264,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.UniqueID,
             dd.LabourCategoryTypeID,
             dd.IsLumSumWork,
+            dd.Justification,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
