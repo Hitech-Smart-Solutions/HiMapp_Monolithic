@@ -21,6 +21,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
     IRequestHandler<GetAllDailyDepartmentalLabourSlipsQuery, IEnumerable<DailyDepartmentalLabourSlipModel>>,
     IRequestHandler<GetDailyDepartmentalLabourSlipByIdQuery, DailyDepartmentalLabourSlipModel?>,
     IRequestHandler<CreateDailyDepartmentalLabourSlipCommand, DailyDepartmentalLabourSlipModel>,
+    IRequestHandler<GetDailyDepartmentalLabourSlipsByPartyAndDate, bool>,
     IRequestHandler<UpdateDailyDepartmentalLabourSlipCommand, DailyDepartmentalLabourSlipModel?>,
     IRequestHandler<DeleteDailyDepartmentalLabourSlipCommand, bool>,
     IRequestHandler<DeleteDDLSCommand, bool>,
@@ -195,6 +196,37 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
         return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+    }
+
+    public async Task<bool> Handle(GetDailyDepartmentalLabourSlipsByPartyAndDate request, CancellationToken cancellationToken)
+    {
+        var r = request.Request;
+
+        // SlipDate is required for duplicate checking
+        if (!r.SlipDate.HasValue)
+        {
+            return false;
+        }
+
+        var startDate = DateTime.SpecifyKind(
+            r.SlipDate.Value.Date,
+            DateTimeKind.Utc);
+
+        var endDate = startDate.AddDays(1);
+
+        var exists = await _db.Set<DDLSEntity>()
+            .AsNoTracking()
+            .AnyAsync(
+                x =>
+                    x.ProjectID == r.ProjectId &&
+                    x.PartyID == r.PartyID &&
+                    x.SlipDate.HasValue &&
+                    x.SlipDate.Value >= startDate &&
+                    x.SlipDate.Value < endDate &&
+                    x.IsActive,
+                cancellationToken);
+
+        return exists;
     }
 
     public async Task<DailyDepartmentalLabourSlipModel?> Handle(UpdateDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
