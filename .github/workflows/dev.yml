@@ -18,11 +18,14 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Build Project
-        run: dotnet build --configuration Release --no-restore
+      - name: Restore Dependencies
+        run: dotnet restore HiMapp_Monolithic.csproj
 
-      - name: Publish Project
-        run: dotnet publish -c Release -o ./publish --no-build
+      - name: Build Project
+        run: dotnet build HiMapp_Monolithic.csproj --configuration Release --no-restore
+
+      - name: Publish Execution API
+        run: dotnet publish HiMapp_Monolithic.csproj -c Release -o ./publish --no-restore
 
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
