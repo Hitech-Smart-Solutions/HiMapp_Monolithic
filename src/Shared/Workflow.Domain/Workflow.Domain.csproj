@@ -5,6 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Himapp.Workflow.Domain</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.100.9" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />

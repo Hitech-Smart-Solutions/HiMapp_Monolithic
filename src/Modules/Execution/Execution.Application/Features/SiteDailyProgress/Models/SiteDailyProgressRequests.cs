@@ -15,6 +15,8 @@ public sealed class CreateSiteDailyProgressRequest
 
     public string? NextDayPlan { get; set; }
 
+    public decimal TotalAmount { get; set; }
+
     public List<SiteDailyProgressDetailRequest>? Details { get; set; }
 
     public List<SiteDailyProgressHindranceRequest>? Hindrances { get; set; }
@@ -27,13 +29,15 @@ public sealed class UpdateSiteDailyProgressRequest
     [Required]
     public int ProjectId { get; set; }
 
-    public DateTimeOffset? ReportDate { get; set; }
+    public DateOnly? ReportDate { get; set; }
 
     public string? Remarks { get; set; }
 
     public int? SectionID { get; set; }
 
     public string? NextDayPlan { get; set; }
+
+    public decimal TotalAmount { get; set; }
 
     public List<SiteDailyProgressDetailRequest>? Details { get; set; }
 
@@ -57,6 +61,7 @@ public sealed class SiteDailyProgressModel
     public int? SectionID { get; init; }
 
     public string? NextDayPlan { get; set; }
+    public decimal TotalAmount { get; set; }
     public int? LastModifiedBy { get; init; }
     public DateTimeOffset LastModifiedDate { get; init; }
 
@@ -78,6 +83,7 @@ public sealed class SiteDailyProgressModel
         DateTimeOffset lastModifiedDate,
         int? sectionId,
         string? nextDayPlan,
+        decimal totalAmount,
         IReadOnlyCollection<SiteDailyProgressDetailModel> details,
         IReadOnlyCollection<SiteDailyProgressHindranceModel> hindrances,
         IReadOnlyCollection<SiteDailyProgressPhotoModel> photos)
@@ -93,6 +99,7 @@ public sealed class SiteDailyProgressModel
         LastModifiedDate = lastModifiedDate;
         SectionID = sectionId;
         NextDayPlan = nextDayPlan;
+        TotalAmount = totalAmount;
         Details = details ?? Array.Empty<SiteDailyProgressDetailModel>();
         Hindrances = hindrances ?? Array.Empty<SiteDailyProgressHindranceModel>();
         Photos = photos ?? Array.Empty<SiteDailyProgressPhotoModel>();
@@ -118,4 +125,10 @@ public sealed class SiteDailyProgressPhotoRequest
     public string PhotoUrl { get; set; } = string.Empty;
 
     public string? Caption { get; set; }
+
+    public string? FileName { get; set; }
+
+    public string? FileType { get; set; }
+
+    public int? FileSize { get; set; }
 }

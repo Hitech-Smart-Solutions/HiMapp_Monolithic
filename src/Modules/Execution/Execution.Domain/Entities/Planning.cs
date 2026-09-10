@@ -1,15 +1,15 @@
+using Himapp.SharedKernel.Abstractions;
+
 namespace Himapp.Execution.Domain.Entities;
 
 // EF entity for schema table "Planning" Page Name : Site Execution Planning
-public class Planning
+public class Planning : BaseEntity
 {
     public Planning()
     {
         PlanningDetail = new HashSet<PlanningDetail>();
         PlanningDocumentDetail = new HashSet<PlanningDocumentDetail>();
     }
-    public int ID { get; set; }
-    public Guid UniqueID { get; set; }
 
     public int ProjectID { get; set; }
     public int AreaID { get; set; }
@@ -23,10 +23,6 @@ public class Planning
 
     public bool IsActive { get; set; }
 
-    public int? CreatedBy { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public int? LastModifiedBy { get; set; }
-    public DateTime LastModifiedDate { get; set; }
     public virtual ICollection<PlanningDetail>? PlanningDetail { get; set; }
     public virtual ICollection<PlanningDocumentDetail>? PlanningDocumentDetail { get; set; }
 }

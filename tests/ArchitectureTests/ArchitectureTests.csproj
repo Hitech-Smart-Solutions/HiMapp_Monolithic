@@ -3,4 +3,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Himapp.ArchitectureTests</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.100.9" />
+  </ItemGroup>
 </Project>

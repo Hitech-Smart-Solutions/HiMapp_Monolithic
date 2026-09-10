@@ -2,6 +2,8 @@ using Himapp.Execution.Contracts.References;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+using DailyLabourEntity = Himapp.Execution.Domain.Entities.DailyLabor;
+
 namespace Himapp.Execution.Application.Features.DailyLabor.Services;
 
 internal sealed class DlrCodeGenerator : IDlrCodeGenerator
@@ -52,7 +54,7 @@ internal sealed class DlrCodeGenerator : IDlrCodeGenerator
             }
         }
 
-        var lastCode = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>()
+        var lastCode = await _db.Set<DailyLabourEntity>()
             .AsNoTracking()
             .Where(l => l.ProjectID == projectId)
             .OrderByDescending(l => l.ID)

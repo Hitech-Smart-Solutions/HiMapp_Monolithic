@@ -1,6 +1,11 @@
+using Amazon;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.S3;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Himapp.Admin.Application;
 // Admin.Contracts moved to Admin.Application
 using Himapp.Admin.Infrastructure;
+using Himapp.Api.src.Shared.Middleware;
 using Himapp.Audit;
 using Himapp.Execution.Application;
 // Execution.Contracts moved to Execution.Application
@@ -15,6 +20,7 @@ using Himapp.Safety.Application;
 // Safety.Contracts moved to Safety.Application
 using Himapp.Safety.Infrastructure;
 using Himapp.SharedKernel;
+using Himapp.SharedKernel.Abstractions;
 using Himapp.SharedKernel.Logging;
 using Himapp.Store.Application;
 // Store.Contracts moved to Store.Application
@@ -47,6 +53,13 @@ builder.Services.AddControllers()
     );  // 🔥 Registers the global auto-log action filter for ALL controllers
 builder.Services.AddHealthChecks();
 builder.Services.AddSignalR();
+
+var awsSection = builder.Configuration.GetSection("AWS");
+var accessKey = awsSection["AWS_ACCESS_KEY_ID"];
+var secretKey = awsSection["AWS_SECRET_ACCESS_KEY"];
+var region = RegionEndpoint.GetBySystemName(awsSection["Region"] ?? "ap-south-1");
+
+builder.Services.AddSingleton<IAmazonS3>(sp => new AmazonS3Client(accessKey, secretKey, region));
 
 // Authentication (JWT) - read values from configuration: Jwt:Issuer, Jwt:Audience, Jwt:Key
 builder.Services.AddAuthentication(options =>
@@ -141,6 +154,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
 // Add a logging scope for application-wide enrichment (module/application name)
 var _startupLogger = app.Services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().CreateLogger("Himapp.Startup");
 app.Use(async (context, next) =>
@@ -152,7 +166,7 @@ app.Use(async (context, next) =>
 });
 
 #region 🔹 Middleware
-
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("AllowAllOrigins");

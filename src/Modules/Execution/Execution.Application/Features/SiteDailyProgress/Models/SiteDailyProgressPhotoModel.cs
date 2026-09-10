@@ -8,17 +8,27 @@ namespace Himapp.Execution.Application.Features.SiteDailyProgress.Models
     {
         public int Id { get; init; }
         public Guid UniqueId { get; init; }
+
+        public string? FileName { get; set; }
+        public string? FileType { get; set; }
+        public int? FileSize { get; set; }
         public string PhotoUrl { get; init; } = string.Empty;
         public string? Caption { get; init; }
 
         public SiteDailyProgressPhotoModel(
             int id,
             Guid uniqueId,
+            string? fileName,
+            string? fileType,
+            int? fileSize,
             string photoUrl,
             string? caption)
         {
             Id = id;
             UniqueId = uniqueId;
+            FileName = fileName;
+            FileType = fileType;
+            FileSize = fileSize;
             PhotoUrl = photoUrl;
             Caption = caption;
         }

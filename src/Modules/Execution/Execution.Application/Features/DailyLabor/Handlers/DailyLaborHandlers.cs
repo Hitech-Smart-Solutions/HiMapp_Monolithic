@@ -1,17 +1,24 @@
+using DocumentFormat.OpenXml.InkML;
+using Himapp.Admin.Contracts.Projects;
 using Himapp.Execution.Application.Features.DailyLabor.Commands;
 using Himapp.Execution.Application.Features.DailyLabor.Models;
 using Himapp.Execution.Application.Features.DailyLabor.Queries;
+using Himapp.Execution.Application.Features.DailyProgress.Models;
+using Himapp.Execution.Application.Features.DailyProgress.Queries;
+using Himapp.Execution.Application.Features.Manpower.Models;
 using Himapp.Execution.Application.Features.Manpower.Queries;
 using Himapp.Execution.Contracts;
 using Himapp.Execution.Domain.Entities;
+using Himapp.Execution.Contracts.DailyLabor;
 using Himapp.SharedKernel.Abstractions;
-using Himapp.Admin.Contracts.Projects;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;
+using DailyLaborEntity = Himapp.Execution.Domain.Entities.DailyLabor;
+using ManpowerEntity = Himapp.Execution.Domain.Entities.Manpower;
 
 namespace Himapp.Execution.Application.Features.DailyLabor.Handlers;
 
@@ -23,7 +30,8 @@ internal sealed class DailyLaborHandlers :
     IRequestHandler<DeleteDailyLaborCommand, bool>,
     IRequestHandler<DeleteDailyLaborActionCommand, bool>,
     IRequestHandler<GetConsolidatedDailyLaborQuery, IReadOnlyCollection<DailyLaborConsolidatedModel>>,
-    IRequestHandler<GetDailyLaborByProjectID, DataSet>
+    IRequestHandler<GetDailyLaborByProjectID, DataSet>,
+    IRequestHandler<DPRGetConsolidatedDailyLaborQuery, IReadOnlyCollection<DPRDailyLaborConsolidatedModel>>
 {
     private readonly IExecutionDbContext _db;
     private readonly IProjectDirectory _projectDirectory;
@@ -36,7 +44,7 @@ internal sealed class DailyLaborHandlers :
     public async Task<IReadOnlyCollection<DailyLaborModel>> Handle(GetAllDailyLaborsQuery request, CancellationToken cancellationToken)
     {
         // Return header-only projection for performance (details omitted)
-        return await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>()
+        return await _db.Set<DailyLaborEntity>()
             .AsNoTracking()
             .Where(d => d.IsActive)
             .Select(d => new DailyLaborModel(
@@ -63,12 +71,12 @@ internal sealed class DailyLaborHandlers :
     public async Task<bool> Handle(DeleteDailyLaborActionCommand request, CancellationToken cancellationToken)
     {
         var model = request.addTransactionActionHistoryDTO;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().FirstOrDefaultAsync(a => a.ID == model.ProgramRowId, cancellationToken);
+        var entity = await _db.Set<DailyLaborEntity>().FirstOrDefaultAsync(a => a.ID == model.ProgramRowId, cancellationToken);
 
         if (entity is null) return false;
 
         // Mark child detail records active/inactive
-        var details = await _db.Set<Himapp.Execution.Domain.Entities.DailyLaborDetail>()
+        var details = await _db.Set<DailyLaborDetail>()
             .Where(x => x.DailyLabourID == model.ProgramRowId)
             .ToListAsync(cancellationToken);
 
@@ -86,7 +94,7 @@ internal sealed class DailyLaborHandlers :
 
     public async Task<DailyLaborModel?> Handle(GetDailyLaborByIdQuery request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>()
+        var entity = await _db.Set<DailyLaborEntity>()
             .AsNoTracking()
             .Include(d => d.DailyLaborDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
@@ -103,7 +111,8 @@ internal sealed class DailyLaborHandlers :
             dd.Remarks,
             dd.Mat,
             dd.ContractorName,
-            dd.ActivityID)).ToArray()
+            dd.ActivityID,
+            string.Empty)).ToArray()
             ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(
@@ -136,7 +145,7 @@ internal sealed class DailyLaborHandlers :
             throw new ArgumentException("Invalid Daily Labor status.");
         }
 
-        var entity = new Himapp.Execution.Domain.Entities.DailyLabor
+        var entity = new DailyLaborEntity
         {
             UniqueID = Guid.NewGuid(),
             ProjectID = r.ProjectId,
@@ -164,7 +173,7 @@ internal sealed class DailyLaborHandlers :
         {
             foreach (var d in r.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.DailyLaborDetail
+                var detail = new DailyLaborDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     ContractorID = d.ContractorId,
@@ -177,9 +186,9 @@ internal sealed class DailyLaborHandlers :
                     ActivityID = d.ActivityId,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow,
                     DailyLabor = entity
                 };
 
@@ -187,17 +196,17 @@ internal sealed class DailyLaborHandlers :
             }
         }
 
-        _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().Add(entity);
+        _db.Set<DailyLaborEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID, string.Empty)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(entity.ID, entity.UniqueID, entity.DLRCode, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.ProposedActionPlan, entity.ConstraintsAndReasons, entity.RemoveMenPower, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
     public async Task<bool> Handle(DeleteDailyLaborCommand request, CancellationToken cancellationToken)
     {
         var userId = CurrentUserId;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>().Include(d => d.DailyLaborDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+        var entity = await _db.Set<DailyLaborEntity>().Include(d => d.DailyLaborDetail).FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
         if (entity is null) return false;
 
         // Soft delete header and child details
@@ -211,7 +220,7 @@ internal sealed class DailyLaborHandlers :
             {
                 dd.IsActive = false;
                 dd.LastModifiedBy = userId;
-                dd.LastModifiedDate = DateTimeOffset.UtcNow;
+                dd.LastModifiedDate = DateTime.UtcNow;
             }
         }
 
@@ -222,7 +231,7 @@ internal sealed class DailyLaborHandlers :
     public async Task<DailyLaborModel?> Handle(UpdateDailyLaborCommand request, CancellationToken cancellationToken)
     {
         var userId = CurrentUserId;
-        var entity = await _db.Set<Himapp.Execution.Domain.Entities.DailyLabor>()
+        var entity = await _db.Set<DailyLaborEntity>()
             .Include(d => d.DailyLaborDetail)
             .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
 
@@ -248,11 +257,13 @@ internal sealed class DailyLaborHandlers :
         entity.StateID = (short?)r.Status;
         entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTime.UtcNow;
+        entity.ConstraintsAndReasons = r.ConstraintsAndReasons;
+        entity.ProposedActionPlan = r.ProposedActionPlan;
 
         // Remove existing details (physically) and add new ones
         if (entity.DailyLaborDetail != null && entity.DailyLaborDetail.Any())
         {
-            _db.Set<Himapp.Execution.Domain.Entities.DailyLaborDetail>().RemoveRange(entity.DailyLaborDetail);
+            _db.Set<DailyLaborDetail>().RemoveRange(entity.DailyLaborDetail);
             entity.DailyLaborDetail.Clear();
         }
 
@@ -260,7 +271,7 @@ internal sealed class DailyLaborHandlers :
         {
             foreach (var d in r.Details)
             {
-                var detail = new Himapp.Execution.Domain.Entities.DailyLaborDetail
+                var detail = new DailyLaborDetail
                 {
                     UniqueID = Guid.NewGuid(),
                     ContractorID = d.ContractorId,
@@ -273,9 +284,9 @@ internal sealed class DailyLaborHandlers :
                     ActivityID = d.ActivityId,
                     IsActive = true,
                     CreatedBy = userId,
-                    CreatedDate = DateTimeOffset.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTimeOffset.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow,
                     DailyLabor = entity
                 };
 
@@ -285,14 +296,14 @@ internal sealed class DailyLaborHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID, string.Empty)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(entity.ID, entity.UniqueID, entity.DLRCode, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.ProposedActionPlan, entity.ConstraintsAndReasons, entity.RemoveMenPower, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<IReadOnlyCollection<DailyLaborConsolidatedModel>> Handle(GetConsolidatedDailyLaborQuery request, CancellationToken cancellationToken)
     {
-        var result = await _db.Set<Himapp.Execution.Domain.Entities.Manpower>()
+        var result = await _db.Set<ManpowerEntity>()
             .AsNoTracking()
             .Where(m =>
                 m.ProjectID == request.ProjectId &&
@@ -333,9 +344,6 @@ internal sealed class DailyLaborHandlers :
     {
         var p = request.SearchParamsProjectWise ?? new SearchParamsProjectWise();
 
-        // Prepare DataSet
-        var ds = new System.Data.DataSet("ActivitiesResult");
-
         // Force Npgsql path: require the underlying DbContext to obtain connection string
         var dbContext = _db as DbContext;
         if (dbContext is null)
@@ -370,7 +378,7 @@ internal sealed class DailyLaborHandlers :
         using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetdailylaborcountbyprojectid(@p_projectid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd2.CommandType = CommandType.Text;
-            cmd2.CommandTimeout = 30;
+            cmd2.CommandTimeout = 10;
             cmd2.Parameters.AddWithValue("@p_projectid", NpgsqlDbType.Integer, p.ProjectID);
             cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd2.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
@@ -388,5 +396,47 @@ internal sealed class DailyLaborHandlers :
         return dsLocal;
     }
 
-}
+    public async Task<IReadOnlyCollection<DPRDailyLaborConsolidatedModel>> Handle(DPRGetConsolidatedDailyLaborQuery request, CancellationToken cancellationToken)
+    {
+        var result = await (
+            from dl in _db.Set<Domain.Entities.DailyLabor>()
+            .AsNoTracking()
+            from d in dl.DailyLaborDetail!
 
+            join a in _db.Set<Domain.Entities.Activity>()
+                on d.ActivityID equals a.ID
+
+            where
+                DateOnly.FromDateTime(dl.DLRDate) == request.Date &&
+                dl.ProjectID == request.ProjectId &&
+                dl.IsActive &&
+                d.IsActive
+
+            group new { d, a } by new
+            {
+                d.ContractorID,
+                d.ContractorName,
+                d.ActivityID,
+                a.ActivityName
+            }
+            into g
+
+            select new DPRDailyLaborConsolidatedModel(
+                g.Key.ContractorID,
+                g.Key.ContractorName,
+                g.Key.ActivityID,
+                g.Key.ActivityName,
+                g.Sum(x => x.d.Skilled ?? 0),
+                g.Sum(x => x.d.UnSkilled ?? 0),
+                g.Sum(x => x.d.Mat ?? 0),
+                g.Sum(x =>
+                    (x.d.Skilled ?? 0) +
+                    (x.d.UnSkilled ?? 0) +
+                    (x.d.Mat ?? 0))
+            )
+        ).ToArrayAsync(cancellationToken);
+
+        return result;
+    }
+
+}

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize]
 [Route("v1/execution/manpowers")]
 public sealed class ManpowersController : ControllerBase
 {

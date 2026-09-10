@@ -76,9 +76,13 @@ public sealed class PlanningsController : ControllerBase
         {
             return BadRequest("Delete request is required.");
         }
-        else if (dtoInactive.ProgramRowId != dtoInactive.ProgramRowId)
+        else if (dtoInactive.ProgramId <= 0)
         {
-            return BadRequest("Planning ID does not match.");
+            return BadRequest("Program ID is required.");
+        }
+        else if (dtoInactive.ProgramRowId <= 0)
+        {
+            return BadRequest("Planning ID is required.");
         }
 
         var deleted = await _mediator.Send(new DeletePlanningCommand(dtoInactive), cancellationToken);

@@ -48,6 +48,8 @@ public sealed class UpdateDailyLaborRequest
     public DateTime ReportDate { get; set; }
 
     public string? Remarks { get; set; }
+    public string? ConstraintsAndReasons { get; set; }
+    public string? ProposedActionPlan { get; set; }
 
     public int Status { get; set; } = 1;
 

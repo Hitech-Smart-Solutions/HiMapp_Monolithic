@@ -12,22 +12,47 @@ internal sealed class DailyLaborConfiguration : IEntityTypeConfiguration<DailyLa
 
         builder.HasKey(x => x.ID);
 
-        builder.Property(x => x.UniqueID).IsRequired();
-        builder.Property(x => x.DLRDate).HasColumnName("ReportDate");
-        builder.Property(x => x.DLRCode).HasMaxLength(50);
-        builder.Property(x => x.Remarks).HasMaxLength(1000);
-        builder.Property(x => x.StateID).HasColumnType("smallint");
+        builder.Property(x => x.ID)
+            .HasColumnName("ID");
 
-        // Ensure DLRCode is unique across the table to help enforce concurrency-safe generation
-        builder.HasIndex(x => x.DLRCode).IsUnique();
+        builder.Property(x => x.UniqueID)
+            .HasColumnName("UniqueID")
+            .IsRequired();
 
-        // One-to-many: DailyLabor -> DailyLaborDetail
-        // We choose Cascade delete here to ensure child details are removed when a header
-        // is deleted at the database level. Application layer performs soft-delete for headers,
-        // so cascade is a safety for physical deletes only in exceptional maintenance flows.
+        builder.Property(x => x.CreatedDate)
+            .HasColumnName("CreatedDate");
+
+        builder.Property(x => x.CreatedBy)
+            .HasColumnName("CreatedBy");
+
+        builder.Property(x => x.LastModifiedDate)
+            .HasColumnName("LastModifiedDate");
+
+        builder.Property(x => x.LastModifiedBy)
+            .HasColumnName("LastModifiedBy");
+
+        builder.Property(x => x.DLRDate)
+            .HasColumnName("ReportDate");
+
+        builder.Property(x => x.DLRCode)
+            .HasMaxLength(50);
+
+        builder.Property(x => x.Remarks)
+            .HasMaxLength(1000);
+
+        builder.Property(x => x.StateID)
+            .HasColumnType("smallint");
+
+        builder.HasIndex(x => x.DLRCode)
+            .IsUnique();
+
         builder.HasMany(d => d.DailyLaborDetail)
-               .WithOne(d => d.DailyLabor)
-               .HasForeignKey(d => d.DailyLabourID)
-               .OnDelete(DeleteBehavior.Cascade);
+            .WithOne(d => d.DailyLabor)
+            .HasForeignKey(d => d.DailyLabourID)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Ignore(x => x.Id);
+        builder.Ignore(x => x.CreatedAt);
+        builder.Ignore(x => x.ModifiedAt);
+        builder.Ignore(x => x.ModifiedBy);
     }
 }

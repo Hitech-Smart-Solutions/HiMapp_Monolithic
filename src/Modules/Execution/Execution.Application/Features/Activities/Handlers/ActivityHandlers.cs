@@ -19,7 +19,8 @@ internal sealed class ActivityHandlers :
     IRequestHandler<UpdateActivityCommand, ActivityDto?>,
     IRequestHandler<DeleteActivityCommand, bool>,
     IRequestHandler<GetAllActivitiesQuery, System.Data.DataSet>,
-    IRequestHandler<GetActivityByIdQuery, ActivityDto?>
+    IRequestHandler<GetActivityByIdQuery, ActivityDto?>,
+    IRequestHandler<GetActivityDuplicateQuery, bool>
 {
     private readonly IExecutionDbContext _db;
     public ActivityHandlers(IExecutionDbContext db) => _db = db;
@@ -39,9 +40,9 @@ internal sealed class ActivityHandlers :
             OutputRequired = request.OutputRequired,
             IsActive = true,
             CreatedBy = request.CreateBy,
-            CreatedDate = DateTimeOffset.UtcNow,
+            CreatedDate = DateTime.UtcNow,
             LastModifiedBy = request.LastModifiedBy,
-            LastModifiedDate = DateTimeOffset.UtcNow
+            LastModifiedDate = DateTime.UtcNow
         };
 
         _db.Set<Activity>().Add(entity);
@@ -64,7 +65,7 @@ internal sealed class ActivityHandlers :
         entity.OtherLabourRate = request.OtherLabourRate;
         entity.OutputRequired = request.OutputRequired;
         entity.LastModifiedBy = request.LastModifiedBy;
-        entity.LastModifiedDate = DateTimeOffset.UtcNow;
+        entity.LastModifiedDate = DateTime.UtcNow;
 
         await _db.SaveChangesAsync(cancellationToken);
 
@@ -99,9 +100,6 @@ internal sealed class ActivityHandlers :
     {
         var p = request.SearchParams ?? new SearchParams();
 
-        // Prepare DataSet
-        var ds = new System.Data.DataSet("ActivitiesResult");
-
         // Force Npgsql path: require the underlying DbContext to obtain connection string
         var dbContext = _db as DbContext;
         if (dbContext is null)
@@ -117,7 +115,7 @@ internal sealed class ActivityHandlers :
         using (var cmd = new NpgsqlCommand("SELECT * FROM execution.uspgetexecutionactivitiesbycompanyid(@p_companyid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd.CommandType = CommandType.Text;
-            cmd.CommandTimeout = 30;
+            cmd.CommandTimeout = 10;
             cmd.Parameters.AddWithValue("@p_companyid", NpgsqlDbType.Integer, p.CompanyID);
             cmd.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
@@ -136,7 +134,7 @@ internal sealed class ActivityHandlers :
         using (var cmd2 = new NpgsqlCommand("SELECT cnt FROM execution.uspgetexecutionactivitiescountbycompanyid(@p_companyid,@p_filtercolumn,@p_filtervalue,@p_pageindex,@p_pagesize,@p_sortcolumn,@p_isactive)", conn))
         {
             cmd2.CommandType = CommandType.Text;
-            cmd2.CommandTimeout = 30;
+            cmd2.CommandTimeout = 10;
             cmd2.Parameters.AddWithValue("@p_companyid", NpgsqlDbType.Integer, p.CompanyID);
             cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterColumn) ? (object)DBNull.Value : p.FilterColumn);
             cmd2.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(p.FilterValue) ? (object)DBNull.Value : p.FilterValue);
@@ -175,6 +173,20 @@ internal sealed class ActivityHandlers :
                         .FirstOrDefaultAsync(cancellationToken);
 
         return dto;
+    }
+
+    public async Task<bool> Handle(GetActivityDuplicateQuery request, CancellationToken cancellationToken)
+    {
+        var query = _db.Set<Activity>().AsNoTracking()
+            .Where(a => a.CompanyID == request.CompanyID 
+                && a.ActivityName.ToLower() == request.ActivityName.ToLower());
+
+        if (request.ExcludeActivityId.HasValue)
+        {
+            query = query.Where(a => a.ID != request.ExcludeActivityId.Value);
+        }
+
+        return await query.AnyAsync(cancellationToken);
     }
 
     // removed AddParameter helper; using NpgsqlDataAdapter and AddWithValue for parameter handling

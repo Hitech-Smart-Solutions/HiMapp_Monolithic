@@ -10,10 +10,11 @@ public sealed class DailyLaborDetailModel
     public int? UnSkilled { get; init; }
     public string? Remarks { get; init; }
     public int? Mat { get; init; }
-    public string? ContractorName { get; init; }
+    public string? ContractorName { get; init; } = string.Empty;
     public int? ActivityId { get; init; }
+    public string? ActivityName { get; init; } = string.Empty;
 
-    public DailyLaborDetailModel(int id, Guid uniqueId, int? contractorId, int? categoryId, int? skilled, int? unSkilled, string? remarks, int? mat, string? contractorName, int? activityId)
+    public DailyLaborDetailModel(int id, Guid uniqueId, int? contractorId, int? categoryId, int? skilled, int? unSkilled, string? remarks, int? mat, string? contractorName, int? activityId, string? activityName)
     {
         Id = id;
         UniqueId = uniqueId;
@@ -25,6 +26,7 @@ public sealed class DailyLaborDetailModel
         Mat = mat;
         ContractorName = contractorName;
         ActivityId = activityId;
+        ActivityName = activityName;
     }
 }
 

@@ -1,5 +1,7 @@
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Office2016.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Himapp.Api.src.Shared.Exceptions;
 using Himapp.Execution.Application.Features.Planning.Commands;
 using Himapp.Execution.Application.Features.Planning.Models;
 using Himapp.Execution.Application.Features.Planning.Queries;
@@ -7,6 +9,8 @@ using Himapp.Execution.Application.Features.Planning.Services;
 using Himapp.Execution.Application.Features.Planning.Services.IServices;
 using Himapp.Execution.Contracts;
 using Himapp.Execution.Domain.Entities;
+using Himapp.Files.Services;
+using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -27,11 +31,14 @@ internal sealed class PlanningHandlers :
     IRequestHandler<DownloadPlanningTemplateQuery, byte[]>
 {
     private readonly IExecutionDbContext _db;
-    private readonly Himapp.Files.Services.IFileService _fileService;
+    private readonly IFileService _fileService;
     private readonly IExcelPlanningImporter _excelImporter;
     private readonly IPlanningSectionService _planningSectionService;
+    private readonly ICurrentUser _currentUser;
 
-    public PlanningHandlers(IExecutionDbContext db, Himapp.Files.Services.IFileService fileService, IExcelPlanningImporter excelImporter, IPlanningSectionService planningSectionService) => (_db, _fileService, _excelImporter, _planningSectionService) = (db, fileService, excelImporter, planningSectionService);
+    public PlanningHandlers(IExecutionDbContext db, IFileService fileService, IExcelPlanningImporter excelImporter, IPlanningSectionService planningSectionService, ICurrentUser currentUser) => (_db, _fileService, _excelImporter, _planningSectionService, _currentUser) = (db, fileService, excelImporter, planningSectionService, currentUser);
+
+    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
 
     public async Task<IReadOnlyCollection<PlanningModel>> Handle(GetAllPlanningsQuery request, CancellationToken cancellationToken)
     {
@@ -85,9 +92,9 @@ internal sealed class PlanningHandlers :
             Remarks = r.Remarks,
             StatusID = 3,
             IsActive = true,
-            CreatedBy = r.CreatedBy,
+            CreatedBy = CurrentUserId,
             CreatedDate = DateTime.UtcNow,
-            LastModifiedBy = r.CreatedBy,
+            LastModifiedBy = CurrentUserId,
             LastModifiedDate = DateTime.UtcNow
         };
 
@@ -104,9 +111,9 @@ internal sealed class PlanningHandlers :
                     UOMID = d.UomId,
                     Remarks = d.Remarks,
                     IsActive = true,
-                    CreatedBy = r.CreatedBy,
+                    CreatedBy = CurrentUserId,
                     CreatedDate = DateTime.UtcNow,
-                    LastModifiedBy = r.CreatedBy,
+                    LastModifiedBy = CurrentUserId,
                     LastModifiedDate = DateTime.UtcNow
                 };
 
@@ -234,26 +241,26 @@ internal sealed class PlanningHandlers :
 
     public async Task<bool> Handle(DeletePlanningCommand request, CancellationToken cancellationToken)
     {
+        var userId = CurrentUserId;
         var entity = await _db.Set<PlanningEntity>()
             .Include(d => d.PlanningDetail)
             .Include(x => x.PlanningDocumentDetail)
             .FirstOrDefaultAsync(x => x.ID == request.dtoInactive.ProgramRowId, cancellationToken);
         if (entity is null) return false;
 
-        bool isActive = request.dtoInactive.Actions == Actions.Activated;
 
         // Soft delete header and child details
-        entity.IsActive = isActive;
-        entity.LastModifiedBy = request.dtoInactive.UserId;
+        entity.IsActive = false;
+        entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTime.UtcNow;
 
         if (entity.PlanningDetail != null)
         {
-            foreach (var pd in entity.PlanningDetail)
+            foreach (var dd in entity.PlanningDetail)
             {
-                pd.IsActive = isActive;
-                pd.LastModifiedBy = request.dtoInactive.UserId;
-                pd.LastModifiedDate = DateTime.UtcNow;
+                dd.IsActive = false;
+                dd.LastModifiedBy = userId;
+                dd.LastModifiedDate = DateTime.UtcNow;
             }
         }
 
@@ -261,8 +268,8 @@ internal sealed class PlanningHandlers :
         {
             foreach (var pd in entity.PlanningDocumentDetail)
             {
-                pd.IsActive = isActive;
-                pd.LastModifiedBy = request.dtoInactive.UserId;
+                pd.IsActive = false;
+                pd.LastModifiedBy = userId;
                 pd.LastModifiedDate = DateTime.UtcNow;
             }
         }
@@ -407,7 +414,7 @@ internal sealed class PlanningHandlers :
         var parseResult = await _excelImporter.ParseAsync(r.ExcelFile, r.ProjectId, cancellationToken);
         if (parseResult.Errors.Any())
         {
-            throw new InvalidOperationException(string.Join("||", parseResult.Errors));
+            throw new BadRequestException(string.Join("||", parseResult.Errors));
         }
 
         // Handle attachment via file service (register once and reuse for all plannings)
@@ -478,7 +485,7 @@ internal sealed class PlanningHandlers :
 
             if (sections == null || !sections.Any())
             {
-                throw new InvalidOperationException("No active sections configured for this project.");
+                throw new NotFoundException("No active sections configured for this project.");
             }
 
             var sectionsList = sections.ToList();
@@ -493,7 +500,7 @@ internal sealed class PlanningHandlers :
 
             if (!paList.Any())
             {
-                throw new InvalidOperationException("No applicable activities found for this project.");
+                throw new NotFoundException("No applicable activities found for this project.");
             }
 
             // Get activity IDs
@@ -501,7 +508,7 @@ internal sealed class PlanningHandlers :
 
             if (!activityIds.Any())
             {
-                throw new InvalidOperationException($"No Activity IDs found for project {request.ProjectId}.");
+                throw new NotFoundException($"No Activity IDs found for project {request.ProjectId}.");
             }
 
             // Get activity masters
@@ -513,7 +520,7 @@ internal sealed class PlanningHandlers :
             // GET UOM NAMES
             if (!activityMasters.Any())
             {
-                throw new InvalidOperationException($"No active activities found for project {request.ProjectId}.");
+                throw new NotFoundException($"No active activities found for project {request.ProjectId}.");
             }
 
             // Get UOM IDs from activities
@@ -694,14 +701,12 @@ internal sealed class PlanningHandlers :
             wb.SaveAs(ms);
             return ms.ToArray();
         }
-        catch (InvalidOperationException)
+        catch (AppException)
         {
-            // Preserve business validation errors
             throw;
         }
         catch (Exception ex)
         {
-            // IMPORTANT: log the actual exception and inner exception
             var innerMessage = ex.InnerException?.Message;
 
             throw new InvalidOperationException(
@@ -709,7 +714,8 @@ internal sealed class PlanningHandlers :
                 $"Error: {ex.Message}" +
                 (!string.IsNullOrWhiteSpace(innerMessage)
                     ? $" | Inner Exception: {innerMessage}"
-                    : string.Empty), ex);
+                    : string.Empty),
+                ex);
         }
     }
 }

@@ -25,7 +25,6 @@ public sealed class SafetyDbContext : DbContext, ISafetyDbContext
             b.Property(x => x.SessionDate).IsRequired();
             b.Property(x => x.ProjectId).IsRequired();
             b.Property(x => x.CreatedAt).IsRequired();
-            b.Property(x => x.RowVersion).IsRowVersion();
             b.Ignore(x => x.AttendeeLabourIds);
         });
     }
