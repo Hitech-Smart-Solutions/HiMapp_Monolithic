@@ -10,8 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-[Authorize]
-
+//[Authorize]
 [Route("v1/execution/daily-departmental-labour-slips")]
 public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
 {
@@ -27,7 +26,7 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
         OkOrNotFound(await _mediator.Send(new GetDailyDepartmentalLabourSlipByIdQuery(id), cancellationToken));
 
     [HttpPost]
-    [RequiresApproval(programId: 63, priority: 1)]
+    [RequiresApproval(programId: 63, priority: 0)]
     public async Task<IActionResult> Create([FromBody] CreateDailyDepartmentalLabourSlipRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new CreateDailyDepartmentalLabourSlipCommand(request), cancellationToken);
@@ -35,6 +34,7 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [RequiresApproval(programId: 63, priority: 0)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateDailyDepartmentalLabourSlipRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new UpdateDailyDepartmentalLabourSlipCommand(id, request), cancellationToken);

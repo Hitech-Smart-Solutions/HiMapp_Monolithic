@@ -61,6 +61,7 @@ public sealed class DailyProgressController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [RequiresApproval(programId: 97, priority: 0)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateDailyProgressRequest request, CancellationToken cancellationToken)
     {
         if (request == null)
@@ -151,6 +152,17 @@ public sealed class DailyProgressController : ControllerBase
         var result = await _mediator.Send(new GetDailyProgressByProjectAndDateQuery(projectId, reportDate), cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("GetProjectDPRForApprovalById/{id:int}/{programId:int}")]
+    public async Task<IActionResult> GetProjectDPRForApprovalById(int id, int programId, CancellationToken cancellationToken)
+    {
+        if (id <= 0)
+        {
+            return BadRequest("Project DPR ID is required.");
+        }
+
+        return OkOrNotFound(await _mediator.Send(new GetDailyProgressForApprovalByIdQuery(id, programId), cancellationToken));
     }
 
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);

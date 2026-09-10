@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Data;
+using System.Text.Json;
 using DailyProgressEntity = Himapp.Execution.Domain.Entities.DailyProgress;
 using PlanningEntity = Himapp.Execution.Domain.Entities.Planning;
 
@@ -27,7 +28,8 @@ internal sealed class DailyProgressHandlers :
     IRequestHandler<DeleteDailyProgressCommand, bool>,
     IRequestHandler<GetDailyProgressListByProjectQuery, DataSet>,
     IRequestHandler<GetActivityWiseQuantityByProjectQuery, List<ActivityWiseQuantityBySectionModel>>,
-    IRequestHandler<GetDailyProgressByProjectAndDateQuery, DailyProgressModel?>
+    IRequestHandler<GetDailyProgressByProjectAndDateQuery, DailyProgressModel?>,
+    IRequestHandler<GetDailyProgressForApprovalByIdQuery, DailyProgressForApprovalByIDModel?>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
@@ -150,6 +152,7 @@ internal sealed class DailyProgressHandlers :
                         dd.ID,
                         dd.UniqueID,
                         dd.ActivityID,
+                        dd.SectionID,
                         dd.Quantity,
                         dd.UOMID,
                         dd.Rate,
@@ -280,11 +283,14 @@ internal sealed class DailyProgressHandlers :
                 {
                     UniqueID = Guid.NewGuid(),
                     ActivityID = d.ActivityId,
+                    SectionID = d.SectionId,
                     Quantity = d.Quantity,
                     UOMID = d.UOMID,
                     Rate = d.Rate,
                     PlanQuantity = d.PlanQuantity,
                     Remarks = d.Remarks,
+                    Amount = d.Amount,
+                    Variance = d.Variance,
                     IsActive = true,
                     CreatedBy = userId,
                     CreatedDate = DateTime.UtcNow,
@@ -343,7 +349,7 @@ internal sealed class DailyProgressHandlers :
         _db.Set<DailyProgressEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
+        var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.SectionID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
         var hindrances = entity.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
             h.ID,
             h.UniqueID,
@@ -395,11 +401,14 @@ internal sealed class DailyProgressHandlers :
                 {
                     UniqueID = Guid.NewGuid(),
                     ActivityID = d.ActivityId,
+                    SectionID = d.SectionId,
                     Quantity = d.Quantity,
                     UOMID = d.UOMID,
                     Rate = d.Rate,
                     PlanQuantity = d.PlanQuantity,
                     Remarks = d.Remarks,
+                    Amount = d.Amount,
+                    Variance = d.Variance,
                     IsActive = true,
                     CreatedBy = LastModifiedBy,
                     CreatedDate = DateTime.UtcNow,
@@ -470,7 +479,7 @@ internal sealed class DailyProgressHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
+        var details = entity.DailyProgressDetail?.Select(dd => new DailyProgressDetailModel(dd.ID, dd.UniqueID, dd.ActivityID, dd.SectionID, dd.Quantity, dd.UOMID, dd.Rate, dd.Amount, dd.PlanQuantity, dd.Variance, dd.Remarks)).ToArray() ?? Array.Empty<DailyProgressDetailModel>();
         var hindrances = entity.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
             h.ID,
             h.UniqueID,
@@ -681,7 +690,7 @@ internal sealed class DailyProgressHandlers :
 
         var result = new List<ActivityWiseQuantityBySectionModel>();
 
-        if (connection.State != System.Data.ConnectionState.Open)
+        if (connection.State != ConnectionState.Open)
         {
             await connection.OpenAsync(cancellationToken);
         }
@@ -691,44 +700,11 @@ internal sealed class DailyProgressHandlers :
             using var command = connection.CreateCommand();
 
             command.CommandText = """
-                SELECT
-                    pd."ActivityID" AS "ActivityID",
-                    activity."ActivityName" AS "ActivityName",
-                    SUM(pd."TargetQuantity") AS "TargetQuantity",
-                    pd."UOMID" AS "UOMID",
-                    uom."UOMName" AS "UOMName",
-                    uom."UOMShortName" AS "UOMShortName",
-                    MAX(am."RevenueRate") AS "RevenueRate"
-
-                FROM execution."Plannings" p
-
-                INNER JOIN execution."PlanningDetails" pd
-                    ON p."ID" = pd."PlanningID"
-
-                INNER JOIN execution."Activities" activity
-                    ON pd."ActivityID" = activity."ID"
-
-                INNER JOIN execution."ProjectActivities" am
-                	ON activity."ID" = am."ActivityID"
-
-                LEFT JOIN public."UnitOfMeasurement" uom
-                    ON pd."UOMID" = uom."ID"
-
-                WHERE
-                    p."ProjectID" = @ProjectID
-                    AND @ReportDate BETWEEN p."StartDate" AND p."EndDate"
-                    AND p."IsActive" = TRUE
-                    AND pd."IsActive" = TRUE
-
-                GROUP BY
-                    pd."ActivityID",
-                    activity."ActivityName",
-                    pd."UOMID",
-                    uom."UOMName",
-                    uom."UOMShortName"
-
-                ORDER BY
-                    activity."ActivityName";
+                SELECT *
+                FROM execution."uspGetActivityWiseQuantityByProjectID"(
+                    @ProjectID,
+                    @ReportDate
+                );
                 """;
 
             var projectIdParameter = command.CreateParameter();
@@ -743,25 +719,40 @@ internal sealed class DailyProgressHandlers :
 
             using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
+            var sectionIdOrdinal = reader.GetOrdinal("SectionID");
+            var sectionNameOrdinal = reader.GetOrdinal("SectionName");
             var activityIdOrdinal = reader.GetOrdinal("ActivityID");
             var activityNameOrdinal = reader.GetOrdinal("ActivityName");
             var targetQuantityOrdinal = reader.GetOrdinal("TargetQuantity");
             var uomIdOrdinal = reader.GetOrdinal("UOMID");
             var uomNameOrdinal = reader.GetOrdinal("UOMName");
             var uomShortNameOrdinal = reader.GetOrdinal("UOMShortName");
-            var revenueRate = reader.GetOrdinal("RevenueRate");
+            var revenueRateOrdinal = reader.GetOrdinal("RevenueRate");
+            var quantityOrdinal = reader.GetOrdinal("ActualQuantity");
 
             while (await reader.ReadAsync(cancellationToken))
             {
                 result.Add(new ActivityWiseQuantityBySectionModel
                 {
+                    SectionID = reader.GetInt32(sectionIdOrdinal),
+
+                    SectionName = reader.IsDBNull(sectionNameOrdinal)
+                        ? string.Empty
+                        : reader.GetString(sectionNameOrdinal),
+
                     ActivityID = reader.GetInt32(activityIdOrdinal),
 
                     ActivityName = reader.IsDBNull(activityNameOrdinal)
-                        ? null
+                        ? string.Empty
                         : reader.GetString(activityNameOrdinal),
 
-                    TargetQuantity = reader.GetDecimal(targetQuantityOrdinal),
+                    TargetQuantity = reader.IsDBNull(targetQuantityOrdinal)
+                        ? 0
+                        : reader.GetDecimal(targetQuantityOrdinal),
+
+                    ActualQuantity = reader.IsDBNull(quantityOrdinal)
+                        ? 0
+                        : reader.GetDecimal(quantityOrdinal),
 
                     UOMID = reader.IsDBNull(uomIdOrdinal)
                         ? 0
@@ -775,15 +766,22 @@ internal sealed class DailyProgressHandlers :
                         ? string.Empty
                         : reader.GetString(uomShortNameOrdinal),
 
-                    RevenueRate = reader.IsDBNull(revenueRate)
+                    RevenueRate = reader.IsDBNull(revenueRateOrdinal)
                         ? 0
-                        : reader.GetDecimal(revenueRate)
+                        : reader.GetDecimal(revenueRateOrdinal)
                 });
             }
         }
+        catch (Exception ex)
+        {
+            // PUT BREAKPOINT HERE
+            Console.WriteLine(ex.ToString());
+
+            throw;
+        }
         finally
         {
-            if (connection.State == System.Data.ConnectionState.Open)
+            if (connection.State == ConnectionState.Open)
             {
                 await connection.CloseAsync();
             }
@@ -806,6 +804,7 @@ internal sealed class DailyProgressHandlers :
             dd.ID,
             dd.UniqueID,
             dd.ActivityID,
+            dd.SectionID,
             dd.Quantity,
             dd.UOMID,
             dd.Rate,
@@ -830,5 +829,166 @@ internal sealed class DailyProgressHandlers :
             p.Caption)).ToArray() ?? Array.Empty<DailyProgressPhotoModel>();
 
         return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details, hindrances, photos);
+    }
+
+    public async Task<DailyProgressForApprovalByIDModel?> Handle(GetDailyProgressForApprovalByIdQuery request, CancellationToken cancellationToken)
+    {
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext.");
+        }
+
+        var connection = dbContext.Database.GetDbConnection();
+
+        try
+        {
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            using var command = connection.CreateCommand();
+
+            command.CommandText = """
+            SELECT
+                "Header",
+                "Details",
+                "Hindrances",
+                "Photos"
+            FROM execution."uspGetDailyProgressForApprovalByID"(
+                @Id,
+                @ProgramId
+            );
+            """;
+
+            var idParameter = command.CreateParameter();
+            idParameter.ParameterName = "@Id";
+            idParameter.Value = request.Id;
+            command.Parameters.Add(idParameter);
+
+            var programIdParameter = command.CreateParameter();
+            programIdParameter.ParameterName = "@ProgramId";
+            programIdParameter.Value = request.programId;
+            command.Parameters.Add(programIdParameter);
+
+            using var reader =
+                await command.ExecuteReaderAsync(cancellationToken);
+
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            // =========================================================
+            // HEADER
+            // =========================================================
+
+            var headerJson = reader.IsDBNull(0)
+                ? null
+                : reader.GetFieldValue<string>(0);
+
+            if (string.IsNullOrWhiteSpace(headerJson))
+            {
+                return null;
+            }
+
+            var header =
+                JsonSerializer.Deserialize<DailyProgressApprovalHeaderDbModel>(
+                    headerJson,
+                    jsonOptions);
+
+            if (header is null)
+            {
+                return null;
+            }
+
+            // =========================================================
+            // DETAILS
+            // =========================================================
+
+            var detailsJson = reader.IsDBNull(1)
+                ? "[]"
+                : reader.GetFieldValue<string>(1);
+
+            var details =
+                JsonSerializer.Deserialize<
+                    DailyProgressDetailForApprovalModel[]>(
+                    detailsJson,
+                    jsonOptions)
+                ?? Array.Empty<DailyProgressDetailForApprovalModel>();
+
+            // =========================================================
+            // HINDRANCES
+            // =========================================================
+
+            var hindrancesJson = reader.IsDBNull(2)
+                ? "[]"
+                : reader.GetFieldValue<string>(2);
+
+            var hindrances =
+                JsonSerializer.Deserialize<
+                    DailyProgressHindranceModel[]>(
+                    hindrancesJson,
+                    jsonOptions)
+                ?? Array.Empty<DailyProgressHindranceModel>();
+
+            // =========================================================
+            // PHOTOS
+            // =========================================================
+
+            var photosJson = reader.IsDBNull(3)
+                ? "[]"
+                : reader.GetFieldValue<string>(3);
+
+            var photos =
+                JsonSerializer.Deserialize<
+                    DailyProgressPhotoModel[]>(
+                    photosJson,
+                    jsonOptions)
+                ?? Array.Empty<DailyProgressPhotoModel>();
+
+            // =========================================================
+            // FINAL MODEL
+            // =========================================================
+
+            return new DailyProgressForApprovalByIDModel
+            {
+                ID = header.ID,
+                UniqueID = header.UniqueID,
+                ProjectID = header.ProjectID,
+                ProjectName = header.ProjectName,
+                DPRCode = header.DPRCode,
+                ReportDate = header.ReportDate,
+                NextDayPlan = header.NextDayPlan,
+                Remarks = header.Remarks,
+                TotalAmount = header.TotalAmount,
+                StatusID = header.StatusID,
+                IsActive = header.IsActive,
+                CreatedBy = header.CreatedBy,
+                CreatedByName = header.CreatedByName,
+                CreatedDate = header.CreatedDate,
+                LastModifiedBy = header.LastModifiedBy,
+                LastModifiedDate = header.LastModifiedDate,
+                NextApproverId = header.NextApproverId,
+                Details = details,
+                Hindrances = hindrances,
+                Photos = photos
+            };
+        }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                await connection.CloseAsync();
+            }
+        }
     }
 }

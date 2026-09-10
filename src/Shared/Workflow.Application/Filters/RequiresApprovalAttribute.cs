@@ -13,7 +13,7 @@ namespace Himapp.Workflow.Application.Filters;
 /// </summary>
 [AttributeUsage(
     AttributeTargets.Class | AttributeTargets.Method,
-    AllowMultiple = false,
+    AllowMultiple = true,
     Inherited = true)]
 public sealed class RequiresApprovalAttribute : Attribute, IAsyncActionFilter
 {
@@ -83,16 +83,16 @@ public sealed class RequiresApprovalAttribute : Attribute, IAsyncActionFilter
             Priority,
             context.HttpContext.RequestAborted);
 
+        if (nextApprover is not null && nextApprover.UserID == -1)
+        {
+            // Workflow is not defined
+            return;
+        }
+
         if (nextApprover is null)
         {
-            if (statusId != 3)
-            {
-                statusId = 3;
-            }
-            else
-            {
-                return;
-            }
+            // No next approver means current user is the last approver
+            statusId = 3;
         }
 
         await changeApprovalService.ChangeApprovalAsync(

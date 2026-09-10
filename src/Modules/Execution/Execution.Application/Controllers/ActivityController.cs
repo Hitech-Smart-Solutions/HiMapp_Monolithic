@@ -37,6 +37,15 @@ public sealed class ActivityController : ControllerBase
             return BadRequest("Activity Name is required.");
         }
 
+        var isDuplicate = await _mediator.Send(
+            new GetActivityDuplicateQuery(request.CompanyID, request.ActivityName),
+            cancellationToken);
+
+        if (isDuplicate)
+        {
+            return Conflict(new { message = $"An activity with the name '{request.ActivityName}' already exists for this company." });
+        }
+
         var result = await _mediator.Send(
             new CreateActivityCommand(request.CompanyID, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.CreateBy, request.LastModifiedBy),
             cancellationToken);
@@ -47,6 +56,15 @@ public sealed class ActivityController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] ActivityRequest request, CancellationToken cancellationToken)
     {
+        var isDuplicate = await _mediator.Send(
+            new GetActivityDuplicateQuery(request.CompanyID, request.ActivityName, id),
+            cancellationToken);
+
+        if (isDuplicate)
+        {
+            return Conflict(new { message = $"An activity with the name '{request.ActivityName}' already exists for this company." });
+        }
+
         var result = await _mediator.Send(
             new UpdateActivityCommand(id,request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.LastModifiedBy),
             cancellationToken);

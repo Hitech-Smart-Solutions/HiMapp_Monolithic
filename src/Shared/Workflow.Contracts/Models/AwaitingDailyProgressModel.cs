@@ -18,6 +18,8 @@ public sealed class AwaitingDailyProgressModel
 
     public string? StatusName { get; set; }
 
+    public int? CreatedByID { get; set; }
+
     public string? CreatedBy { get; set; }
 
     public string? PendingApprovalFor { get; set; }
