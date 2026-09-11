@@ -14,6 +14,7 @@ public class DailyProgressHindrance : BaseEntity
 
     public int DailyProgressID { get; set; }
 
+    public int SectionID { get; set; }
     public string? Hindrance { get; set; }
 
     public string? AudioUrl { get; set; }

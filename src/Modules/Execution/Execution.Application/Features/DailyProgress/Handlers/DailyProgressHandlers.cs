@@ -29,6 +29,8 @@ internal sealed class DailyProgressHandlers :
     IRequestHandler<GetDailyProgressListByProjectQuery, DataSet>,
     IRequestHandler<GetActivityWiseQuantityByProjectQuery, List<ActivityWiseQuantityBySectionModel>>,
     IRequestHandler<GetDailyProgressByProjectAndDateQuery, DailyProgressModel?>,
+    IRequestHandler<GetSectionWiseHindrancesByProjectQuery, List<SectionWiseHindranceModel>>,
+    IRequestHandler<GetSectionWisePhotosByProjectQuery, List<SectionWisePhotoModel>>
     IRequestHandler<GetDailyProgressForApprovalByIdQuery, DailyProgressForApprovalByIDModel?>
 {
     private readonly IExecutionDbContext _db;
@@ -168,6 +170,7 @@ internal sealed class DailyProgressHandlers :
                     .Select(h => new DailyProgressHindranceModel(
                         h.ID,
                         h.UniqueID,
+                        h.SectionID,
                         h.Hindrance,
                         h.AudioUrl))
                     .ToArray()
@@ -178,6 +181,7 @@ internal sealed class DailyProgressHandlers :
                     .Select(p => new DailyProgressPhotoModel(
                         p.ID,
                         p.UniqueID,
+                        p.SectionID,
                         p.FileName,
                         p.FileType,
                         p.FileSize,
@@ -310,6 +314,7 @@ internal sealed class DailyProgressHandlers :
                 var hindrance = new DailyProgressHindrance
                 {
                     UniqueID = Guid.NewGuid(),
+                    SectionID = h.SectionId,
                     Hindrance = h.Hindrance,
                     AudioUrl = h.AudioUrl,
                     IsActive = true,
@@ -330,6 +335,7 @@ internal sealed class DailyProgressHandlers :
                 var photo = new DailyProgressPhoto
                 {
                     UniqueID = Guid.NewGuid(),
+                    SectionID = p.SectionId,
                     FileName = p.FileName,
                     FileType = p.FileType,
                     FileSize = p.FileSize,
@@ -353,11 +359,13 @@ internal sealed class DailyProgressHandlers :
         var hindrances = entity.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
             h.ID,
             h.UniqueID,
+            h.SectionID,
             h.Hindrance,
             h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
         var photos = entity.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
+            p.SectionID,
             p.FileName,
             p.FileType,
             p.FileSize,
@@ -434,6 +442,7 @@ internal sealed class DailyProgressHandlers :
                 var hindrance = new DailyProgressHindrance
                 {
                     UniqueID = Guid.NewGuid(),
+                    SectionID = h.SectionId,
                     Hindrance = h.Hindrance,
                     AudioUrl = h.AudioUrl,
                     IsActive = true,
@@ -461,6 +470,7 @@ internal sealed class DailyProgressHandlers :
                 var photo = new DailyProgressPhoto
                 {
                     UniqueID = Guid.NewGuid(),
+                    SectionID = p.SectionId,
                     PhotoUrl = p.PhotoUrl,
                     FileName = p.FileName,
                     FileType = p.FileType,
@@ -483,11 +493,13 @@ internal sealed class DailyProgressHandlers :
         var hindrances = entity.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
             h.ID,
             h.UniqueID,
+            h.SectionID,
             h.Hindrance,
             h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
         var photos = entity.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
+            p.SectionID,
             p.FileName,
             p.FileType,
             p.FileSize,
@@ -816,12 +828,14 @@ internal sealed class DailyProgressHandlers :
         var hindrances = d.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
             h.ID,
             h.UniqueID,
+            h.SectionID,
             h.Hindrance,
             h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
 
         var photos = d.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
+            p.SectionID,
             p.FileName,
             p.FileType,
             p.FileSize,
@@ -831,18 +845,137 @@ internal sealed class DailyProgressHandlers :
         return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details, hindrances, photos);
     }
 
+    public async Task<List<SectionWiseHindranceModel>> Handle(GetSectionWiseHindrancesByProjectQuery request, CancellationToken cancellationToken)
     public async Task<DailyProgressForApprovalByIDModel?> Handle(GetDailyProgressForApprovalByIdQuery request, CancellationToken cancellationToken)
     {
         var dbContext = _db as DbContext;
 
         if (dbContext is null)
         {
-            throw new InvalidOperationException(
-                "IExecutionDbContext is not a DbContext.");
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
         }
 
         var connection = dbContext.Database.GetDbConnection();
 
+        var result = new List<SectionWiseHindranceModel>();
+
+        if (connection.State != ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
+
+        try
+        {
+            using var command = connection.CreateCommand();
+
+            command.CommandText = """
+                SELECT *
+                FROM execution."uspGetSectionWiseHindrancesByProjectID"(
+                    @ProjectID,
+                    @ReportDate
+                );
+                """;
+
+            var projectIdParameter = command.CreateParameter();
+            projectIdParameter.ParameterName = "@ProjectID";
+            projectIdParameter.Value = request.ProjectID;
+            command.Parameters.Add(projectIdParameter);
+
+            var reportDateParameter = command.CreateParameter();
+            reportDateParameter.ParameterName = "@ReportDate";
+            reportDateParameter.Value = request.ReportDate;
+            command.Parameters.Add(reportDateParameter);
+
+            using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+            var sectionIdOrdinal = reader.GetOrdinal("SectionID");
+            var hindranceOrdinal = reader.GetOrdinal("Hindrance");
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                result.Add(new SectionWiseHindranceModel(
+                    sectionId: reader.GetInt32(sectionIdOrdinal),
+                    hindrance: reader.IsDBNull(hindranceOrdinal) ? string.Empty : reader.GetString(hindranceOrdinal)
+                ));
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetSectionWiseHindrancesByProjectQuery");
+            throw;
+        }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                await connection.CloseAsync();
+            }
+        }
+
+        return result;
+    }
+
+    public async Task<List<SectionWisePhotoModel>> Handle(GetSectionWisePhotosByProjectQuery request, CancellationToken cancellationToken)
+    {
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+        }
+
+        var connection = dbContext.Database.GetDbConnection();
+
+        var result = new List<SectionWisePhotoModel>();
+
+        if (connection.State != ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
+
+        try
+        {
+            using var command = connection.CreateCommand();
+
+            command.CommandText = """
+                SELECT *
+                FROM execution."uspGetSectionWisePhotosByProjectID"(
+                    @ProjectID,
+                    @ReportDate
+                );
+                """;
+
+            var projectIdParameter = command.CreateParameter();
+            projectIdParameter.ParameterName = "@ProjectID";
+            projectIdParameter.Value = request.ProjectID;
+            command.Parameters.Add(projectIdParameter);
+
+            var reportDateParameter = command.CreateParameter();
+            reportDateParameter.ParameterName = "@ReportDate";
+            reportDateParameter.Value = request.ReportDate;
+            command.Parameters.Add(reportDateParameter);
+
+            using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+            var sectionIdOrdinal = reader.GetOrdinal("SectionID");
+            var photoUrlOrdinal = reader.GetOrdinal("PhotoUrl");
+            var captionOrdinal = reader.GetOrdinal("Caption");
+            var fileNameOrdinal = reader.GetOrdinal("FileName");
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                result.Add(new SectionWisePhotoModel(
+                    sectionId: reader.GetInt32(sectionIdOrdinal),
+                    photoUrl: reader.IsDBNull(photoUrlOrdinal) ? string.Empty : reader.GetString(photoUrlOrdinal),
+                    caption: reader.IsDBNull(captionOrdinal) ? string.Empty : reader.GetString(captionOrdinal),
+                    fileName: reader.IsDBNull(fileNameOrdinal) ? string.Empty : reader.GetString(fileNameOrdinal)
+                ));
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetSectionWisePhotosByProjectQuery");
+            throw;
         try
         {
             if (connection.State != ConnectionState.Open)
@@ -990,5 +1123,7 @@ internal sealed class DailyProgressHandlers :
                 await connection.CloseAsync();
             }
         }
+
+        return result;
     }
 }
