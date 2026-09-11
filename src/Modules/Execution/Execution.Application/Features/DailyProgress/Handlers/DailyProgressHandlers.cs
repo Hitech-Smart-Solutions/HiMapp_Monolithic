@@ -166,6 +166,7 @@ internal sealed class DailyProgressHandlers :
                     .Select(h => new DailyProgressHindranceModel(
                         h.ID,
                         h.UniqueID,
+                        h.SectionID,
                         h.Hindrance,
                         h.AudioUrl))
                     .ToArray()
@@ -176,6 +177,7 @@ internal sealed class DailyProgressHandlers :
                     .Select(p => new DailyProgressPhotoModel(
                         p.ID,
                         p.UniqueID,
+                        p.SectionID,
                         p.FileName,
                         p.FileType,
                         p.FileSize,
@@ -308,6 +310,7 @@ internal sealed class DailyProgressHandlers :
                 var hindrance = new DailyProgressHindrance
                 {
                     UniqueID = Guid.NewGuid(),
+                    SectionID = h.SectionId,
                     Hindrance = h.Hindrance,
                     AudioUrl = h.AudioUrl,
                     IsActive = true,
@@ -328,6 +331,7 @@ internal sealed class DailyProgressHandlers :
                 var photo = new DailyProgressPhoto
                 {
                     UniqueID = Guid.NewGuid(),
+                    SectionID = p.SectionId,
                     FileName = p.FileName,
                     FileType = p.FileType,
                     FileSize = p.FileSize,
@@ -351,11 +355,13 @@ internal sealed class DailyProgressHandlers :
         var hindrances = entity.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
             h.ID,
             h.UniqueID,
+            h.SectionID,
             h.Hindrance,
             h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
         var photos = entity.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
+            p.SectionID,
             p.FileName,
             p.FileType,
             p.FileSize,
@@ -432,6 +438,7 @@ internal sealed class DailyProgressHandlers :
                 var hindrance = new DailyProgressHindrance
                 {
                     UniqueID = Guid.NewGuid(),
+                    SectionID = h.SectionId,
                     Hindrance = h.Hindrance,
                     AudioUrl = h.AudioUrl,
                     IsActive = true,
@@ -459,6 +466,7 @@ internal sealed class DailyProgressHandlers :
                 var photo = new DailyProgressPhoto
                 {
                     UniqueID = Guid.NewGuid(),
+                    SectionID = p.SectionId,
                     PhotoUrl = p.PhotoUrl,
                     FileName = p.FileName,
                     FileType = p.FileType,
@@ -481,11 +489,13 @@ internal sealed class DailyProgressHandlers :
         var hindrances = entity.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
             h.ID,
             h.UniqueID,
+            h.SectionID,
             h.Hindrance,
             h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
         var photos = entity.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
+            p.SectionID,
             p.FileName,
             p.FileType,
             p.FileSize,
@@ -814,12 +824,14 @@ internal sealed class DailyProgressHandlers :
         var hindrances = d.DailyProgressHindrance?.Select(h => new DailyProgressHindranceModel(
             h.ID,
             h.UniqueID,
+            h.SectionID,
             h.Hindrance,
             h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
 
         var photos = d.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
+            p.SectionID,
             p.FileName,
             p.FileType,
             p.FileSize,
