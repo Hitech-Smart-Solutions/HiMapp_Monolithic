@@ -201,5 +201,24 @@ app.MapGet("/api/architecture", () => Results.Ok(new
 }));
 
 #endregion
-
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        services.GetRequiredService<ExecutionDbContext>().Database.Migrate();
+        services.GetRequiredService<AdminDbContext>().Database.Migrate();
+        services.GetRequiredService<PMDbContext>().Database.Migrate();
+        services.GetRequiredService<SafetyDbContext>().Database.Migrate();
+        services.GetRequiredService<StoreDbContext>().Database.Migrate();
+        // Optional: Log success
+    }
+    catch (Exception ex)
+    {
+        // Log error and rethrow to prevent app from starting with a broken DB
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+        throw;
+    }
+}
 app.Run();
