@@ -10,3 +10,4 @@ public sealed record GetDailyProgressByIdQuery(int Id, int programId) : IRequest
 public sealed record GetDailyProgressListByProjectQuery(SearchParamsProjectWise SearchParams) : IRequest<DataSet>;
 public sealed record GetActivityWiseQuantityByProjectQuery(int ProjectID, DateOnly ReportDate) : IRequest<List<ActivityWiseQuantityBySectionModel>>;
 public sealed record GetDailyProgressByProjectAndDateQuery(int ProjectId, DateOnly ReportDate) : IRequest<DailyProgressModel?>;
+public sealed record GetDailyProgressForApprovalByIdQuery(int Id, int programId) : IRequest<DailyProgressForApprovalByIDModel?>;

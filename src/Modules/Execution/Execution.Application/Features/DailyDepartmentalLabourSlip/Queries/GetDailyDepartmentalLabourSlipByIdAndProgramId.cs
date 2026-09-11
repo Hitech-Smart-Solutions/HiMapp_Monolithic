@@ -3,7 +3,7 @@ using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Models;
 
 namespace Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Queries;
 
-public sealed class GetDailyDepartmentalLabourSlipByIdAndProgramId : IRequest<DailyDepartmentalLabourSlipModel?>
+public sealed class GetDailyDepartmentalLabourSlipByIdAndProgramId : IRequest<GetDailyDepartmentalLabourSlipByIdModel?>
 {
     public int Id { get; }
     public int ProgramId { get; }
