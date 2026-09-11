@@ -12,6 +12,7 @@ public sealed class DailyLaborDetailRequest
     public int? Mat { get; set; }
     public string? ContractorName { get; set; }
     public int? ActivityId { get; set; }
+    public int SectionId { get; set; }
 }
 
 public sealed class CreateDailyLaborRequest

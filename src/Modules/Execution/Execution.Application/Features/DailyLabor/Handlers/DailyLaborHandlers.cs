@@ -112,7 +112,8 @@ internal sealed class DailyLaborHandlers :
             dd.Mat,
             dd.ContractorName,
             dd.ActivityID,
-            string.Empty)).ToArray()
+            string.Empty,
+            dd.SectionID)).ToArray()
             ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(
@@ -184,6 +185,7 @@ internal sealed class DailyLaborHandlers :
                     Mat = d.Mat,
                     ContractorName = d.ContractorName,
                     ActivityID = d.ActivityId,
+                    SectionID = d.SectionId,
                     IsActive = true,
                     CreatedBy = userId,
                     CreatedDate = DateTime.UtcNow,
@@ -199,7 +201,7 @@ internal sealed class DailyLaborHandlers :
         _db.Set<DailyLaborEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID, string.Empty)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID, string.Empty, dd.SectionID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(entity.ID, entity.UniqueID, entity.DLRCode, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.ProposedActionPlan, entity.ConstraintsAndReasons, entity.RemoveMenPower, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
@@ -282,6 +284,7 @@ internal sealed class DailyLaborHandlers :
                     Mat = d.Mat,
                     ContractorName = d.ContractorName,
                     ActivityID = d.ActivityId,
+                    SectionID = d.SectionId,
                     IsActive = true,
                     CreatedBy = userId,
                     CreatedDate = DateTime.UtcNow,
@@ -296,7 +299,7 @@ internal sealed class DailyLaborHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID, string.Empty)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID, string.Empty, dd.SectionID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(entity.ID, entity.UniqueID, entity.DLRCode, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.ProposedActionPlan, entity.ConstraintsAndReasons, entity.RemoveMenPower, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
@@ -313,6 +316,7 @@ internal sealed class DailyLaborHandlers :
                 .Where(md => md.IsActive)
                 .Select(md => new
                 {
+                    m.SectionID,
                     md.ContractorID,
                     md.ActivityID,
                     md.SkilledCount,
@@ -321,10 +325,12 @@ internal sealed class DailyLaborHandlers :
                 }))
             .GroupBy(x => new
             {
+                x.SectionID,
                 x.ContractorID,
                 x.ActivityID
             })
             .Select(g => new DailyLaborConsolidatedModel(
+                g.Key.SectionID,
                 g.Key.ContractorID,
                 g.Key.ActivityID,
                 g.Sum(x => x.SkilledCount),
