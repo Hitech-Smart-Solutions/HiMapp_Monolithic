@@ -153,5 +153,53 @@ public sealed class DailyProgressController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    [HttpGet("GetSectionWiseHindrancesByProjectID/{projectId:int}/{reportDate}")]
+    public async Task<IActionResult> GetSectionWiseHindrancesByProjectID(int projectId, DateOnly reportDate, CancellationToken cancellationToken)
+    {
+        if (projectId <= 0)
+        {
+            return BadRequest("ProjectID is required.");
+        }
+
+        if (reportDate == default)
+        {
+            return BadRequest("Report date is required.");
+        }
+
+        try
+        {
+            var result = await _mediator.Send(new GetSectionWiseHindrancesByProjectQuery(projectId, reportDate), cancellationToken);
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred.");
+        }
+    }
+
+    [HttpGet("GetSectionWisePhotosByProjectID/{projectId:int}/{reportDate}")]
+    public async Task<IActionResult> GetSectionWisePhotosByProjectID(int projectId, DateOnly reportDate, CancellationToken cancellationToken)
+    {
+        if (projectId <= 0)
+        {
+            return BadRequest("ProjectID is required.");
+        }
+
+        if (reportDate == default)
+        {
+            return BadRequest("Report date is required.");
+        }
+
+        try
+        {
+            var result = await _mediator.Send(new GetSectionWisePhotosByProjectQuery(projectId, reportDate), cancellationToken);
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred.");
+        }
+    }
+
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }
