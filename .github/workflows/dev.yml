@@ -10,65 +10,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # --------------------------------------------------
-      # Checkout Repository
-      # --------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
-      # --------------------------------------------------
-      # Setup .NET 10
-      # --------------------------------------------------
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
 
-      # --------------------------------------------------
-      # Verify .NET Installation
-      # --------------------------------------------------
       - name: Verify .NET
         run: |
           dotnet --version
           dotnet --info
 
-      # --------------------------------------------------
-      # Restore Dependencies
-      # --------------------------------------------------
       - name: Restore Dependencies
         run: dotnet restore HiMapp_Monolithic.csproj
 
-      # --------------------------------------------------
-      # Build Project
-      # --------------------------------------------------
       - name: Build Project
         run: dotnet build HiMapp_Monolithic.csproj --configuration Release --no-restore
 
-      # --------------------------------------------------
-      # Publish Execution API
-      # --------------------------------------------------
       - name: Publish Execution API
         run: dotnet publish HiMapp_Monolithic.csproj --configuration Release --output ./publish --no-restore
 
-      # --------------------------------------------------
-      # Install SSH Key
-      # --------------------------------------------------
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
 
-      # --------------------------------------------------
-      # Add EC2 to Known Hosts
-      # --------------------------------------------------
       - name: Adding Known Hosts
         run: |
           ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_DEV_HOST }} >> ~/.ssh/known_hosts
 
-      # --------------------------------------------------
-      # Upload Published Files to EC2
-      # --------------------------------------------------
       - name: Upload Files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -77,11 +51,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "publish/*"
-          target: "/home/ec2-user/HiMapp_Execution_API/publish/"
+          target: "/home/ec2-user/HiMapp_Execution_API/"
+          strip_components: 1
 
-      # --------------------------------------------------
-      # Restart Execution API
-      # --------------------------------------------------
       - name: Restart Execution API
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -90,5 +62,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            sudo systemctl daemon-reload
             sudo systemctl restart HiMappExecutionAPI.service
+            sleep 3
             sudo systemctl status HiMappExecutionAPI.service --no-pager
