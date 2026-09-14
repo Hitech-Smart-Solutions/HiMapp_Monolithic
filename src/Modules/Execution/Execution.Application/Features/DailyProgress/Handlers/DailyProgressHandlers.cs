@@ -30,14 +30,14 @@ internal sealed class DailyProgressHandlers :
     IRequestHandler<GetActivityWiseQuantityByProjectQuery, List<ActivityWiseQuantityBySectionModel>>,
     IRequestHandler<GetDailyProgressByProjectAndDateQuery, DailyProgressModel?>,
     IRequestHandler<GetSectionWiseHindrancesByProjectQuery, List<SectionWiseHindranceModel>>,
-    IRequestHandler<GetSectionWisePhotosByProjectQuery, List<SectionWisePhotoModel>>
+    IRequestHandler<GetSectionWisePhotosByProjectQuery, List<SectionWisePhotoModel>>,
     IRequestHandler<GetDailyProgressForApprovalByIdQuery, DailyProgressForApprovalByIDModel?>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
     private readonly IDPRCodeGenerator _codeGenerator;
     private readonly ILogger<DailyProgressHandlers> _logger;
-    public DailyProgressHandlers(IExecutionDbContext db, ICurrentUser currentUser, IDPRCodeGenerator codeGenerator, ILogger<DailyProgressHandlers> logger) => (_db, _currentUser, _codeGenerator, _logger) 
+    public DailyProgressHandlers(IExecutionDbContext db, ICurrentUser currentUser, IDPRCodeGenerator codeGenerator, ILogger<DailyProgressHandlers> logger) => (_db, _currentUser, _codeGenerator, _logger)
         = (db, currentUser, codeGenerator, logger);
 
     private int CurrentUserId => _currentUser.UserId ?? 0;
@@ -846,7 +846,6 @@ internal sealed class DailyProgressHandlers :
     }
 
     public async Task<List<SectionWiseHindranceModel>> Handle(GetSectionWiseHindrancesByProjectQuery request, CancellationToken cancellationToken)
-    public async Task<DailyProgressForApprovalByIDModel?> Handle(GetDailyProgressForApprovalByIdQuery request, CancellationToken cancellationToken)
     {
         var dbContext = _db as DbContext;
 
@@ -976,6 +975,30 @@ internal sealed class DailyProgressHandlers :
         {
             _logger.LogError(ex, "Error in GetSectionWisePhotosByProjectQuery");
             throw;
+        }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                await connection.CloseAsync();
+            }
+        }
+
+        return result;
+    }
+
+    public async Task<DailyProgressForApprovalByIDModel?> Handle(GetDailyProgressForApprovalByIdQuery request, CancellationToken cancellationToken)
+    {
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext.");
+        }
+
+        var connection = dbContext.Database.GetDbConnection();
+
         try
         {
             if (connection.State != ConnectionState.Open)
@@ -1123,7 +1146,6 @@ internal sealed class DailyProgressHandlers :
                 await connection.CloseAsync();
             }
         }
-
-        return result;
     }
+
 }
