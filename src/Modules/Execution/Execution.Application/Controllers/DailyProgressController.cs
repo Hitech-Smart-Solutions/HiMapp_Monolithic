@@ -200,6 +200,8 @@ public sealed class DailyProgressController : ControllerBase
         {
             return StatusCode(500, "An unexpected error occurred.");
         }
+    }
+
     [HttpGet("GetProjectDPRForApprovalById/{id:int}/{programId:int}")]
     public async Task<IActionResult> GetProjectDPRForApprovalById(int id, int programId, CancellationToken cancellationToken)
     {
