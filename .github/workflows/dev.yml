@@ -13,10 +13,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
+
+      - name: Verify .NET
+        run: |
+          dotnet --version
+          dotnet --info
 
       - name: Restore Dependencies
         run: dotnet restore HiMapp_Monolithic.csproj
@@ -25,7 +30,10 @@ jobs:
         run: dotnet build HiMapp_Monolithic.csproj --configuration Release --no-restore
 
       - name: Publish Execution API
-        run: dotnet publish HiMapp_Monolithic.csproj -c Release -o ./publish --no-restore
+        run: dotnet publish HiMapp_Monolithic.csproj \
+          --configuration Release \
+          --output ./publish \
+          --no-restore
 
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
