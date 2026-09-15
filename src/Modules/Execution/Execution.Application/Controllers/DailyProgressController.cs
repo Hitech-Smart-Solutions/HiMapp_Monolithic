@@ -200,6 +200,7 @@ public sealed class DailyProgressController : ControllerBase
         {
             return StatusCode(500, "An unexpected error occurred.");
         }
+    }
     [HttpGet("GetProjectDPRForApprovalById/{id:int}/{programId:int}")]
     public async Task<IActionResult> GetProjectDPRForApprovalById(int id, int programId, CancellationToken cancellationToken)
     {
@@ -210,6 +211,5 @@ public sealed class DailyProgressController : ControllerBase
 
         return OkOrNotFound(await _mediator.Send(new GetDailyProgressForApprovalByIdQuery(id, programId), cancellationToken));
     }
-
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }
