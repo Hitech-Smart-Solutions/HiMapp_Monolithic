@@ -42,7 +42,7 @@ internal sealed class DailyProgressHandlers :
     private readonly ICurrentUser _currentUser;
     private readonly IDPRCodeGenerator _codeGenerator;
     private readonly ILogger<DailyProgressHandlers> _logger;
-    public DailyProgressHandlers(IExecutionDbContext db, ICurrentUser currentUser, IDPRCodeGenerator codeGenerator, ILogger<DailyProgressHandlers> logger) => (_db, _currentUser, _codeGenerator, _logger) 
+    public DailyProgressHandlers(IExecutionDbContext db, ICurrentUser currentUser, IDPRCodeGenerator codeGenerator, ILogger<DailyProgressHandlers> logger) => (_db, _currentUser, _codeGenerator, _logger)
         = (db, currentUser, codeGenerator, logger);
 
     private int CurrentUserId => _currentUser.UserId ?? 0;
@@ -1158,4 +1158,5 @@ internal sealed class DailyProgressHandlers :
             }
         }
     }
+
 }

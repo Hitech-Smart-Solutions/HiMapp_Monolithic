@@ -16,6 +16,8 @@ public class DailyLaborDetail : BaseEntity
     public int? Mat { get; set; }
     public string? ContractorName { get; set; }
     public int? ActivityID { get; set; }
+    public int SectionID { get; set; }
+
     [JsonIgnore]
     public virtual DailyLabor? DailyLabor { get; set; }
 }
