@@ -19,6 +19,7 @@ using Himapp.PM.Infrastructure;
 using Himapp.Safety.Application;
 // Safety.Contracts moved to Safety.Application
 using Himapp.Safety.Infrastructure;
+using Himapp.Shared.Files;
 using Himapp.SharedKernel;
 using Himapp.SharedKernel.Abstractions;
 using Himapp.SharedKernel.Logging;
@@ -30,6 +31,7 @@ using Himapp.Workflow.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,13 +55,10 @@ builder.Services.AddControllers()
     );  // 🔥 Registers the global auto-log action filter for ALL controllers
 builder.Services.AddHealthChecks();
 builder.Services.AddSignalR();
-
-var awsSection = builder.Configuration.GetSection("AWS");
-var accessKey = awsSection["AWS_ACCESS_KEY_ID"];
-var secretKey = awsSection["AWS_SECRET_ACCESS_KEY"];
-var region = RegionEndpoint.GetBySystemName(awsSection["Region"] ?? "ap-south-1");
-
-builder.Services.AddSingleton<IAmazonS3>(sp => new AmazonS3Client(accessKey, secretKey, region));
+builder.Configuration
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile("secret.json", optional: false, reloadOnChange: true);
+AWSConfiguration.Initialize(builder.Configuration);
 
 // Authentication (JWT) - read values from configuration: Jwt:Issuer, Jwt:Audience, Jwt:Key
 builder.Services.AddAuthentication(options =>
@@ -205,25 +204,4 @@ app.MapGet("/api/architecture", () => Results.Ok(new
 
 #endregion
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        services.GetRequiredService<ExecutionDbContext>().Database.Migrate();
-        services.GetRequiredService<AdminDbContext>().Database.Migrate();
-        services.GetRequiredService<PMDbContext>().Database.Migrate();
-        services.GetRequiredService<SafetyDbContext>().Database.Migrate();
-        services.GetRequiredService<StoreDbContext>().Database.Migrate();
-        services.GetRequiredService<WorkflowDbContext>().Database.Migrate();
-        // Optional: Log success
-    }
-    catch (Exception ex)
-    {
-        // Log error and rethrow to prevent app from starting with a broken DB
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the database.");
-        throw;
-    }
-}
 app.Run();

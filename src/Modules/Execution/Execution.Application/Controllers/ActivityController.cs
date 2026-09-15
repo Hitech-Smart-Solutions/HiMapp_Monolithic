@@ -37,39 +37,35 @@ public sealed class ActivityController : ControllerBase
             return BadRequest("Activity Name is required.");
         }
 
-        var isDuplicate = await _mediator.Send(
-            new GetActivityDuplicateQuery(request.CompanyID, request.ActivityName),
-            cancellationToken);
-
-        if (isDuplicate)
+        try
         {
-            return Conflict(new { message = $"An activity with the name '{request.ActivityName}' already exists for this company." });
+            var result = await _mediator.Send(
+                new CreateActivityCommand(request.CompanyID, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.CreateBy, request.LastModifiedBy),
+                cancellationToken);
+
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
-
-        var result = await _mediator.Send(
-            new CreateActivityCommand(request.CompanyID, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.CreateBy, request.LastModifiedBy),
-            cancellationToken);
-
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] ActivityRequest request, CancellationToken cancellationToken)
     {
-        var isDuplicate = await _mediator.Send(
-            new GetActivityDuplicateQuery(request.CompanyID, request.ActivityName, id),
-            cancellationToken);
-
-        if (isDuplicate)
+        try
         {
-            return Conflict(new { message = $"An activity with the name '{request.ActivityName}' already exists for this company." });
+            var result = await _mediator.Send(
+                new UpdateActivityCommand(id, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.LastModifiedBy),
+                cancellationToken);
+
+            return result is null ? NotFound() : Ok(result);
         }
-
-        var result = await _mediator.Send(
-            new UpdateActivityCommand(id,request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.LastModifiedBy),
-            cancellationToken);
-
-        return result is null ? NotFound() : Ok(result);
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [HttpPut("SetActiveInActiveActivity")]

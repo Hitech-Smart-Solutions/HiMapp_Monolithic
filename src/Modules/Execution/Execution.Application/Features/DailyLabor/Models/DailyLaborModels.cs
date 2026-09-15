@@ -13,8 +13,9 @@ public sealed class DailyLaborDetailModel
     public string? ContractorName { get; init; } = string.Empty;
     public int? ActivityId { get; init; }
     public string? ActivityName { get; init; } = string.Empty;
+    public int SectionId { get; init; }
 
-    public DailyLaborDetailModel(int id, Guid uniqueId, int? contractorId, int? categoryId, int? skilled, int? unSkilled, string? remarks, int? mat, string? contractorName, int? activityId, string? activityName)
+    public DailyLaborDetailModel(int id, Guid uniqueId, int? contractorId, int? categoryId, int? skilled, int? unSkilled, string? remarks, int? mat, string? contractorName, int? activityId, string? activityName, int sectionId)
     {
         Id = id;
         UniqueId = uniqueId;
@@ -27,6 +28,7 @@ public sealed class DailyLaborDetailModel
         ContractorName = contractorName;
         ActivityId = activityId;
         ActivityName = activityName;
+        SectionId = sectionId;
     }
 }
 
