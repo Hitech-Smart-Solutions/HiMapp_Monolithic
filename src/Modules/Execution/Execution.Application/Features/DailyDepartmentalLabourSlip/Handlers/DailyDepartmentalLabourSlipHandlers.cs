@@ -21,18 +21,19 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
     IRequestHandler<GetAllDailyDepartmentalLabourSlipsQuery, IEnumerable<DailyDepartmentalLabourSlipModel>>,
     IRequestHandler<GetDailyDepartmentalLabourSlipByIdQuery, DailyDepartmentalLabourSlipModel?>,
     IRequestHandler<CreateDailyDepartmentalLabourSlipCommand, DailyDepartmentalLabourSlipModel>,
+    IRequestHandler<GetDailyDepartmentalLabourSlipsByPartyAndDate, bool>,
     IRequestHandler<UpdateDailyDepartmentalLabourSlipCommand, DailyDepartmentalLabourSlipModel?>,
     IRequestHandler<DeleteDailyDepartmentalLabourSlipCommand, bool>,
     IRequestHandler<DeleteDDLSCommand, bool>,
     IRequestHandler<GetDailyDepartmentalLabourSlipsByProjectID, DataSet>,
-    IRequestHandler<GetDailyDepartmentalLabourSlipByIdAndProgramId, DailyDepartmentalLabourSlipModel?>
+    IRequestHandler<GetDailyDepartmentalLabourSlipByIdAndProgramId, GetDailyDepartmentalLabourSlipByIdModel?>
 {
     private readonly IExecutionDbContext _db;
     private readonly IDdlSlipCodeGenerator _codeGenerator;
     private readonly ILogger<DailyDepartmentalLabourSlipHandlers> _logger;
     private readonly ICurrentUser _currentUser;
-    
-    public DailyDepartmentalLabourSlipHandlers(IExecutionDbContext db, ICurrentUser currentUser, IDdlSlipCodeGenerator codeGenerator, ILogger<DailyDepartmentalLabourSlipHandlers>? logger = null) => (_db,_currentUser, _codeGenerator, _logger) = (db, currentUser, codeGenerator, logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DailyDepartmentalLabourSlipHandlers>.Instance);
+
+    public DailyDepartmentalLabourSlipHandlers(IExecutionDbContext db, ICurrentUser currentUser, IDdlSlipCodeGenerator codeGenerator, ILogger<DailyDepartmentalLabourSlipHandlers>? logger = null) => (_db, _currentUser, _codeGenerator, _logger) = (db, currentUser, codeGenerator, logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DailyDepartmentalLabourSlipHandlers>.Instance);
     private int CurrentUserId => _currentUser.UserId ?? 0;
     public async Task<IEnumerable<DailyDepartmentalLabourSlipModel>> Handle(GetAllDailyDepartmentalLabourSlipsQuery request, CancellationToken cancellationToken)
     {
@@ -51,7 +52,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 d.StatusID,
                 d.IsActive,
                 d.CreatedBy,
-                d.CreatedDate,
+                 d.CreatedDate,
                 d.LastModifiedBy,
                 d.LastModifiedDate,
                 Array.Empty<DailyDepartmentalLabourSlipDetailsModel>()))
@@ -95,6 +96,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.UniqueID,
             dd.LabourCategoryTypeID,
             dd.IsLumSumWork,
+            dd.Justification,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
@@ -147,6 +149,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                     DDLSlipID = entity.ID,
                     LabourCategoryTypeID = d.LabourCategoryTypeId,
                     IsLumSumWork = d.IsLumSumWork,
+                    Justification = d.Justification,
                     NumOfLabour = d.NumOfLabour,
                     FromTime = d.FromTime,
                     TOTime = d.ToTime,
@@ -178,6 +181,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.UniqueID,
             dd.LabourCategoryTypeID,
             dd.IsLumSumWork,
+            dd.Justification,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
@@ -194,6 +198,37 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
+    public async Task<bool> Handle(GetDailyDepartmentalLabourSlipsByPartyAndDate request, CancellationToken cancellationToken)
+    {
+        var r = request.Request;
+
+        // SlipDate is required for duplicate checking
+        if (!r.SlipDate.HasValue)
+        {
+            return false;
+        }
+
+        var startDate = DateTime.SpecifyKind(
+            r.SlipDate.Value.Date,
+            DateTimeKind.Utc);
+
+        var endDate = startDate.AddDays(1);
+
+        var exists = await _db.Set<DDLSEntity>()
+            .AsNoTracking()
+            .AnyAsync(
+                x =>
+                    x.ProjectID == r.ProjectId &&
+                    x.PartyID == r.PartyID &&
+                    x.SlipDate.HasValue &&
+                    x.SlipDate.Value >= startDate &&
+                    x.SlipDate.Value < endDate &&
+                    x.IsActive,
+                cancellationToken);
+
+        return exists;
+    }
+
     public async Task<DailyDepartmentalLabourSlipModel?> Handle(UpdateDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
     {
         var entity = await _db.Set<DDLSEntity>()
@@ -206,6 +241,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         entity.ProjectID = r.ProjectId;
         entity.IssueNumber = entity.IssueNumber;
         entity.SlipDate = r.SlipDate.HasValue ? DateTime.SpecifyKind(r.SlipDate.Value.Date, DateTimeKind.Utc) : entity.SlipDate;
+        entity.IssueNumber = r.IssueNumber;
         entity.PartyID = r.PartyID;
         entity.Remarks = r.Remarks ?? entity.Remarks;
         entity.StatusID = r.StatusID;
@@ -229,6 +265,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                     UniqueID = Guid.NewGuid(),
                     LabourCategoryTypeID = d.LabourCategoryTypeId,
                     IsLumSumWork = d.IsLumSumWork,
+                    Justification = d.Justification,
                     NumOfLabour = d.NumOfLabour,
                     FromTime = d.FromTime,
                     TOTime = d.ToTime,
@@ -259,6 +296,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.UniqueID,
             dd.LabourCategoryTypeID,
             dd.IsLumSumWork,
+            dd.Justification,
             dd.NumOfLabour,
             dd.FromTime,
             dd.TOTime,
@@ -372,7 +410,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         return Math.Round(workingMinutes / 60m, 2);
     }
 
-    public async Task<DailyDepartmentalLabourSlipModel?> Handle(GetDailyDepartmentalLabourSlipByIdAndProgramId request,CancellationToken cancellationToken)
+    public async Task<GetDailyDepartmentalLabourSlipByIdModel?> Handle(GetDailyDepartmentalLabourSlipByIdAndProgramId request, CancellationToken cancellationToken)
     {
         var connection = _db.Database.GetDbConnection();
 
@@ -380,15 +418,22 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             SELECT
                 ddl."ID",
                 ddl."UniqueID",
+                
                 ddl."ProjectID",
+                pm."ProjectName",
                 ddl."SlipDate",
                 ddl."DDLSlipCode",
                 ddl."IssueNumber",
+                
                 ddl."PartyID",
+                dvm."NAME" AS "ContractorName",
                 ddl."Remarks",
                 ddl."StatusID",
                 ddl."IsActive",
+               
                 ddl."CreatedBy",
+                um."UserName" AS "CreatedName",
+               
                 ddl."CreatedDate",
                 ddl."LastModifiedBy",
                 ddl."LastModifiedDate",
@@ -396,6 +441,15 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 approval."NextActionOn" AS "IsAwaitingApprovalForId"
 
             FROM execution."DailyDepartmentalLabourSlips" ddl
+
+            LEFT JOIN public."ProjectMaster" pm
+                ON pm."ID" = ddl."ProjectID"
+
+            LEFT JOIN public."DynamicsVendorMaster" dvm
+                ON dvm."ID" = ddl."PartyID"
+
+            LEFT JOIN public."UserMaster" um
+                ON um."ID" = ddl."CreatedBy"
 
             LEFT JOIN public."ApprovalActions" approval
                 ON approval."ProgramRowID" = ddl."ID"
@@ -410,7 +464,10 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             SELECT
                 detail."ID",
                 detail."UniqueID",
+
                 detail."LabourCategoryTypeID",
+                acd."Name",
+
                 detail."IsLumSumWork",
                 detail."NumOfLabour",
                 detail."FromTime",
@@ -418,17 +475,37 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 detail."LunchHour",
                 detail."WorkingHours",
                 detail."WorkLocationID",
+
                 detail."ActivityID",
+                act."ActivityName",
+
                 detail."ActivityDetails",
+
                 detail."UOMID",
+                uomDetails."SYMBOL",
+                
                 detail."Quantity",
+                
                 detail."DebitPartyID",
+                debitVendor."NAME" AS "DebitPartyName",
+                
                 detail."Remarks"
 
             FROM execution."DailyDepartmentalLabourSlipDetails" detail
+            
+            LEFT JOIN public."DynamicsVendorMaster" debitVendor
+                ON debitVendor."ID" = detail."DebitPartyID"
+            
+            LEFT JOIN public."DynamicsUnitMaster" uomDetails
+                ON uomDetails."ID" = detail."UOMID"
 
-            WHERE
-                detail."DDLSlipID" = @Id
+            LEFT JOIN execution."Activities" act
+                ON act."ID" = detail."ActivityID"
+
+            LEFT join execution."ActivityCategoryDetails" acd
+                ON acd."ID" = detail."LabourCategoryTypeID"
+            
+            WHERE detail."DDLSlipID" = @Id
 
             ORDER BY detail."ID";
             """;
@@ -477,6 +554,8 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             var projectIdOrdinal =
                 reader.GetOrdinal("ProjectID");
 
+            var projectNameOrdinal = reader.GetOrdinal("ProjectName");
+
             var slipDateOrdinal =
                 reader.GetOrdinal("SlipDate");
 
@@ -489,6 +568,8 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             var partyIdOrdinal =
                 reader.GetOrdinal("PartyID");
 
+            var contractorNameOrdinal = reader.GetOrdinal("ContractorName");
+
             var remarksOrdinal =
                 reader.GetOrdinal("Remarks");
 
@@ -500,6 +581,8 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
 
             var createdByOrdinal =
                 reader.GetOrdinal("CreatedBy");
+
+            var createdNameOrdinal = reader.GetOrdinal("CreatedName");
 
             var createdDateOrdinal =
                 reader.GetOrdinal("CreatedDate");
@@ -542,10 +625,26 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                     ? null
                     : reader.GetInt32(partyIdOrdinal);
 
+            string? projectName =
+                reader.IsDBNull(projectNameOrdinal)
+                    ? null
+                    : reader.GetString(projectNameOrdinal);
+
+            string? contractorName =
+                reader.IsDBNull(contractorNameOrdinal)
+                    ? null
+                    : reader.GetString(contractorNameOrdinal);
+
             string? remarks =
                 reader.IsDBNull(remarksOrdinal)
                     ? null
                     : reader.GetString(remarksOrdinal);
+
+
+            string? createdName =
+                reader.IsDBNull(createdNameOrdinal)
+                    ? null
+                    : reader.GetString(createdNameOrdinal);
 
             var statusId =
                 reader.GetInt32(statusIdOrdinal);
@@ -575,7 +674,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             // =========================================================
 
             var details =
-                new List<DailyDepartmentalLabourSlipDetailsModel>();
+                new List<GetDailyDepartmentalLabourSlipDetailsModel>();
 
             if (await reader.NextResultAsync(cancellationToken))
             {
@@ -587,6 +686,8 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
 
                 var labourCategoryTypeIdOrdinal =
                     reader.GetOrdinal("LabourCategoryTypeID");
+
+                var labourCategoryTypeNameOrdinal = reader.GetOrdinal("Name");
 
                 var isLumSumWorkOrdinal =
                     reader.GetOrdinal("IsLumSumWork");
@@ -612,11 +713,18 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 var activityIdOrdinal =
                     reader.GetOrdinal("ActivityID");
 
+                var activityNameOrdinal =
+                    reader.GetOrdinal("ActivityName");
+
                 var activityDetailsOrdinal =
                     reader.GetOrdinal("ActivityDetails");
 
                 var uomIdOrdinal =
                     reader.GetOrdinal("UOMID");
+
+
+                var uomShortNameOrdinal =
+                    reader.GetOrdinal("SYMBOL");
 
                 var quantityOrdinal =
                     reader.GetOrdinal("Quantity");
@@ -624,18 +732,25 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 var debitPartyIdOrdinal =
                     reader.GetOrdinal("DebitPartyID");
 
+                var debitPartyNameOrdinal =
+                    reader.GetOrdinal("DebitPartyName");
+
                 var detailRemarksOrdinal =
                     reader.GetOrdinal("Remarks");
 
                 while (await reader.ReadAsync(cancellationToken))
                 {
                     details.Add(
-                        new DailyDepartmentalLabourSlipDetailsModel(
+                        new GetDailyDepartmentalLabourSlipDetailsModel(
                             reader.GetInt32(detailIdOrdinal),
 
                             reader.GetGuid(detailUniqueIdOrdinal),
 
                             reader.GetInt32(labourCategoryTypeIdOrdinal),
+
+                             reader.IsDBNull(labourCategoryTypeNameOrdinal)
+                                ? null
+                                : reader.GetString(labourCategoryTypeNameOrdinal),
 
                             reader.GetBoolean(isLumSumWorkOrdinal),
 
@@ -665,6 +780,10 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                                 ? null
                                 : reader.GetInt32(activityIdOrdinal),
 
+                            reader.IsDBNull(activityNameOrdinal)
+                                ? null
+                                : reader.GetString(activityNameOrdinal),
+
                             reader.IsDBNull(activityDetailsOrdinal)
                                 ? null
                                 : reader.GetString(activityDetailsOrdinal),
@@ -672,6 +791,10 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                             reader.IsDBNull(uomIdOrdinal)
                                 ? null
                                 : reader.GetInt32(uomIdOrdinal),
+
+                            reader.IsDBNull(uomShortNameOrdinal)
+                                ? null
+                                : reader.GetString(uomShortNameOrdinal),
 
                             reader.IsDBNull(quantityOrdinal)
                                 ? null
@@ -681,6 +804,10 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                                 ? null
                                 : reader.GetInt32(debitPartyIdOrdinal),
 
+                            reader.IsDBNull(debitPartyNameOrdinal)
+                                ? null
+                                : reader.GetString(debitPartyNameOrdinal),
+
                             reader.IsDBNull(detailRemarksOrdinal)
                                 ? null
                                 : reader.GetString(detailRemarksOrdinal)
@@ -689,24 +816,12 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 }
             }
 
-            return new DailyDepartmentalLabourSlipModel(
-                id,
-                uniqueId,
-                projectId,
-                slipDate,
-                ddlSlipCode,
-                issueNumber,
-                partyId,
-                remarks,
-                statusId,
-                isActive,
-                createdBy,
-                createdDate,
-                lastModifiedBy,
-                lastModifiedDate,
-                details,
-                isAwaitingApprovalForId
-            );
+            return new GetDailyDepartmentalLabourSlipByIdModel(id, uniqueId, projectId, projectName, slipDate, ddlSlipCode, issueNumber, partyId, contractorName, remarks, statusId, isActive, createdBy, createdName,
+                    createdDate,
+                    lastModifiedBy,
+                    lastModifiedDate,
+                    details,
+                    isAwaitingApprovalForId);
         }
         catch (Exception ex)
         {

@@ -82,6 +82,10 @@ namespace Himapp.Execution.Domain.Configurations
             builder.Property(x => x.IsLumSumWork)
                 .HasColumnName("IsLumSumWork");
 
+            builder.Property(x => x.Justification)
+                .HasColumnName("Justification")
+                .HasMaxLength(1000);
+
             // BaseEntity audit fields
             builder.Property(x => x.CreatedBy)
                 .HasColumnName("CreatedBy");

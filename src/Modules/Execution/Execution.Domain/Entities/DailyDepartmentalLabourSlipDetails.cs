@@ -36,6 +36,8 @@ namespace Himapp.Execution.Domain.Entities
 
         public bool? IsLumSumWork { get; set; } = false;
 
+        public string? Justification { get; set; }
+
         [ForeignKey("DDLSlipID")]
         public virtual DailyDepartmentalLabourSlip? DailyDepartmentalLabourSlip { get; set; }
     }

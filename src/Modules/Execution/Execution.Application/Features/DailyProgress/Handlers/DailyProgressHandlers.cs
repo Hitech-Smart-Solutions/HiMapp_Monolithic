@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Himapp.Api.src.Shared.Exceptions;
 using Npgsql;
 using System.Data;
+using System.Text.Json;
 using DailyProgressEntity = Himapp.Execution.Domain.Entities.DailyProgress;
 using PlanningEntity = Himapp.Execution.Domain.Entities.Planning;
 
@@ -31,6 +32,7 @@ internal sealed class DailyProgressHandlers :
     IRequestHandler<GetDailyProgressByProjectAndDateQuery, DailyProgressModel?>,
     IRequestHandler<GetSectionWiseHindrancesByProjectQuery, List<SectionWiseHindranceModel>>,
     IRequestHandler<GetSectionWisePhotosByProjectQuery, List<SectionWisePhotoModel>>
+    IRequestHandler<GetDailyProgressForApprovalByIdQuery, DailyProgressForApprovalByIDModel?>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
@@ -845,6 +847,7 @@ internal sealed class DailyProgressHandlers :
     }
 
     public async Task<List<SectionWiseHindranceModel>> Handle(GetSectionWiseHindrancesByProjectQuery request, CancellationToken cancellationToken)
+    public async Task<DailyProgressForApprovalByIDModel?> Handle(GetDailyProgressForApprovalByIdQuery request, CancellationToken cancellationToken)
     {
         var dbContext = _db as DbContext;
 
@@ -975,11 +978,8 @@ internal sealed class DailyProgressHandlers :
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving section-wise photos for project {ProjectID} on date {ReportDate}", request.ProjectID, request.ReportDate);
-            throw new AppException(
-                "Failed to retrieve photos. Please try again later.",
-                500,
-                "DATA_RETRIEVAL_ERROR");
+            _logger.LogError(ex, "Error in GetSectionWisePhotosByProjectQuery");
+            throw;
         }
         finally
         {

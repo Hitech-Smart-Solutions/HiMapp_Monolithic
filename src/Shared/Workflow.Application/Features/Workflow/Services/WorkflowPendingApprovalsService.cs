@@ -70,6 +70,9 @@ public sealed class WorkflowPendingApprovalsService
         var statusNameOrdinal =
             reader.GetOrdinal("StatusName");
 
+        var createdByIDOrdinal =
+            reader.GetOrdinal("CreatedByID");
+
         var createdByOrdinal =
             reader.GetOrdinal("CreatedBy");
 
@@ -129,6 +132,11 @@ public sealed class WorkflowPendingApprovalsService
                         ? null
                         : reader.GetString(statusNameOrdinal),
 
+                CreatedByID =
+                    reader.IsDBNull(createdByIDOrdinal)
+                        ? null
+                        : reader.GetInt32(createdByIDOrdinal),
+
                 CreatedBy =
                     reader.IsDBNull(createdByOrdinal)
                         ? null
@@ -161,9 +169,7 @@ public sealed class WorkflowPendingApprovalsService
         return results;
     }
 
-    public async Task<IReadOnlyList<AwaitingDepartmentalLabourSlipModel?>> GetAwaitingDepartmentalLabourSlip(
-        int userId,
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<AwaitingDepartmentalLabourSlipModel?>> GetAwaitingDepartmentalLabourSlip(int userId, CancellationToken cancellationToken)
     {
         var result = new List<AwaitingDepartmentalLabourSlipModel>();
 
@@ -262,7 +268,22 @@ public sealed class WorkflowPendingApprovalsService
 
                 ApprovalLevel =
                     reader.GetInt16(
-                        reader.GetOrdinal("ApprovalLevel"))
+                        reader.GetOrdinal("ApprovalLevel")),
+
+                UserID =
+                    reader.GetInt32(
+                        reader.GetOrdinal("UserID")),
+
+                ContractorName = 
+                    reader["ContractorName"] as string,
+
+                NumOfLabours = 
+                    reader.GetInt32(
+                        reader.GetOrdinal("NumOfLabours")),
+
+                TotalAmount = 
+                    reader.GetDecimal(
+                        reader.GetOrdinal("TotalAmount"))
             });
         }
 

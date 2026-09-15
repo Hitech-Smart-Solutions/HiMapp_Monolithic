@@ -3,6 +3,7 @@ using System;
 using Himapp.Execution.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.Execution.Infrastructure.Migrations.Execution
 {
     [DbContext(typeof(ExecutionDbContext))]
-    partial class ExecutionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260903074308_InitialExecutionMigration_DPR")]
+    partial class InitialExecutionMigration_DPR
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -300,11 +303,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                     b.Property<bool?>("IsLumSumWork")
                         .HasColumnType("boolean")
                         .HasColumnName("IsLumSumWork");
-
-                    b.Property<string>("Justification")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("Justification");
 
                     b.Property<int?>("LabourCategoryTypeID")
                         .HasColumnType("integer")
@@ -706,9 +704,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("LastModifiedDate");
 
-                    b.Property<int>("SectionID")
-                        .HasColumnType("integer");
-
                     b.Property<Guid>("UniqueID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
@@ -780,9 +775,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("PhotoUrl");
-
-                    b.Property<int>("SectionID")
-                        .HasColumnType("integer");
 
                     b.Property<Guid>("UniqueID")
                         .ValueGeneratedOnAdd()

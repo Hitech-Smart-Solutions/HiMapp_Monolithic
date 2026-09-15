@@ -41,4 +41,12 @@ public sealed class AwaitingDepartmentalLabourSlipModel
     public bool IsReference { get; set; }
 
     public short ApprovalLevel { get; set; }
+
+    public int UserID { get; set; }
+
+    public string? ContractorName { get; set; }
+
+    public int? NumOfLabours { get; set; }
+
+    public decimal? TotalAmount { get; set; }
 }
