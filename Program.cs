@@ -135,6 +135,9 @@ builder.Services.AddScoped<ISafetyDbContext>(sp =>
 builder.Services.AddScoped<IStoreDbContext>(sp =>
     sp.GetRequiredService<StoreDbContext>());
 
+builder.Services.AddScoped<IWorkflowDbContext>(sp =>
+    sp.GetRequiredService<WorkflowDbContext>());
+
 
 // Register shared kernel services (IClock, ICurrentUser, Outbox service, hosted dispatcher)
 builder.Services.AddSharedKernel();
@@ -212,6 +215,7 @@ using (var scope = app.Services.CreateScope())
         services.GetRequiredService<PMDbContext>().Database.Migrate();
         services.GetRequiredService<SafetyDbContext>().Database.Migrate();
         services.GetRequiredService<StoreDbContext>().Database.Migrate();
+        services.GetRequiredService<WorkflowDbContext>().Database.Migrate();
         // Optional: Log success
     }
     catch (Exception ex)
