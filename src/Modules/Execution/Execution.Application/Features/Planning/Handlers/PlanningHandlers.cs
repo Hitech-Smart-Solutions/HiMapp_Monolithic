@@ -85,7 +85,7 @@ internal sealed class PlanningHandlers :
             StartDate = r.StartDate,
             EndDate = r.EndDate,
             Remarks = r.Remarks,
-            StatusID = 3,
+            StatusID = (int)ApprovalStatus.Approved,
             IsActive = true,
             CreatedBy = r.CreatedBy,
             CreatedDate = DateTime.UtcNow,

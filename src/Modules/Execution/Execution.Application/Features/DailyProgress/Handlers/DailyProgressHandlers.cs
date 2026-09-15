@@ -12,6 +12,7 @@ using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Himapp.Api.src.Shared.Exceptions;
 using Npgsql;
 using System.Data;
 using DailyProgressEntity = Himapp.Execution.Domain.Entities.DailyProgress;
@@ -54,7 +55,7 @@ internal sealed class DailyProgressHandlers :
 
         if (dbContext is null)
         {
-            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+            throw new InvalidOperationException("Unable to process the request due to a database configuration issue. Please contact support.");
         }
 
         var connection = dbContext.Database.GetDbConnection();
@@ -693,7 +694,7 @@ internal sealed class DailyProgressHandlers :
 
         if (dbContext is null)
         {
-            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+            throw new InvalidOperationException("Unable to process the request due to a database configuration issue. Please contact support.");
         }
 
         var connection = dbContext.Database.GetDbConnection();
@@ -849,7 +850,7 @@ internal sealed class DailyProgressHandlers :
 
         if (dbContext is null)
         {
-            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+            throw new InvalidOperationException("Unable to process the request due to a database configuration issue. Please contact support.");
         }
 
         var connection = dbContext.Database.GetDbConnection();
@@ -898,8 +899,11 @@ internal sealed class DailyProgressHandlers :
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in GetSectionWiseHindrancesByProjectQuery");
-            throw;
+            _logger.LogError(ex, "Error retrieving section-wise hindrances for project {ProjectID} on date {ReportDate}", request.ProjectID, request.ReportDate);
+            throw new AppException(
+                "Failed to retrieve hindrances. Please try again later.",
+                500,
+                "DATA_RETRIEVAL_ERROR");
         }
         finally
         {
@@ -918,7 +922,7 @@ internal sealed class DailyProgressHandlers :
 
         if (dbContext is null)
         {
-            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+            throw new InvalidOperationException("Unable to process the request due to a database configuration issue. Please contact support.");
         }
 
         var connection = dbContext.Database.GetDbConnection();
@@ -971,8 +975,11 @@ internal sealed class DailyProgressHandlers :
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in GetSectionWisePhotosByProjectQuery");
-            throw;
+            _logger.LogError(ex, "Error retrieving section-wise photos for project {ProjectID} on date {ReportDate}", request.ProjectID, request.ReportDate);
+            throw new AppException(
+                "Failed to retrieve photos. Please try again later.",
+                500,
+                "DATA_RETRIEVAL_ERROR");
         }
         finally
         {

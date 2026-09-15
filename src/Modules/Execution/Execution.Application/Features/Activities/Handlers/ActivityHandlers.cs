@@ -27,6 +27,17 @@ internal sealed class ActivityHandlers :
 
     public async Task<ActivityDto> Handle(CreateActivityCommand request, CancellationToken cancellationToken)
     {
+        // Validate for duplicate activity
+        var isDuplicate = await _db.Set<Activity>().AsNoTracking()
+            .Where(a => a.CompanyID == request.CompanyID 
+                && a.ActivityName.ToLower() == request.ActivityName.ToLower())
+            .AnyAsync(cancellationToken);
+
+        if (isDuplicate)
+        {
+            throw new InvalidOperationException($"An activity with the name '{request.ActivityName}' already exists for this company.");
+        }
+
         var entity = new Activity
         {
             UniqueID = Guid.NewGuid(),
@@ -55,6 +66,18 @@ internal sealed class ActivityHandlers :
     {
         var entity = await _db.Set<Activity>().FirstOrDefaultAsync(a => a.ID == request.Id, cancellationToken);
         if (entity is null) return null;
+
+        // Validate for duplicate activity (excluding the current entity)
+        var isDuplicate = await _db.Set<Activity>().AsNoTracking()
+            .Where(a => a.CompanyID == entity.CompanyID 
+                && a.ActivityName.ToLower() == request.ActivityName.ToLower()
+                && a.ID != request.Id)
+            .AnyAsync(cancellationToken);
+
+        if (isDuplicate)
+        {
+            throw new InvalidOperationException($"An activity with the name '{request.ActivityName}' already exists for this company.");
+        }
 
         entity.ActivityName = request.ActivityName;
         entity.UOMID = request.UOMID;
