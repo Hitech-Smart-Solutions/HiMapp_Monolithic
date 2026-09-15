@@ -220,6 +220,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
+        //new change
         // Log error and rethrow to prevent app from starting with a broken DB
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating the database.");
