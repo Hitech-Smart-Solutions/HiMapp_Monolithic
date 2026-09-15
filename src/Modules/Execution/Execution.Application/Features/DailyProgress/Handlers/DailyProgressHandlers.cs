@@ -1,3 +1,6 @@
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Drawing;
+using Himapp.Api.src.Shared.Exceptions;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Handlers;
 using Himapp.Execution.Application.Features.DailyProgress.Commands;
 using Himapp.Execution.Application.Features.DailyProgress.Models;
@@ -11,9 +14,11 @@ using Himapp.Execution.Domain.Entities;
 using Himapp.SharedKernel.Abstractions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using System.Data;
+using System.Diagnostics;
 using System.Text.Json;
 using DailyProgressEntity = Himapp.Execution.Domain.Entities.DailyProgress;
 using PlanningEntity = Himapp.Execution.Domain.Entities.Planning;
@@ -56,7 +61,7 @@ internal sealed class DailyProgressHandlers :
 
         if (dbContext is null)
         {
-            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+            throw new InvalidOperationException("Unable to process the request due to a database configuration issue. Please contact support.");
         }
 
         var connection = dbContext.Database.GetDbConnection();
@@ -695,7 +700,7 @@ internal sealed class DailyProgressHandlers :
 
         if (dbContext is null)
         {
-            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+            throw new InvalidOperationException("Unable to process the request due to a database configuration issue. Please contact support.");
         }
 
         var connection = dbContext.Database.GetDbConnection();
@@ -851,7 +856,7 @@ internal sealed class DailyProgressHandlers :
 
         if (dbContext is null)
         {
-            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+            throw new InvalidOperationException("Unable to process the request due to a database configuration issue. Please contact support.");
         }
 
         var connection = dbContext.Database.GetDbConnection();
@@ -900,8 +905,11 @@ internal sealed class DailyProgressHandlers :
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in GetSectionWiseHindrancesByProjectQuery");
-            throw;
+            _logger.LogError(ex, "Error retrieving section-wise hindrances for project {ProjectID} on date {ReportDate}", request.ProjectID, request.ReportDate);
+            throw new AppException(
+                "Failed to retrieve hindrances. Please try again later.",
+                500,
+                "DATA_RETRIEVAL_ERROR");
         }
         finally
         {
@@ -920,7 +928,7 @@ internal sealed class DailyProgressHandlers :
 
         if (dbContext is null)
         {
-            throw new InvalidOperationException("IExecutionDbContext is not a DbContext.");
+            throw new InvalidOperationException("Unable to process the request due to a database configuration issue. Please contact support.");
         }
 
         var connection = dbContext.Database.GetDbConnection();
@@ -973,8 +981,11 @@ internal sealed class DailyProgressHandlers :
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in GetSectionWisePhotosByProjectQuery");
-            throw;
+            _logger.LogError(ex, "Error retrieving section-wise photos for project {ProjectID} on date {ReportDate}", request.ProjectID, request.ReportDate);
+            throw new AppException(
+                "Failed to retrieve photos. Please try again later.",
+                500,
+                "DATA_RETRIEVAL_ERROR");
         }
         finally
         {
@@ -994,7 +1005,7 @@ internal sealed class DailyProgressHandlers :
         if (dbContext is null)
         {
             throw new InvalidOperationException(
-                "IExecutionDbContext is not a DbContext.");
+               "Unable to process the request due to a database configuration issue.Please contact support.");
         }
 
         var connection = dbContext.Database.GetDbConnection();
