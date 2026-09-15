@@ -18,14 +18,5 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 nullable: false,
                 defaultValue: 0);
         }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "SectionID",
-                schema: "execution",
-                table: "DailyLaborDetails");
-        }
     }
 }
