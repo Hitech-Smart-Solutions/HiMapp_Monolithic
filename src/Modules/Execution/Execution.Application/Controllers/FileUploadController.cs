@@ -1,9 +1,12 @@
-﻿using Amazon.S3;
+﻿using Amazon;
+using Amazon.S3;
 using Amazon.S3.Transfer;
+using Himapp.Shared.Files;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.VisualBasic;
 
 namespace Himapp.Execution.Application.Controllers
 {
@@ -14,14 +17,13 @@ namespace Himapp.Execution.Application.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly IConfiguration _configuration;
         private readonly IAmazonS3 _s3Client;
-        private readonly string _region;
+        private readonly RegionEndpoint region = RegionEndpoint.APSouth1;
 
-        public FileUploadController(IWebHostEnvironment environment,IConfiguration configuration,IAmazonS3 s3Client)
+        public FileUploadController(IWebHostEnvironment environment,IConfiguration configuration)
         {
             _environment = environment;
             _configuration = configuration;
-            _s3Client = s3Client;
-            _region = _configuration["AWS:Region"] ?? "ap-south-1";
+            _s3Client = new AmazonS3Client(AWSConfiguration.AWSCredentials, region);
         }
 
         [HttpPost("upload")]
@@ -30,10 +32,7 @@ namespace Himapp.Execution.Application.Controllers
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return BadRequest(new { message = "No file was uploaded." });
-
-            if (!file.ContentType.StartsWith("image/"))
-                return BadRequest(new { message = "Only image files are allowed." });
+                return BadRequest("File not selected");
 
             using var memStream = new MemoryStream();
             await file.CopyToAsync(memStream);
@@ -41,32 +40,31 @@ namespace Himapp.Execution.Application.Controllers
 
             string extension = Path.GetExtension(file.FileName);
             string storedFileName = $"{Guid.NewGuid()}{extension}";
-            string bucketName = _configuration["AWS:BucketName"]; // or from IOptions
+            string originalFileName = file.FileName;
+
+            string bucketName = AWSConfiguration.BucketName;
 
             try
             {
-                var transferUtility = new TransferUtility(_s3Client);
+                var s3Client = new AmazonS3Client(AWSConfiguration.AWSCredentials, region);
+                var transferUtility = new TransferUtility(s3Client);
+
                 await transferUtility.UploadAsync(memStream, bucketName, storedFileName);
             }
             catch (AmazonS3Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                return StatusCode(500, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                return StatusCode(500, ex.Message);
             }
 
-            // Build the public URL (if bucket is public or you want the object URL)
-            // Option 1: Use the bucket's public URL (if public-read)
-            var fileUrl = $"https://s3.{_region}.amazonaws.com/{bucketName}/{storedFileName}";
-
-            // Option 2: Generate a pre‑signed URL (if private bucket) – see below
-
+            // IMPORTANT: return stored + original filename
             return Ok(new
             {
-                url = fileUrl,
-                fileName = storedFileName
+                storedFileName,
+                originalFileName
             });
         }
     }
