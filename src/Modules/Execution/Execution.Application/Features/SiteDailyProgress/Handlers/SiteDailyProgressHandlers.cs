@@ -201,9 +201,9 @@ internal sealed class SiteDailyProgressHandlers :
 
         entity.ProjectID = r.ProjectId;
         entity.ReportDate = r.ReportDate ?? entity.ReportDate;
-        entity.Remarks = r.Remarks ?? entity.Remarks;
+        entity.Remarks = r.Remarks;
         entity.SectionID = r.SectionID ?? entity.SectionID;
-        entity.NextDayPlan = r.NextDayPlan ?? entity.NextDayPlan;
+        entity.NextDayPlan = r.NextDayPlan;
         entity.TotalAmount = r.TotalAmount;
         entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTime.UtcNow;
