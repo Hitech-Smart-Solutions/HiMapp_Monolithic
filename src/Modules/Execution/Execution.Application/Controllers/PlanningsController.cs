@@ -1,4 +1,5 @@
 using DocumentFormat.OpenXml.Office2016.Excel;
+using Himapp.Api.src.Shared.Exceptions;
 using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.Planning.Commands;
 using Himapp.Execution.Application.Features.Planning.Models;
@@ -166,6 +167,12 @@ public sealed class PlanningsController : ControllerBase
         {
             var result = await _mediator.Send(new BulkCreatePlanningCommand(request), cancellationToken);
             return Ok(result);
+        }
+        catch (BadRequestException ex)
+        {
+            // Validation errors from Excel importer / handler
+            var parts = ex.Message.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries);
+            return BadRequest(parts);
         }
         catch (InvalidOperationException ex)
         {

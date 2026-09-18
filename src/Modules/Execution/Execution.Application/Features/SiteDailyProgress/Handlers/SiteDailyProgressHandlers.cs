@@ -51,7 +51,7 @@ internal sealed class SiteDailyProgressHandlers :
             .Include(x => x.SiteDailyProgressDetail)
             .Include(x => x.SiteDailyProgressHindrance)
             .Include(x => x.SiteDailyProgressPhoto)
-            .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (d is null) return null;
 
         var details = d.SiteDailyProgressDetail?.Select(dd => new SiteDailyProgressDetailModel(
