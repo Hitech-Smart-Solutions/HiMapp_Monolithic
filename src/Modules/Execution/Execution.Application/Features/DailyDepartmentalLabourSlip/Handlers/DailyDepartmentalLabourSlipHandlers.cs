@@ -88,7 +88,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         var d = await _db.Set<DDLSEntity>()
             .AsNoTracking()
             .Include(x => x.DailyDepartmentalLabourSlipDetails)
-            .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (d is null) return null;
 
         var details = d.DailyDepartmentalLabourSlipDetails?.Select(dd => new DailyDepartmentalLabourSlipDetailsModel(
