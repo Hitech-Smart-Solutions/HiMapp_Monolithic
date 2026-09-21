@@ -23,7 +23,8 @@ internal sealed class ManpowerHandlers :
     IRequestHandler<DeleteManpowerCommand, bool>,
     IRequestHandler<DeleteManpowerActionCommand, bool>,
     IRequestHandler<GetManpowerByProjectID, DataSet>,
-    IRequestHandler<GetLastManpowerBySectionIDQuery, ManpowerModel?>
+    IRequestHandler<GetLastManpowerBySectionIDQuery, ManpowerModel?>,
+    IRequestHandler<GetManpowerBySectionProjectAndDateQuery, ManpowerModel?>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
@@ -300,7 +301,8 @@ internal sealed class ManpowerHandlers :
 
     public async Task<ManpowerModel?> Handle(GetLastManpowerBySectionIDQuery request, CancellationToken cancellationToken)
     {
-        var manpower = await _db.Set<Domain.Entities.Manpower>().AsNoTracking().Include(x => x.ManpowerDetail).Where(x => x.ProjectID == request.ProjectId && x.SectionID == request.SectionId && x.IsActive)
+        var manpower = await _db.Set<Domain.Entities.Manpower>().AsNoTracking().Include(x => x.ManpowerDetail)
+            .Where(x => x.ProjectID == request.ProjectId && x.SectionID == request.SectionId && x.IsActive)
             .OrderByDescending(x => x.EntryDate)
             .ThenByDescending(x => x.ID)
             .FirstOrDefaultAsync(cancellationToken);
@@ -473,6 +475,230 @@ internal sealed class ManpowerHandlers :
             manpower.LastModifiedBy,
             manpower.LastModifiedDate,
             details);
+    }
+
+    public async Task<ManpowerModel?> Handle(GetManpowerBySectionProjectAndDateQuery request, CancellationToken cancellationToken)
+    {
+        await using var connection = _db.Database.GetDbConnection();
+
+        if (connection.State != System.Data.ConnectionState.Open)
+            await connection.OpenAsync(cancellationToken);
+
+        await using var command = connection.CreateCommand();
+
+        command.CommandText = @"
+        SELECT *
+        FROM execution.""uspGetManpowerBySectionProjectAndDate""(
+            @projectId,
+            @sectionId,
+            @entryDate
+        );";
+
+        // =========================================================
+        // PARAMETERS
+        // =========================================================
+
+        var projectIdParameter = command.CreateParameter();
+        projectIdParameter.ParameterName = "projectId";
+        projectIdParameter.Value = request.ProjectId;
+
+        var sectionIdParameter = command.CreateParameter();
+        sectionIdParameter.ParameterName = "sectionId";
+        sectionIdParameter.Value = request.SectionId;
+
+        var entryDateParameter = command.CreateParameter();
+        entryDateParameter.ParameterName = "entryDate";
+        entryDateParameter.Value = request.entryDate;
+        entryDateParameter.DbType = System.Data.DbType.Date;
+
+        command.Parameters.Add(projectIdParameter);
+        command.Parameters.Add(sectionIdParameter);
+        command.Parameters.Add(entryDateParameter);
+
+        // =========================================================
+        // EXECUTE FUNCTION
+        // =========================================================
+
+        await using var reader =
+            await command.ExecuteReaderAsync(cancellationToken);
+
+        // =========================================================
+        // HEADER VARIABLES
+        // =========================================================
+
+        int manpowerId = 0;
+        Guid uniqueId = Guid.Empty;
+        int projectId = 0;
+        int sectionId = 0;
+        DateOnly entryDate = default;
+        string? remarks = null;
+        int stateId = 0;
+        bool isActive = false;
+        int createdBy = 0;
+        DateTimeOffset createdDate = default;
+        int lastModifiedBy = 0;
+        DateTimeOffset lastModifiedDate = default;
+
+        bool hasManpower = false;
+
+        var details = new List<ManpowerDetailModel>();
+
+        // =========================================================
+        // READ FUNCTION RESULT
+        // =========================================================
+
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            // =====================================================
+            // HEADER
+            // =====================================================
+
+            if (!hasManpower)
+            {
+                manpowerId = reader.GetInt32(
+                    reader.GetOrdinal("ID"));
+
+                uniqueId = reader.GetGuid(
+                    reader.GetOrdinal("UniqueID"));
+
+                projectId = reader.GetInt32(
+                    reader.GetOrdinal("ProjectID"));
+
+                sectionId = reader.GetInt32(
+                    reader.GetOrdinal("SectionID"));
+
+                entryDate = DateOnly.FromDateTime(
+                    reader.GetDateTime(
+                        reader.GetOrdinal("EntryDate")));
+
+                remarks = reader.IsDBNull(
+                    reader.GetOrdinal("Remarks"))
+                    ? null
+                    : reader.GetString(
+                        reader.GetOrdinal("Remarks"));
+
+                stateId = reader.GetInt32(
+                    reader.GetOrdinal("StateID"));
+
+                isActive = reader.GetBoolean(
+                    reader.GetOrdinal("IsActive"));
+
+                createdBy = reader.GetInt32(
+                    reader.GetOrdinal("CreatedBy"));
+
+                createdDate = reader.GetFieldValue<DateTimeOffset>(
+                    reader.GetOrdinal("CreatedDate"));
+
+                lastModifiedBy = reader.IsDBNull(
+                    reader.GetOrdinal("LastModifiedBy"))
+                    ? 0
+                    : reader.GetInt32(
+                        reader.GetOrdinal("LastModifiedBy"));
+
+                lastModifiedDate = reader.IsDBNull(
+                    reader.GetOrdinal("LastModifiedDate"))
+                    ? default
+                    : reader.GetFieldValue<DateTimeOffset>(
+                        reader.GetOrdinal("LastModifiedDate"));
+
+                hasManpower = true;
+            }
+
+            // =====================================================
+            // DETAIL
+            // =====================================================
+
+            var detail = new ManpowerDetailModel(
+                reader.GetInt32(
+                    reader.GetOrdinal("DetailID")),
+
+                reader.GetGuid(
+                    reader.GetOrdinal("DetailUniqueID")),
+
+                reader.IsDBNull(
+                    reader.GetOrdinal("ContractorID"))
+                    ? 0
+                    : reader.GetInt32(
+                        reader.GetOrdinal("ContractorID")),
+
+                reader.IsDBNull(
+                    reader.GetOrdinal("ContractorName"))
+                    ? string.Empty
+                    : reader.GetString(
+                        reader.GetOrdinal("ContractorName")),
+
+                reader.IsDBNull(
+                    reader.GetOrdinal("ActivityID"))
+                    ? 0
+                    : reader.GetInt32(
+                        reader.GetOrdinal("ActivityID")),
+
+                reader.IsDBNull(
+                    reader.GetOrdinal("ActivityName"))
+                    ? string.Empty
+                    : reader.GetString(
+                        reader.GetOrdinal("ActivityName")),
+
+                reader.IsDBNull(
+                    reader.GetOrdinal("SkilledCount"))
+                    ? 0
+                    : reader.GetInt32(
+                        reader.GetOrdinal("SkilledCount")),
+
+                reader.IsDBNull(
+                    reader.GetOrdinal("UnskilledCount"))
+                    ? 0
+                    : reader.GetInt32(
+                        reader.GetOrdinal("UnskilledCount")),
+
+                reader.IsDBNull(
+                    reader.GetOrdinal("OtherCount"))
+                    ? 0
+                    : reader.GetInt32(
+                        reader.GetOrdinal("OtherCount")),
+
+                reader.IsDBNull(
+                    reader.GetOrdinal("IsDepartment"))
+                    ? (bool?)null
+                    : reader.GetBoolean(
+                        reader.GetOrdinal("IsDepartment")),
+
+                reader.IsDBNull(
+                    reader.GetOrdinal("TotalCount"))
+                    ? 0
+                    : reader.GetInt32(
+                        reader.GetOrdinal("TotalCount"))
+            );
+
+            details.Add(detail);
+        }
+
+        // =========================================================
+        // NO DATA
+        // =========================================================
+
+        if (!hasManpower)
+            return null;
+
+        // =========================================================
+        // RETURN MANPOWER
+        // =========================================================
+
+        return new ManpowerModel(
+            manpowerId,
+            uniqueId,
+            projectId,
+            sectionId,
+            entryDate,
+            remarks,
+            stateId,
+            isActive,
+            createdBy,
+            createdDate,
+            lastModifiedBy,
+            lastModifiedDate,
+            details
+        );
     }
 }
 
