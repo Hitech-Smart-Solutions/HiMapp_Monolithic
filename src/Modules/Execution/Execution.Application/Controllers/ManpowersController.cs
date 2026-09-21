@@ -38,6 +38,14 @@ public sealed class ManpowersController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    [HttpGet("GetManpowerBySectionProjectAndDate/{projectId:int}/{sectionId:int}/{entryDate}")]
+    public async Task<IActionResult> GetManpowerBySectionProjectAndDate(int projectId, int sectionId, DateOnly entryDate, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetManpowerBySectionProjectAndDateQuery(projectId, sectionId, entryDate), cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
+    }
+
     [HttpPost("CreateManpower")]
     public async Task<IActionResult> Create([FromBody] CreateManpowerRequest request, CancellationToken cancellationToken)
     {
