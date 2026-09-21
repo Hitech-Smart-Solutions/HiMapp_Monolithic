@@ -8,3 +8,4 @@ public sealed record GetAllManpowersQuery : IRequest<IReadOnlyCollection<Manpowe
 public sealed record GetManpowerByIdQuery(long Id) : IRequest<ManpowerModel?>;
 public sealed record GetManpowerByProjectID(SearchParamsProjectWise SearchParamsProjectWise) : IRequest<DataSet>;
 public sealed record GetLastManpowerBySectionIDQuery(int ProjectId, int SectionId) : IRequest<ManpowerModel?>;
+public sealed record GetManpowerBySectionProjectAndDateQuery(int ProjectId, int SectionId, DateOnly entryDate) : IRequest<ManpowerModel?>;
