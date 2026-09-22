@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -17,15 +17,6 @@ namespace Himapp.Execution.Infrastructure.Migrations.Execution
                 type: "integer",
                 nullable: false,
                 defaultValue: 0);
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "SectionID",
-                schema: "execution",
-                table: "DailyLaborDetails");
         }
     }
 }

@@ -75,9 +75,9 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
     }
 
     [HttpGet("GetDailyDepartmentalLabourSlipByIdAndProgramId/{id}/program/{programId}")]
-    public async Task<IActionResult> GetDailyDepartmentalLabourSlipByIdAndProgramId(int id,int programId,CancellationToken cancellationToken)
+    public async Task<IActionResult> GetDailyDepartmentalLabourSlipByIdAndProgramId(int id, int programId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetDailyDepartmentalLabourSlipByIdAndProgramId(id,programId), cancellationToken);
+        var result = await _mediator.Send(new GetDailyDepartmentalLabourSlipByIdAndProgramId(id, programId), cancellationToken);
 
         if (result is null)
             return NotFound();
@@ -85,4 +85,14 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
         return Ok(result);
     }
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
+
+    [HttpGet("GetDDLSApprovalHistory")]
+    public async Task<IActionResult> GetDDLSApprovalHistory([FromQuery] int programId, [FromQuery] int id, CancellationToken cancellationToken)
+    {
+        if (programId <= 0 || id <= 0)
+            return BadRequest("programId and id must be greater than zero.");
+
+        var ds = await _mediator.Send(new GetDDLSApprovalHistory(programId, id), cancellationToken);
+        return Ok(ds);
+    }
 }
