@@ -97,7 +97,7 @@ internal sealed class DailyLaborHandlers :
         var entity = await _db.Set<DailyLaborEntity>()
             .AsNoTracking()
             .Include(d => d.DailyLaborDetail)
-            .FirstOrDefaultAsync(x => x.ID == request.Id && x.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
 
         if (entity is null) return null;
 

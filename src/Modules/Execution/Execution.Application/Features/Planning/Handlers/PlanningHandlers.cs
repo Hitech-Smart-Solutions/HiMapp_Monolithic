@@ -495,7 +495,7 @@ internal sealed class PlanningHandlers :
             // Get project activities
             var paList = await _db.Set<ProjectActivity>()
                 .AsNoTracking()
-                .Where(x => x.ProjectID == request.ProjectId && x.IsActive)
+                .Where(x => x.ProjectID == request.ProjectId && x.IsActive && x.Enabled)
                 .ToListAsync(cancellationToken);
 
             if (!paList.Any())
