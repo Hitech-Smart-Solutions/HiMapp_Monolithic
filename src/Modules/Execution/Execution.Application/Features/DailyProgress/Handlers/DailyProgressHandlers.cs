@@ -36,7 +36,8 @@ internal sealed class DailyProgressHandlers :
     IRequestHandler<GetDailyProgressByProjectAndDateQuery, DailyProgressModel?>,
     IRequestHandler<GetSectionWiseHindrancesByProjectQuery, List<SectionWiseHindranceModel>>,
     IRequestHandler<GetSectionWisePhotosByProjectQuery, List<SectionWisePhotoModel>>,
-    IRequestHandler<GetDailyProgressForApprovalByIdQuery, DailyProgressForApprovalByIDModel?>
+    IRequestHandler<GetDailyProgressForApprovalByIdQuery, DailyProgressForApprovalByIDModel?>,
+    IRequestHandler<GetDailyProgressApprovalHistory, DataSet>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
@@ -1159,4 +1160,32 @@ internal sealed class DailyProgressHandlers :
         }
     }
 
+    public async Task<DataSet> Handle(GetDailyProgressApprovalHistory request, CancellationToken cancellationToken)
+    {
+        // Force Npgsql path: require the underlying DbContext to obtain connection string
+        var dbContext = _db as DbContext;
+        if (dbContext is null)
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+
+        var dsLocal = new DataSet("DailyProgressApprovalHistory");
+        var connString = dbContext.Database.GetDbConnection().ConnectionString;
+
+        using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        // Rows table
+        using (var cmd = new NpgsqlCommand("SELECT * FROM public.fn_get_dailyprogress_approval_history(@p_program_id, @p_id)", conn))
+        {
+
+            cmd.Parameters.AddWithValue("@p_program_id", request.programId);
+            cmd.Parameters.AddWithValue("@p_id", request.id);
+
+            var da = new NpgsqlDataAdapter(cmd);
+            var dt = new DataTable("Rows");
+            da.Fill(dt);
+            dsLocal.Tables.Add(dt);
+        }
+
+        return dsLocal;
+    }
 }
