@@ -1,5 +1,6 @@
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Himapp.Execution.Application.Features;
+using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Queries;
 using Himapp.Execution.Application.Features.DailyProgress.Commands;
 using Himapp.Execution.Application.Features.DailyProgress.Models;
 using Himapp.Execution.Application.Features.DailyProgress.Queries;
@@ -212,4 +213,14 @@ public sealed class DailyProgressController : ControllerBase
         return OkOrNotFound(await _mediator.Send(new GetDailyProgressForApprovalByIdQuery(id, programId), cancellationToken));
     }
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
+
+    [HttpGet("GetDailyProgressApprovalHistory")]
+    public async Task<IActionResult> GetDailyProgressApprovalHistory([FromQuery] int programId, [FromQuery] int id, CancellationToken cancellationToken)
+    {
+        if (programId <= 0 || id <= 0)
+            return BadRequest("programId and id must be greater than zero.");
+
+        var ds = await _mediator.Send(new GetDailyProgressApprovalHistory(programId, id), cancellationToken);
+        return Ok(ds);
+    }
 }
