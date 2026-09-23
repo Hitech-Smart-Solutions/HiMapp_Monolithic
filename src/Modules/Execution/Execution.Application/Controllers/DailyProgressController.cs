@@ -223,4 +223,12 @@ public sealed class DailyProgressController : ControllerBase
         var ds = await _mediator.Send(new GetDailyProgressApprovalHistory(programId, id), cancellationToken);
         return Ok(ds);
     }
+
+    [HttpPost("CheckTransactionLock")]
+    public async Task<IActionResult> CheckTransactionLock([FromBody] CheckTransactionLockModel request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new CheckTransactionLockQuery(request.ProgramID, request.ProjectID, request.SectionID, DateOnly.FromDateTime(request.ReportDate)), cancellationToken);
+
+        return Ok(result);
+    }
 }
