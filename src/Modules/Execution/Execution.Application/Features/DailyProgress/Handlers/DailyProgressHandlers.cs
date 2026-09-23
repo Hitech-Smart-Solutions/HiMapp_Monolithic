@@ -37,7 +37,8 @@ internal sealed class DailyProgressHandlers :
     IRequestHandler<GetSectionWiseHindrancesByProjectQuery, List<SectionWiseHindranceModel>>,
     IRequestHandler<GetSectionWisePhotosByProjectQuery, List<SectionWisePhotoModel>>,
     IRequestHandler<GetDailyProgressForApprovalByIdQuery, DailyProgressForApprovalByIDModel?>,
-    IRequestHandler<GetDailyProgressApprovalHistory, DataSet>
+    IRequestHandler<GetDailyProgressApprovalHistory, DataSet>,
+     IRequestHandler<CheckTransactionLockQuery, CheckTransactionLockResponseModel>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
@@ -1187,5 +1188,97 @@ internal sealed class DailyProgressHandlers :
         }
 
         return dsLocal;
+    }
+
+    public async Task<CheckTransactionLockResponseModel> Handle(CheckTransactionLockQuery request, CancellationToken cancellationToken)
+    {
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "Unable to process the request due to a database configuration issue. Please contact support.");
+        }
+
+        var connection = dbContext.Database.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
+
+        try
+        {
+            using var command = connection.CreateCommand();
+
+            command.CommandText = """ SELECT * FROM execution.uspchecktransactionlock(@ProgramID, @ProjectID, @SectionID, @ReportDate); """;
+
+            var programIdParameter = command.CreateParameter();
+            programIdParameter.ParameterName = "@ProgramID";
+            programIdParameter.Value = request.ProgramID;
+            command.Parameters.Add(programIdParameter);
+
+            var projectIdParameter = command.CreateParameter();
+            projectIdParameter.ParameterName = "@ProjectID";
+            projectIdParameter.Value = request.ProjectID;
+            command.Parameters.Add(projectIdParameter);
+
+            var sectionIdParameter = command.CreateParameter();
+            sectionIdParameter.ParameterName = "@SectionID";
+            sectionIdParameter.Value = request.SectionID;
+            command.Parameters.Add(sectionIdParameter);
+
+            var reportDateParameter = command.CreateParameter();
+            reportDateParameter.ParameterName = "@ReportDate";
+            reportDateParameter.Value = request.ReportDate;
+            command.Parameters.Add(reportDateParameter);
+
+            using var reader =
+                await command.ExecuteReaderAsync(cancellationToken);
+
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return new CheckTransactionLockResponseModel
+                {
+                    IsLocked = true,
+                    Message = "Unable to determine transaction lock status."
+                };
+            }
+
+            var isLockedOrdinal = reader.GetOrdinal("IsLocked");
+            var messageOrdinal = reader.GetOrdinal("Message");
+
+            return new CheckTransactionLockResponseModel
+            {
+                IsLocked = !reader.IsDBNull(isLockedOrdinal)
+                    && reader.GetBoolean(isLockedOrdinal),
+
+                Message = reader.IsDBNull(messageOrdinal)
+                    ? string.Empty
+                    : reader.GetString(messageOrdinal)
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error checking transaction lock for ProgramID {ProgramID}, ProjectID {ProjectID}, SectionID {SectionID}, ReportDate {ReportDate}",
+                request.ProgramID,
+                request.ProjectID,
+                request.SectionID,
+                request.ReportDate);
+
+            throw new AppException(
+                "Failed to check transaction lock. Please try again later.",
+                500,
+                "TRANSACTION_LOCK_ERROR");
+        }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                await connection.CloseAsync();
+            }
+        }
     }
 }
