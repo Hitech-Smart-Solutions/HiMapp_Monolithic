@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Himapp.Execution.Domain.Entities;
 using System.Reflection;
 using Himapp.Execution.Application;
@@ -29,6 +29,8 @@ public sealed class ExecutionDbContext : DbContext, IExecutionDbContext
     public DbSet<DailyDepartmentalLabourSlip> DailyDepartmentalLabourSlips { get; set; } = null!;
     public DbSet<SiteDailyProgress> SiteDailyProgresses { get; set; } = null!;
     public DbSet<ExecutionProjectConfig> ExecutionProjectConfigs { get; set; } = null!;
+    public DbSet<LockRequest> LockRequests { get; set; } = null!;
+    public DbSet<LockRequestDetails> LockRequestDetails { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
