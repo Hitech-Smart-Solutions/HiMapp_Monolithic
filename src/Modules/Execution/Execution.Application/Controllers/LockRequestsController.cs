@@ -2,6 +2,7 @@ using Himapp.Execution.Application.Features;
 using Himapp.Execution.Application.Features.LockRequest.Commands;
 using Himapp.Execution.Application.Features.LockRequest.Models;
 using Himapp.Execution.Application.Features.LockRequest.Queries;
+using Himapp.Workflow.Application.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ public sealed class LockRequestsController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllLockRequestsQuery(), cancellationToken));
 
-    [HttpGet("{id:int}")]
+    [HttpGet("GetLockOpenRequestById/{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken) =>
         OkOrNotFound(await _mediator.Send(new GetLockRequestByIdQuery(id), cancellationToken));
 
@@ -28,14 +29,16 @@ public sealed class LockRequestsController : ControllerBase
     public async Task<IActionResult> GetLockRequestByProjectID([FromQuery] SearchParamsProjectWise searchParams, CancellationToken cancellationToken) =>
        Ok(await _mediator.Send(new GetLockRequestByProjectIdQuery(searchParams), cancellationToken));
 
-    [HttpPost]
+    [HttpPost("CreateLockOpenRequest")]
+    [RequiresApproval(programId: 98, priority: 0)]
     public async Task<IActionResult> Create([FromBody] CreateLockRequestRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new CreateLockRequestCommand(request), cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut("UpdateLockOpenRequestById/{id:int}")]
+    [RequiresApproval(programId: 98, priority: 0)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateLockRequestRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new UpdateLockRequestCommand(id, request), cancellationToken);
