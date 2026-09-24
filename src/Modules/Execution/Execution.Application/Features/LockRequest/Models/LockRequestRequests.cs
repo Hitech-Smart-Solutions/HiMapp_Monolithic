@@ -1,3 +1,4 @@
+using Himapp.Workflow.Contracts.References;
 using System.ComponentModel.DataAnnotations;
 
 namespace Himapp.Execution.Application.Features.LockRequest.Models;
@@ -10,7 +11,7 @@ public sealed class LockRequestDetailRequest
     public int Counts { get; set; }
 }
 
-public sealed class CreateLockRequestRequest
+public sealed class CreateLockRequestRequest : IWorkflowApprovalRequest
 {
     [Required]
     public int ProjectId { get; set; }
@@ -27,9 +28,10 @@ public sealed class CreateLockRequestRequest
     /// </summary>
     public int Status { get; set; } = 1;
     public List<LockRequestDetailRequest>? Details { get; set; }
+    int IWorkflowApprovalRequest.StatusId => Status;
 }
 
-public sealed class UpdateLockRequestRequest
+public sealed class UpdateLockRequestRequest : IWorkflowApprovalRequest
 {
     [Required]
     public int ProjectId { get; set; }
@@ -40,4 +42,5 @@ public sealed class UpdateLockRequestRequest
     public string? Remarks { get; set; }
     public int Status { get; set; } = 1;
     public List<LockRequestDetailRequest>? Details { get; set; }
+    int IWorkflowApprovalRequest.StatusId => Status;
 }
