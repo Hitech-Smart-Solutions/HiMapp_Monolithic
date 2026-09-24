@@ -9,4 +9,5 @@ public interface IWorkflowPendingApprovalsService
 {
     Task<IReadOnlyList<AwaitingDailyProgressModel?>> GetAwaitingDailyProgress(int userId,CancellationToken cancellationToken);
     Task<IReadOnlyList<AwaitingDepartmentalLabourSlipModel?>> GetAwaitingDepartmentalLabourSlip(int userId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<AwaitingLockOpenRequestModel?>> GetAwaitingLockOpenRequestSlip(int userId, CancellationToken cancellationToken);
 }

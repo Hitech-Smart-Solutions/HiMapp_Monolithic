@@ -62,7 +62,7 @@ public sealed class WorkflowController : ControllerBase
             userId,
             priority,
             cancellationToken);
-    
+
         return Ok(result);
     }
 
@@ -160,6 +160,30 @@ public sealed class WorkflowController : ControllerBase
         var result =
             await _workflowPendingApprovalsService
                 .GetAwaitingDepartmentalLabourSlip(
+                    userId,
+                    cancellationToken);
+
+        return Ok(result);
+    }
+
+
+
+    [HttpGet("pending/open-request-lock")]
+    public async Task<IActionResult> GetAwaitingOpenLockRequests(CancellationToken cancellationToken)
+    {
+        var userId = _currentUser.UserId ?? 0;
+
+        if (userId <= 0)
+        {
+            return Unauthorized(new
+            {
+                Message = "Invalid or missing user."
+            });
+        }
+
+        var result =
+            await _workflowPendingApprovalsService
+                .GetAwaitingLockOpenRequestSlip(
                     userId,
                     cancellationToken);
 

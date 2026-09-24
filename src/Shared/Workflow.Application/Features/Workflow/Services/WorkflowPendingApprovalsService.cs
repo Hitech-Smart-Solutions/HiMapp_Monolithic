@@ -289,4 +289,155 @@ public sealed class WorkflowPendingApprovalsService
 
         return result;
     }
+
+    public async Task<IReadOnlyList<AwaitingLockOpenRequestModel?>> GetAwaitingLockOpenRequestSlip(int userId, CancellationToken cancellationToken)
+    {
+        var results = new List<AwaitingLockOpenRequestModel>();
+
+        await using var connection =
+            _context.Database.GetDbConnection();
+
+        if (connection.State != System.Data.ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
+
+        await using var command = connection.CreateCommand();
+
+        command.CommandText = """
+            SELECT *
+            FROM public."uspGetAwaitingLockOpenRequest"(@userId);
+            """;
+
+        command.Parameters.Add(
+            new NpgsqlParameter("userId", NpgsqlTypes.NpgsqlDbType.Integer)
+            {
+                Value = userId
+            });
+
+        await using var reader =
+            await command.ExecuteReaderAsync(cancellationToken);
+
+        var programRowIdOrdinal =
+            reader.GetOrdinal("ProgramRowID");
+
+        var entityIdOrdinal =
+            reader.GetOrdinal("EntityID");
+
+        var transactionCodeOrdinal =
+            reader.GetOrdinal("TransactionCode");
+
+        var transactionDateOrdinal =
+            reader.GetOrdinal("TransactionDate");
+
+        var programNameOrdinal =
+            reader.GetOrdinal("ProgramName");
+
+        var projectNameOrdinal =
+            reader.GetOrdinal("ProjectName");
+
+        var statusIdOrdinal =
+            reader.GetOrdinal("StatusID");
+
+        var statusNameOrdinal =
+            reader.GetOrdinal("StatusName");
+
+        var createdByIDOrdinal =
+            reader.GetOrdinal("CreatedByID");
+
+        var createdByOrdinal =
+            reader.GetOrdinal("CreatedBy");
+
+        var pendingApprovalForOrdinal =
+            reader.GetOrdinal("PendingApprovalFor");
+
+        var dprCodeOrdinal =
+            reader.GetOrdinal("RequestCode");
+
+        var projectIdOrdinal =
+            reader.GetOrdinal("ProjectID");
+
+        var isDisapproveOrdinal =
+            reader.GetOrdinal("IsDisapprove");
+
+        var isReferenceOrdinal =
+            reader.GetOrdinal("IsReference");
+
+        var approvalLevelOrdinal =
+            reader.GetOrdinal("ApprovalLevel");
+
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            results.Add(new AwaitingLockOpenRequestModel
+            {
+                ProgramRowID =
+                    reader.GetInt32(programRowIdOrdinal),
+
+                EntityID =
+                    reader.GetInt32(entityIdOrdinal),
+
+                TransactionCode =
+                    reader.IsDBNull(transactionCodeOrdinal)
+                        ? null
+                        : reader.GetString(transactionCodeOrdinal),
+
+                TransactionDate =
+                    reader.IsDBNull(transactionDateOrdinal)
+                        ? null
+                        : reader.GetDateTime(transactionDateOrdinal),
+
+                ProgramName =
+                    reader.IsDBNull(programNameOrdinal)
+                        ? null
+                        : reader.GetString(programNameOrdinal),
+
+                ProjectName =
+                    reader.IsDBNull(projectNameOrdinal)
+                        ? null
+                        : reader.GetString(projectNameOrdinal),
+
+                StatusID =
+                    reader.GetInt16(statusIdOrdinal),
+
+                StatusName =
+                    reader.IsDBNull(statusNameOrdinal)
+                        ? null
+                        : reader.GetString(statusNameOrdinal),
+
+                CreatedByID =
+                    reader.IsDBNull(createdByIDOrdinal)
+                        ? null
+                        : reader.GetInt32(createdByIDOrdinal),
+
+                CreatedBy =
+                    reader.IsDBNull(createdByOrdinal)
+                        ? null
+                        : reader.GetString(createdByOrdinal),
+
+                PendingApprovalFor =
+                    reader.IsDBNull(pendingApprovalForOrdinal)
+                        ? null
+                        : reader.GetString(pendingApprovalForOrdinal),
+
+                RequestCode =
+                    reader.IsDBNull(dprCodeOrdinal)
+                        ? null
+                        : reader.GetString(dprCodeOrdinal),
+
+                ProjectID =
+                    reader.GetInt32(projectIdOrdinal),
+
+                IsDisapprove =
+                    reader.GetInt64(isDisapproveOrdinal),
+
+                IsReference =
+                    reader.GetBoolean(isReferenceOrdinal),
+
+                ApprovalLevel =
+                    reader.GetInt16(approvalLevelOrdinal)
+            });
+        }
+
+        return results;
+    }
 }
