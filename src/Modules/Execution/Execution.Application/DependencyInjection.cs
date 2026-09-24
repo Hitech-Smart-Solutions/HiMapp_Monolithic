@@ -1,4 +1,4 @@
-using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Services;
+﻿using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Services;
 using Himapp.Execution.Application.Features.DailyProgress.Service;
 using Himapp.Execution.Application.Features.Planning.Services;
 using Himapp.Execution.Application.Features.Planning.Services.IServices;
@@ -7,6 +7,7 @@ using Himapp.Execution.Contracts.Dpr;
 using Himapp.Execution.Contracts.References;
 using Microsoft.Extensions.DependencyInjection;
 using Himapp.Execution.Application.Features.DailyLabor.Services;
+using Himapp.Execution.Application.Features.LockRequest.Services;
 
 namespace Himapp.Execution.Application;
 
@@ -28,6 +29,9 @@ public static class DependencyInjection
         services.AddScoped<IDdlSlipCodeGenerator, DdlSlipCodeGenerator>();
         // DLR code generator (for DailyLabor DLR-(ProjectCode)-0001 style codes)
         services.AddScoped<IDlrCodeGenerator, DlrCodeGenerator>();
+
+        // LockRequest code generator (for LockRequest LR-(ProjectCode)-0001 style codes)
+        services.AddScoped<ILockRequestCodeGenerator, LockRequestCodeGenerator>();
 
         // Public schema project lookup (reads ProjectMaster from public schema using DB connection)
         services.AddScoped<IReferenceLookupService, PublicSchemaReferenceLookup>();
