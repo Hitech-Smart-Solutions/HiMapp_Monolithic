@@ -14,5 +14,6 @@ public sealed class Activity : BaseEntity
     public decimal OtherLabourRate { get; set; }
     public bool OutputRequired { get; set; }
     public bool IsActive { get; set; }
+    public string? Remarks { get; set; }
 }
 

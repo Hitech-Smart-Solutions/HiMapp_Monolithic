@@ -40,7 +40,7 @@ public sealed class ActivityController : ControllerBase
         try
         {
             var result = await _mediator.Send(
-                new CreateActivityCommand(request.CompanyID, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.CreateBy, request.LastModifiedBy),
+                new CreateActivityCommand(request.CompanyID, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.CreateBy, request.LastModifiedBy,request.Remarks),
                 cancellationToken);
 
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
@@ -57,7 +57,7 @@ public sealed class ActivityController : ControllerBase
         try
         {
             var result = await _mediator.Send(
-                new UpdateActivityCommand(id, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.LastModifiedBy),
+                new UpdateActivityCommand(id, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.LastModifiedBy, request.Remarks),
                 cancellationToken);
 
             return result is null ? NotFound() : Ok(result);

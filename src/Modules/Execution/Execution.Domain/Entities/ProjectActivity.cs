@@ -15,5 +15,6 @@ public sealed class ProjectActivity : BaseEntity
     public bool OutputRequired { get; set; }
     public bool Enabled { get; set; }
     public bool IsActive { get; set; }
+    public string? Remarks { get; set; }
 }
 

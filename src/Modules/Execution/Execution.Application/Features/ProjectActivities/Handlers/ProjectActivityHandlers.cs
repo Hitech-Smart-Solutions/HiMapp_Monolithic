@@ -54,14 +54,15 @@ internal sealed class ProjectActivityHandlers :
                 CreatedBy = r.CreatedBy ?? 0,
                 CreatedDate = DateTime.UtcNow,
                 LastModifiedBy = r.LastModifiedBy ?? 0,
-                LastModifiedDate = DateTime.UtcNow
+                LastModifiedDate = DateTime.UtcNow,
+                Remarks = r.Remarks
             };
 
             _db.Set<ProjectActivity>().Add(entity);
             await AddActivityCategoryDetailsAsync(entity, r.SkilledLabourRate, r.UnSkilledLabourRate, r.OtherLabourRate,
                 r.LastModifiedBy, cancellationToken);
             await _db.SaveChangesAsync(cancellationToken);
-            return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+            return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate,entity.Remarks);
         }
         else
         {
@@ -75,6 +76,7 @@ internal sealed class ProjectActivityHandlers :
             entityExists.OutputRequired = request.Request.OutputRequired;
             entityExists.LastModifiedBy = request.Request.LastModifiedBy ?? 0;
             entityExists.LastModifiedDate = DateTime.UtcNow;
+            entityExists.Remarks = request.Request.Remarks;
 
             await UpdateActivityCategoryDetailsAsync(entityExists, request.Request.SkilledLabourRate,
                 request.Request.UnSkilledLabourRate, request.Request.OtherLabourRate,
@@ -82,7 +84,7 @@ internal sealed class ProjectActivityHandlers :
 
             await _db.SaveChangesAsync(cancellationToken);
 
-            return new ProjectActivityModel(entityExists.ID, entityExists.UniqueID, entityExists.ProjectID, entityExists.ActivityID, entityExists.IsActive, entityExists.Enabled, entityExists.RevenueRate, entityExists.SkilledLabourRate, entityExists.UnSkilledLabourRate, entityExists.OtherLabourRate, entityExists.OutputRequired, entityExists.CreatedBy, entityExists.CreatedDate, entityExists.LastModifiedBy, entityExists.LastModifiedDate);
+            return new ProjectActivityModel(entityExists.ID, entityExists.UniqueID, entityExists.ProjectID, entityExists.ActivityID, entityExists.IsActive, entityExists.Enabled, entityExists.RevenueRate, entityExists.SkilledLabourRate, entityExists.UnSkilledLabourRate, entityExists.OtherLabourRate, entityExists.OutputRequired, entityExists.CreatedBy, entityExists.CreatedDate, entityExists.LastModifiedBy, entityExists.LastModifiedDate,entityExists.Remarks);
         }
 
     }
@@ -102,6 +104,7 @@ internal sealed class ProjectActivityHandlers :
         entity.OutputRequired = request.Request.OutputRequired;
         entity.LastModifiedBy = request.Request.LastModifiedBy ?? 0;
         entity.LastModifiedDate = DateTime.UtcNow;
+        entity.Remarks = request.Request.Remarks;
 
         await UpdateActivityCategoryDetailsAsync(entity, request.Request.SkilledLabourRate,
             request.Request.UnSkilledLabourRate, request.Request.OtherLabourRate,
@@ -109,7 +112,7 @@ internal sealed class ProjectActivityHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate);
+        return new ProjectActivityModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.ActivityID, entity.IsActive, entity.Enabled, entity.RevenueRate, entity.SkilledLabourRate, entity.UnSkilledLabourRate, entity.OtherLabourRate, entity.OutputRequired, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate,entity.Remarks);
     }
 
     private async Task AddActivityCategoryDetailsAsync(ProjectActivity projectActivity, decimal skilledRate, decimal unskilledRate, decimal otherRate, int? lastModifiedBy, CancellationToken cancellationToken)
@@ -267,7 +270,7 @@ internal sealed class ProjectActivityHandlers :
     {
         var p = await _db.Set<ProjectActivity>().AsNoTracking().FirstOrDefaultAsync(x => x.ID == request.Id, cancellationToken);
         if (p is null) return null;
-        return new ProjectActivityModel(p.ID, p.UniqueID, p.ProjectID, p.ActivityID, p.IsActive, p.Enabled, p.RevenueRate, p.SkilledLabourRate, p.UnSkilledLabourRate, p.OtherLabourRate, p.OutputRequired, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate);
+        return new ProjectActivityModel(p.ID, p.UniqueID, p.ProjectID, p.ActivityID, p.IsActive, p.Enabled, p.RevenueRate, p.SkilledLabourRate, p.UnSkilledLabourRate, p.OtherLabourRate, p.OutputRequired, p.CreatedBy, p.CreatedDate, p.LastModifiedBy, p.LastModifiedDate,p.Remarks);
     }
 
     public async Task<System.Data.DataSet> Handle(GetProjectActivitiesByProjectIdQuery request, CancellationToken cancellationToken)
