@@ -53,13 +53,14 @@ internal sealed class ActivityHandlers :
             CreatedBy = request.CreateBy,
             CreatedDate = DateTime.UtcNow,
             LastModifiedBy = request.LastModifiedBy,
-            LastModifiedDate = DateTime.UtcNow
+            LastModifiedDate = DateTime.UtcNow,
+            Remarks = request.Remarks
         };
 
         _db.Set<Activity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new ActivityDto(entity.ID, request.CompanyID, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.CreateBy, request.LastModifiedBy);
+        return new ActivityDto(entity.ID, request.CompanyID, request.ActivityName, request.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, request.CreateBy, request.LastModifiedBy,request.Remarks);
     }
 
     public async Task<ActivityDto?> Handle(UpdateActivityCommand request, CancellationToken cancellationToken)
@@ -89,10 +90,11 @@ internal sealed class ActivityHandlers :
         entity.OutputRequired = request.OutputRequired;
         entity.LastModifiedBy = request.LastModifiedBy;
         entity.LastModifiedDate = DateTime.UtcNow;
+        entity.Remarks = request.Remarks;
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new ActivityDto(entity.ID, entity.CompanyID, entity.ActivityName, entity.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, entity.CreatedBy, entity.LastModifiedBy);
+        return new ActivityDto(entity.ID, entity.CompanyID, entity.ActivityName, entity.UOMID, request.RevenueRate, request.SkilledLabourRate, request.UnSkilledLabourRate, request.OtherLabourRate, request.OutputRequired, entity.CreatedBy, entity.LastModifiedBy,entity.Remarks);
     }
 
     public async Task<bool> Handle(DeleteActivityCommand request, CancellationToken cancellationToken)
@@ -192,7 +194,7 @@ internal sealed class ActivityHandlers :
                              a.OtherLabourRate,
                              a.OutputRequired,                             
                              a.CreatedBy,
-                             a.LastModifiedBy))
+                             a.LastModifiedBy,a.Remarks))
                         .FirstOrDefaultAsync(cancellationToken);
 
         return dto;
