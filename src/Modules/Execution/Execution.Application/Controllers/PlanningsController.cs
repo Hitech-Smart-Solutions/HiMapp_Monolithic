@@ -104,7 +104,7 @@ public sealed class PlanningsController : ControllerBase
             var result = await _mediator.Send(new GetPlanningListByProjectQuery(searchParams), cancellationToken);
             return Ok(result);
         }
-        catch (Exception)
+        catch (Exception ex) 
         {
             return StatusCode(500, "An unexpected error occurred.");
         }

@@ -15,7 +15,8 @@ public sealed record ProjectActivityModel(
     int? CreatedBy,
     System.DateTimeOffset CreatedDate,
     int? LastModifiedBy,
-    System.DateTimeOffset LastModifiedDate
+    System.DateTimeOffset LastModifiedDate,
+    string? Remarks
 );
 
 public sealed record ProjectActivityRefrenceModel(
@@ -33,6 +34,6 @@ public sealed record ProjectActivityRefrenceModel(
     string UOMName
 );
 
-public sealed record CreateProjectActivityRequest(int ProjectId, int ActivityId, bool Enabled, decimal RevenueRate, decimal SkilledLabourRate, decimal UnSkilledLabourRate, decimal OtherLabourRate, bool OutputRequired, int? CreatedBy, int? LastModifiedBy);
+public sealed record CreateProjectActivityRequest(int ProjectId, int ActivityId, bool Enabled, decimal RevenueRate, decimal SkilledLabourRate, decimal UnSkilledLabourRate, decimal OtherLabourRate, bool OutputRequired, int? CreatedBy, int? LastModifiedBy,string Remarks);
 
-public sealed record UpdateProjectActivityRequest(int Id, int ProjectId, int ActivityId, bool Enabled, decimal RevenueRate, decimal SkilledLabourRate, decimal UnSkilledLabourRate, decimal OtherLabourRate, bool OutputRequired, int? CreatedBy, int? LastModifiedBy);
+public sealed record UpdateProjectActivityRequest(int Id, int ProjectId, int ActivityId, bool Enabled, decimal RevenueRate, decimal SkilledLabourRate, decimal UnSkilledLabourRate, decimal OtherLabourRate, bool OutputRequired, int? CreatedBy, int? LastModifiedBy, string Remarks);
