@@ -34,7 +34,7 @@ internal sealed class LockRequestHandlers :
     public LockRequestHandlers(IExecutionDbContext db, IProjectDirectory projectDirectory, ILockRequestCodeGenerator codeGenerator, ICurrentUser currentUser) =>
         (_db, _projectDirectory, _codeGenerator, _currentUser) = (db, projectDirectory, codeGenerator, currentUser);
 
-    private int CurrentUserId => _currentUser.UserId ?? 5633;
+    private int CurrentUserId => _currentUser.UserId ?? 0;
 
     public async Task<IReadOnlyCollection<LockRequestModel>> Handle(GetAllLockRequestsQuery request, CancellationToken cancellationToken)
     {
@@ -127,10 +127,6 @@ internal sealed class LockRequestHandlers :
         var r = request.Request;
         var userId = CurrentUserId;
 
-        if (!Enum.IsDefined(typeof(LockRequestState), (short)r.Status))
-        {
-            throw new ArgumentException("Invalid Lock Request status.");
-        }
 
         var entity = new LockRequestEntity
         {
@@ -226,17 +222,6 @@ internal sealed class LockRequestHandlers :
         if (entity is null) return null;
 
         var r = request.Request;
-
-        if (!Enum.IsDefined(typeof(LockRequestState), (short)r.Status))
-        {
-            throw new ArgumentException("Invalid Lock Request status.");
-        }
-
-        if (entity.StateID == (short)LockRequestState.Submitted)
-        {
-            throw new InvalidOperationException(
-                "Submitted Lock Request cannot be modified.");
-        }
 
         entity.ProjectID = r.ProjectId;
         entity.RequestDate = DateTime.SpecifyKind(r.RequestDate, DateTimeKind.Utc);
