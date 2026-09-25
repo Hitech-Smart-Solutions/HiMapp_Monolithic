@@ -10,6 +10,11 @@ namespace Himapp.Execution.Domain.Entities
         public Guid UniqueID { get; set; }
         public int ProjectID { get; set; }
         public decimal MaxHours { get; set; }
+
+        public int DDLSBackDatedDays { get; set; }
+        public bool DDLSDPRLinkage { get; set; }
+        public bool DPREntryContinue { get; set; }
+        public bool PlanningRequired { get; set; }
         public bool IsActive { get; set; }
         public int CreatedBy { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
