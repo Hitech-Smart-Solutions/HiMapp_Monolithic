@@ -29,11 +29,6 @@ namespace Himapp.Execution.Application.Features
         Draft = 1,
         Submitted = 2
     }
-    public enum LockRequestState : short
-    {
-        Draft = 1,
-        Submitted = 2
-    }
     public enum ApprovalStatus
     {
         Draft = 1,
