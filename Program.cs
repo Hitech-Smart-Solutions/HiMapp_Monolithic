@@ -55,9 +55,9 @@ builder.Services.AddControllers()
     );  // 🔥 Registers the global auto-log action filter for ALL controllers
 builder.Services.AddHealthChecks();
 builder.Services.AddSignalR();
-builder.Configuration
-    .SetBasePath(builder.Environment.ContentRootPath)
-    .AddJsonFile("secret.json", optional: false, reloadOnChange: true);
+//builder.Configuration
+//    .SetBasePath(builder.Environment.ContentRootPath)
+//    .AddJsonFile("secret.json", optional: false, reloadOnChange: true);
 AWSConfiguration.Initialize(builder.Configuration);
 
 // Authentication (JWT) - read values from configuration: Jwt:Issuer, Jwt:Audience, Jwt:Key
