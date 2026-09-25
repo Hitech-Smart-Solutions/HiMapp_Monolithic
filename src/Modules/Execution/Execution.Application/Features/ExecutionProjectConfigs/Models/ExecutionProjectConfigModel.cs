@@ -5,6 +5,10 @@ public sealed record ExecutionProjectConfigModel(
     Guid UniqueId,
     int ProjectId,
     decimal MaxHours,
+    int DDLSBackDatedDays,
+    bool DDLSDPRLinkage,
+    bool DPREntryContinue,
+    bool PlanningRequired,
     bool IsActive,
     int CreatedBy,
     DateTimeOffset CreatedDate,
@@ -14,10 +18,18 @@ public sealed record ExecutionProjectConfigModel(
 public sealed record CreateExecutionProjectConfigRequest(
     int ProjectId,
     decimal MaxHours,
+    int DDLSBackDatedDays,
+    bool DDLSDPRLinkage,
+    bool DPREntryContinue,
+    bool PlanningRequired,
     int CreatedBy);
 
 public sealed record UpdateExecutionProjectConfigRequest(
     int ProjectId,
     decimal MaxHours,
+    int DDLSBackDatedDays,
+    bool DDLSDPRLinkage,
+    bool DPREntryContinue,
+    bool PlanningRequired,
     bool IsActive,
     int LastModifiedBy);

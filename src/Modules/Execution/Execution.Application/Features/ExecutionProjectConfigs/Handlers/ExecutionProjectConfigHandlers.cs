@@ -27,6 +27,10 @@ internal sealed class ExecutionProjectConfigHandlers :
             UniqueID = Guid.NewGuid(),
             ProjectID = config.ProjectId,
             MaxHours = config.MaxHours,
+            DDLSBackDatedDays = config.DDLSBackDatedDays,
+            DDLSDPRLinkage = config.DDLSDPRLinkage,
+            DPREntryContinue = config.DPREntryContinue,
+            PlanningRequired = config.PlanningRequired,
             IsActive = true,
             CreatedBy = config.CreatedBy,
             CreatedDate = now,
@@ -56,6 +60,10 @@ internal sealed class ExecutionProjectConfigHandlers :
         var config = request.Request;
         entity.ProjectID = config.ProjectId;
         entity.MaxHours = config.MaxHours;
+        entity.DDLSBackDatedDays = config.DDLSBackDatedDays;
+        entity.DDLSDPRLinkage = config.DDLSDPRLinkage;
+        entity.DPREntryContinue = config.DPREntryContinue;
+        entity.PlanningRequired = config.PlanningRequired;
         entity.IsActive = config.IsActive;
         entity.LastModifiedBy = config.LastModifiedBy;
         entity.LastModifiedDate = DateTimeOffset.UtcNow;
@@ -80,6 +88,10 @@ internal sealed class ExecutionProjectConfigHandlers :
         entity.UniqueID,
         entity.ProjectID,
         entity.MaxHours,
+        entity.DDLSBackDatedDays,
+        entity.DDLSDPRLinkage,
+        entity.DPREntryContinue,
+        entity.PlanningRequired,
         entity.IsActive,
         entity.CreatedBy,
         entity.CreatedDate,
