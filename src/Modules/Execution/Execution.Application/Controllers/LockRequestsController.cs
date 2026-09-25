@@ -59,5 +59,19 @@ public sealed class LockRequestsController : ControllerBase
         return result ? Ok() : NotFound();
     }
 
+    [HttpGet("GetLockOpenRequestByIdAndProgramId")]
+    public async Task<IActionResult> GetLockOpenRequestByIdAndProgramId(int id,int programId,CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new GetLockOpenRequestByIdAndProgramIdQuery(id, programId),
+            cancellationToken);
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }
