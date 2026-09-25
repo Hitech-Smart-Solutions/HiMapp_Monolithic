@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;
+using System.Text.Json;
 using LockRequestEntity = Himapp.Execution.Domain.Entities.LockRequest;
 
 namespace Himapp.Execution.Application.Features.LockRequest.Handlers;
@@ -22,7 +23,8 @@ internal sealed class LockRequestHandlers :
     IRequestHandler<UpdateLockRequestCommand, LockRequestModel?>,
     IRequestHandler<DeleteLockRequestCommand, bool>,
     IRequestHandler<DeleteLockRequestActionCommand, bool>,
-    IRequestHandler<GetLockRequestByProjectIdQuery, DataSet>
+    IRequestHandler<GetLockRequestByProjectIdQuery, DataSet>,
+    IRequestHandler<GetLockOpenRequestByIdAndProgramIdQuery, LockOpenRequestByIDModel?>
 {
     private readonly IExecutionDbContext _db;
     private readonly IProjectDirectory _projectDirectory;
@@ -338,5 +340,129 @@ internal sealed class LockRequestHandlers :
         }
 
         return dsLocal;
+    }
+
+    public async Task<LockOpenRequestByIDModel?> Handle(GetLockOpenRequestByIdAndProgramIdQuery request,CancellationToken cancellationToken)
+    {
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "Unable to process the request due to a database configuration issue. Please contact support.");
+        }
+
+        var connection = dbContext.Database.GetDbConnection();
+
+        try
+        {
+            if (connection.State != ConnectionState.Open)
+            {
+                await connection.OpenAsync(cancellationToken);
+            }
+
+            using var command = connection.CreateCommand();
+
+            command.CommandText = """
+            SELECT
+                "Header",
+                "Details"
+            FROM execution."uspGetLockOpenRequestByIdAndProgramId"(
+                @Id,
+                @ProgramId
+            );
+            """;
+
+            var idParameter = command.CreateParameter();
+            idParameter.ParameterName = "@Id";
+            idParameter.Value = request.Id;
+            command.Parameters.Add(idParameter);
+
+            var programIdParameter = command.CreateParameter();
+            programIdParameter.ParameterName = "@ProgramId";
+            programIdParameter.Value = request.ProgramId;
+            command.Parameters.Add(programIdParameter);
+
+            using var reader =
+                await command.ExecuteReaderAsync(cancellationToken);
+
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            // =========================================================
+            // HEADER
+            // =========================================================
+
+            var headerJson = reader.IsDBNull(0)
+                ? null
+                : reader.GetFieldValue<string>(0);
+
+            if (string.IsNullOrWhiteSpace(headerJson))
+            {
+                return null;
+            }
+
+            var header =
+                JsonSerializer.Deserialize<LockOpenRequestHeaderDbModel>(
+                    headerJson,
+                    jsonOptions);
+
+            if (header is null)
+            {
+                return null;
+            }
+
+            // =========================================================
+            // DETAILS
+            // =========================================================
+
+            var detailsJson = reader.IsDBNull(1)
+                ? "[]"
+                : reader.GetFieldValue<string>(1);
+
+            var details =
+                JsonSerializer.Deserialize<
+                    LockOpenRequestDetailModel[]>(
+                    detailsJson,
+                    jsonOptions)
+                ?? Array.Empty<LockOpenRequestDetailModel>();
+
+            // =========================================================
+            // FINAL MODEL
+            // =========================================================
+
+            return new LockOpenRequestByIDModel
+            {
+                ID = header.ID,
+                UniqueID = header.UniqueID,
+                RequestCode = header.RequestCode,
+                RequestDate = header.RequestDate,
+                Remarks = header.Remarks,
+                CompanyID = header.CompanyID,
+                ProjectID = header.ProjectID,
+                ProgramID = header.ProgramID,
+                StateID = header.StateID,
+                IsActive = header.IsActive,
+                CreatedBy = header.CreatedBy,
+                CreatedDate = header.CreatedDate,
+                LastModifiedBy = header.LastModifiedBy,
+                LastModifiedDate = header.LastModifiedDate,
+                Details = details
+            };
+        }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                await connection.CloseAsync();
+            }
+        }
     }
 }
