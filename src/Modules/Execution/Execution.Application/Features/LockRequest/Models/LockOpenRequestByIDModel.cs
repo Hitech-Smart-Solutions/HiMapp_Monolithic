@@ -26,11 +26,11 @@ namespace Himapp.Execution.Application.Features.LockRequest.Models
 
         public bool IsActive { get; init; }
 
-        public int CreatedBy { get; init; }
+        public string? CreatedBy { get; init; }
 
         public DateTime CreatedDate { get; init; }
 
-        public int? LastModifiedBy { get; init; }
+        public string? LastModifiedBy { get; init; }
 
         public DateTime? LastModifiedDate { get; init; }
 
