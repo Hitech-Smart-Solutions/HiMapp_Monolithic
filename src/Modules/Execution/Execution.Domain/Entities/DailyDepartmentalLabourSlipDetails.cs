@@ -22,7 +22,10 @@ namespace Himapp.Execution.Domain.Entities
         public DateTime TOTime { get; set; }
         public decimal? LunchHour { get; set; }
         public decimal? WorkingHours { get; set; }
-
+        public decimal? TotalWorkingHours { get; set; }
+        public decimal? ManDays { get; set; }
+        public decimal Rate { get; set; }
+        public decimal Amount { get; set; }
         public int? WorkLocationID { get; set; }
         public int? ActivityID { get; set; }
         public string? ActivityDetails { get; set; }
@@ -30,7 +33,6 @@ namespace Himapp.Execution.Domain.Entities
         public decimal? Quantity { get; set; }
         public int? DebitPartyID { get; set; }
         public string? Remarks { get; set; }
-
         public short? StateID { get; set; }
         public bool IsActive { get; set; } = true;
 

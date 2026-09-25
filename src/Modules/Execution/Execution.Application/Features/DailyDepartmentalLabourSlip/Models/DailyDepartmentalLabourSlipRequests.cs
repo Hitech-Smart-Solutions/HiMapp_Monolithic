@@ -22,6 +22,9 @@ public sealed class CreateDailyDepartmentalLabourSlipRequest : IWorkflowApproval
 
     public int LastModifiedBy { get; set; }
 
+    public decimal TotalAmount { get; set; }
+
+
     public List<DailyDepartmentalLabourSlipDetailsRequest>? Details { get; set; }
 
     int IWorkflowApprovalRequest.StatusId => StatusID;
@@ -35,6 +38,8 @@ public sealed class UpdateDailyDepartmentalLabourSlipRequest : IWorkflowApproval
     public DateTime? SlipDate { get; set; }
 
     public string? IssueNumber { get; set; }
+
+    public decimal TotalAmount { get; set; }
 
     public int? PartyID { get; set; }
 

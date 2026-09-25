@@ -20,7 +20,12 @@ public sealed class DailyDepartmentalLabourSlipDetailsModel
     public int? DebitPartyId { get; init; }
     public string? Remarks { get; init; }
 
-    public DailyDepartmentalLabourSlipDetailsModel(int id, Guid uniqueId, int? labourCategoryTypeId, bool? isLumSumWork, string? justification,int? numOfLabour, DateTime? fromTime, DateTime? toTime, decimal? lunchHour, decimal? workingHours, int? workLocationId, int? activityId, string? activityDetails, int? uomId, decimal? quantity, int? debitPartyId, string? remarks)
+    public decimal? TotalWorkingHours { get; set; }
+    public decimal? ManDays { get; set; }
+    public decimal Rate { get; set; }
+    public decimal Amount { get; set; }
+
+    public DailyDepartmentalLabourSlipDetailsModel(int id, Guid uniqueId, int? labourCategoryTypeId, bool? isLumSumWork, string? justification,int? numOfLabour, DateTime? fromTime, DateTime? toTime, decimal? lunchHour, decimal? workingHours, int? workLocationId, int? activityId, string? activityDetails, int? uomId, decimal? quantity, int? debitPartyId, string? remarks,decimal? totalworkingHours, decimal? mandays,decimal rate,decimal amount)
     {
         Id = id;
         UniqueId = uniqueId;
@@ -32,6 +37,7 @@ public sealed class DailyDepartmentalLabourSlipDetailsModel
         ToTime = toTime;
         LunchHour = lunchHour;
         WorkingHours = workingHours;
+
         WorkLocationId = workLocationId;
         ActivityId = activityId;
         ActivityDetails = activityDetails;
@@ -39,6 +45,10 @@ public sealed class DailyDepartmentalLabourSlipDetailsModel
         Quantity = quantity;
         DebitPartyId = debitPartyId;
         Remarks = remarks;
+        TotalWorkingHours = totalworkingHours;
+        ManDays = mandays;
+        Rate = rate;
+        Amount = amount;
     }
 }
 
@@ -58,4 +68,9 @@ public sealed class DailyDepartmentalLabourSlipDetailsRequest
     public decimal? Quantity { get; set; }
     public int? DebitPartyId { get; set; }
     public string? Remarks { get; set; }
+    public decimal? WorkingHours { get; set; }
+    public decimal? TotalWorkingHours { get; set; }
+    public decimal? ManDays { get; set; }
+    public decimal Rate { get; set; }
+    public decimal Amount { get; set; }
 }

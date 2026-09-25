@@ -108,7 +108,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.UOMID,
             dd.Quantity,
             dd.DebitPartyID,
-            dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
+            dd.Remarks, dd.TotalWorkingHours, dd.ManDays, dd.Rate, dd.Amount)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
         return new DailyDepartmentalLabourSlipModel(d.ID, d.UniqueID, d.ProjectID, d.SlipDate, d.DDLSlipCode, d.IssueNumber, d.PartyID, d.Remarks, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details);
     }
@@ -128,6 +128,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             DDLSlipCode = string.IsNullOrWhiteSpace(generatedCode) ? null : generatedCode,
             IssueNumber = r.IssueNumber,
             PartyID = r.PartyID,
+            TotalAmount = r.TotalAmount,
             SlipDate = r.SlipDate.HasValue ? DateTime.SpecifyKind(r.SlipDate.Value.Date, DateTimeKind.Utc) : DateTime.UtcNow.Date,
             Remarks = r.Remarks,
             StatusID = r.StatusID,
@@ -166,7 +167,11 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                     CreatedBy = userId,
                     CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = userId,
-                    LastModifiedDate = DateTime.UtcNow
+                    LastModifiedDate = DateTime.UtcNow,
+                    TotalWorkingHours=d.TotalWorkingHours,
+                    ManDays = d.ManDays,
+                    Rate = d.Rate,
+                    Amount = d.Amount
                 };
 
                 entity.DailyDepartmentalLabourSlipDetails?.Add(detail);
@@ -193,7 +198,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.UOMID,
             dd.Quantity,
             dd.DebitPartyID,
-            dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
+            dd.Remarks,dd.TotalWorkingHours,dd.ManDays,dd.Rate,dd.Amount)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
         return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
@@ -247,7 +252,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         entity.StatusID = r.StatusID;
         entity.LastModifiedBy = r.LastModifiedBy;
         entity.LastModifiedDate = DateTime.UtcNow;
-
+        entity.TotalAmount = r.TotalAmount;
         // Remove existing details and add new ones
         if (entity.DailyDepartmentalLabourSlipDetails != null && entity.DailyDepartmentalLabourSlipDetails.Any())
         {
@@ -282,7 +287,11 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                     CreatedBy = r.LastModifiedBy,
                     CreatedDate = DateTime.UtcNow,
                     LastModifiedBy = r.LastModifiedBy,
-                    LastModifiedDate = DateTime.UtcNow
+                    LastModifiedDate = DateTime.UtcNow,
+                    TotalWorkingHours = d.TotalWorkingHours,
+                    ManDays = d.ManDays,
+                    Rate = d.Rate,
+                    Amount = d.Amount
                 };
 
                 entity.DailyDepartmentalLabourSlipDetails?.Add(detail);
@@ -308,7 +317,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.UOMID,
             dd.Quantity,
             dd.DebitPartyID,
-            dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
+            dd.Remarks, dd.TotalWorkingHours, dd.ManDays, dd.Rate, dd.Amount)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
         return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }

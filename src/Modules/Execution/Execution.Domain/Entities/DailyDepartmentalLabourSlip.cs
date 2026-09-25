@@ -14,22 +14,19 @@ namespace Himapp.Execution.Domain.Entities
         }
 
         public int? ProjectID { get; set; }
-
         public string? DDLSlipCode { get; set; }
         public DateTime? SlipDate { get; set; }
         public string? IssueNumber { get; set; }
-
+        public decimal TotalAmount { get; set; }
         public int? PartyID { get; set; }
         public bool? IsNewParty { get; set; }
         public string? NewParty { get; set; }
-
         public string? Remarks { get; set; }
         public int StatusID { get; set; }
         public bool IsActive { get; set; } = true;
         public string? DocumentName { get; set; }
         public string? DocumentContentType { get; set; }
         public string? DocumentPath { get; set; }
-
         public int? IsDisapproved { get; set; }
         public int? TotalWrkMins { get; set; }
         public int? DPRSlipIssueID { get; set; }

@@ -8,34 +8,23 @@ namespace Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Mode
     {
         public int Id { get; init; }
         public Guid UniqueId { get; init; }
-
         public int? ProjectId { get; init; }
         public string? ProjectName { get; init; }
-
         public DateTime? SlipDate { get; init; }
         public string? DDLSlipCode { get; init; }
         public string? IssueNumber { get; init; }
-
         public int? PartyID { get; init; }
         public string? ContractorName { get; init; }
-
         public string? Remarks { get; init; }
-
         public int StatusID { get; init; }
         public bool IsActive { get; init; }
-
         public int CreatedBy { get; init; }
         public string? CreatedName { get; init; }
-
         public DateTime CreatedDate { get; init; }
-
         public int LastModifiedBy { get; init; }
         public DateTime LastModifiedDate { get; init; }
-
         public int? IsAwaitingApprovalForId { get; init; }
-
         public IReadOnlyCollection<GetDailyDepartmentalLabourSlipDetailsModel> Details { get; init; }
-
         public GetDailyDepartmentalLabourSlipByIdModel(
             int id,
             Guid uniqueId,
@@ -98,12 +87,9 @@ namespace Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Mode
         public int? UomId { get; init; }
         public string? SYMBOL { get; set; }
         public decimal? Quantity { get; init; }
-
         public int? DebitPartyId { get; init; }
         public string? DebitPartyName { get; init; }
-
         public string? Remarks { get; init; }
-
         public GetDailyDepartmentalLabourSlipDetailsModel(
             int id,
             Guid uniqueId,
