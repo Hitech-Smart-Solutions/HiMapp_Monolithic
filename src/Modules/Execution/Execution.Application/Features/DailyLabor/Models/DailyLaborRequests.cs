@@ -13,6 +13,7 @@ public sealed class DailyLaborDetailRequest
     public string? ContractorName { get; set; }
     public int? ActivityId { get; set; }
     public int SectionId { get; set; }
+    public bool? IsDepartment { get; set; }
 }
 
 public sealed class CreateDailyLaborRequest
