@@ -14,6 +14,8 @@ public sealed class CreateDailyDepartmentalLabourSlipRequest : IWorkflowApproval
 
     public int? PartyID { get; set; }
 
+    public int? TotalAmount { get; set; }
+
     public string? Remarks { get; set; }
 
     public int StatusID { get; set; }
@@ -38,6 +40,8 @@ public sealed class UpdateDailyDepartmentalLabourSlipRequest : IWorkflowApproval
 
     public int? PartyID { get; set; }
 
+    public int? TotalAmount { get; set; }
+
     public string? Remarks { get; set; }
 
     public int StatusID { get; set; }
@@ -58,6 +62,7 @@ public sealed class DailyDepartmentalLabourSlipModel : IWorkflowApprovalResult
     public string? DDLSlipCode { get; init; }
     public string? IssueNumber { get; set; }
     public int? PartyID { get; set; }
+    public int? TotalAmount { get; set; }
     public string? Remarks { get; init; }
     public int StatusID { get; set; }
     public IWorkflowApprovalResult WithStatus(int statusId)
@@ -73,7 +78,7 @@ public sealed class DailyDepartmentalLabourSlipModel : IWorkflowApprovalResult
     public int? IsAwaitingApprovalForId { get; init; }
     public IReadOnlyCollection<DailyDepartmentalLabourSlipDetailsModel> Details { get; init; }
 
-    public DailyDepartmentalLabourSlipModel(int id, Guid uniqueId, int? projectId, DateTime? slipDate, string? ddlSlipCode, string? issueNumber, int? partyId, 
+    public DailyDepartmentalLabourSlipModel(int id, Guid uniqueId, int? projectId, DateTime? slipDate, string? ddlSlipCode, string? issueNumber, int? partyId,int? totalAmount,
         string? remarks, int statusId, bool isActive, int createdBy, DateTime createdDate, int lastModifiedBy, DateTime lastModifiedDate, 
         IReadOnlyCollection<DailyDepartmentalLabourSlipDetailsModel> details, int? isAwaitingApprovalForId = null)
     {
@@ -84,6 +89,7 @@ public sealed class DailyDepartmentalLabourSlipModel : IWorkflowApprovalResult
         DDLSlipCode = ddlSlipCode;
         IssueNumber = issueNumber;
         PartyID = partyId;
+        TotalAmount = totalAmount;
         Remarks = remarks;
         StatusID = statusId;
         IsActive = isActive;
