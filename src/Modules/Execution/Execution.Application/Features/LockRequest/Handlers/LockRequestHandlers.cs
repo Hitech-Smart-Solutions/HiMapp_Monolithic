@@ -1,4 +1,5 @@
 ﻿using Himapp.Admin.Contracts.Projects;
+using Himapp.Execution.Application.Features.DailyProgress.Queries;
 using Himapp.Execution.Application.Features.LockRequest.Commands;
 using Himapp.Execution.Application.Features.LockRequest.Models;
 using Himapp.Execution.Application.Features.LockRequest.Queries;
@@ -24,7 +25,8 @@ internal sealed class LockRequestHandlers :
     IRequestHandler<DeleteLockRequestCommand, bool>,
     IRequestHandler<DeleteLockRequestActionCommand, bool>,
     IRequestHandler<GetLockRequestByProjectIdQuery, DataSet>,
-    IRequestHandler<GetLockOpenRequestByIdAndProgramIdQuery, LockOpenRequestByIDModel?>
+    IRequestHandler<GetLockOpenRequestByIdAndProgramIdQuery, LockOpenRequestByIDModel?>,
+    IRequestHandler<GetLockOpenRequestApprovalHistory, DataSet>
 {
     private readonly IExecutionDbContext _db;
     private readonly IProjectDirectory _projectDirectory;
@@ -449,5 +451,34 @@ internal sealed class LockRequestHandlers :
                 await connection.CloseAsync();
             }
         }
+    }
+
+    public async Task<DataSet> Handle(GetLockOpenRequestApprovalHistory request, CancellationToken cancellationToken)
+    {
+        // Force Npgsql path: require the underlying DbContext to obtain connection string
+        var dbContext = _db as DbContext;
+        if (dbContext is null)
+            throw new InvalidOperationException("IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+
+        var dsLocal = new DataSet("LockOpenRequestApprovalHistory");
+        var connString = dbContext.Database.GetDbConnection().ConnectionString;
+
+        using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        // Rows table
+        using (var cmd = new NpgsqlCommand("SELECT * FROM public.fn_get_lockopenrequest_approval_history(@p_program_id, @p_id)", conn))
+        {
+
+            cmd.Parameters.AddWithValue("@p_program_id", request.programId);
+            cmd.Parameters.AddWithValue("@p_id", request.id);
+
+            var da = new NpgsqlDataAdapter(cmd);
+            var dt = new DataTable("Rows");
+            da.Fill(dt);
+            dsLocal.Tables.Add(dt);
+        }
+
+        return dsLocal;
     }
 }

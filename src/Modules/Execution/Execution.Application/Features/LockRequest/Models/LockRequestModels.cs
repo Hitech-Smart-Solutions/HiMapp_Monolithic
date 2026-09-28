@@ -24,7 +24,7 @@ public sealed class LockRequestDetailModel
     }
 }
 
-public sealed class LockRequestModel : IWorkflowApprovalRequest
+public sealed class LockRequestModel : IWorkflowApprovalResult
 {
     public int Id { get; init; }
     public Guid UniqueId { get; init; }
@@ -43,7 +43,7 @@ public sealed class LockRequestModel : IWorkflowApprovalRequest
 
     public IReadOnlyCollection<LockRequestDetailModel> Details { get; init; }
 
-    int IWorkflowApprovalRequest.StatusId => StateId;
+
 
     public LockRequestModel(int id, Guid uniqueId, string? requestCode, DateTime requestDate, string? remarks, int companyId, int projectId, int programId, short stateId, bool isActive, int createdBy, DateTime createdDate, int lastModifiedBy, DateTime lastModifiedDate, IReadOnlyCollection<LockRequestDetailModel> details)
     {
