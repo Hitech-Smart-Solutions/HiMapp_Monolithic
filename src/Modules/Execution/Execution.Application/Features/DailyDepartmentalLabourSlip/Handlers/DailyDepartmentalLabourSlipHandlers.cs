@@ -31,7 +31,8 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
     IRequestHandler<GetDailyDepartmentalLabourSlipsByProjectID, DataSet>,
     IRequestHandler<GetDailyDepartmentalLabourSlipByIdAndProgramId, GetDailyDepartmentalLabourSlipByIdModel?>,
     IRequestHandler<GetDDLSApprovalHistory, DataSet>,
-    IRequestHandler<GetDailyDepartmentalLabourReport, DataSet>
+    IRequestHandler<GetDailyDepartmentalLabourReport, DataSet>,
+    IRequestHandler<GetCategorywiseManPowerCount, IEnumerable<CategoryWiseManpowerDto>>
 {
     private readonly IExecutionDbContext _db;
     private readonly IDdlSlipCodeGenerator _codeGenerator;
@@ -957,5 +958,76 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         dsLocal.Tables.Add(dt);
 
         return dsLocal;
+    }
+
+    public async Task<IEnumerable<CategoryWiseManpowerDto>> Handle(
+          GetCategorywiseManPowerCount request,
+          CancellationToken cancellationToken)
+    {
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+
+        var result = new List<CategoryWiseManpowerDto>();
+
+        var connString = dbContext.Database
+            .GetDbConnection()
+            .ConnectionString;
+
+        await using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        await using var cmd = new NpgsqlCommand(
+            """
+            SELECT *
+            FROM execution."GetCategorywiseManPowerCount"(
+                @p_project_id,
+                @p_contractor_id,
+                @p_entry_date
+            )
+            """,
+            conn);
+
+        cmd.CommandType = CommandType.Text;
+        cmd.CommandTimeout = 10;
+
+        cmd.Parameters.AddWithValue(
+            "@p_project_id",
+            NpgsqlDbType.Integer,
+            request.ProjectID);
+
+        cmd.Parameters.AddWithValue(
+            "@p_contractor_id",
+            NpgsqlDbType.Integer,
+            request.ContractorID);
+
+        cmd.Parameters.AddWithValue(
+            "@p_entry_date",
+            NpgsqlDbType.Date,
+            request.EntryDate.Date);
+
+        await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            result.Add(new CategoryWiseManpowerDto
+            {
+                Skilled = reader["Skilled"] == DBNull.Value
+                    ? 0
+                    : Convert.ToInt16(reader["Skilled"]),
+
+                UnSkilled = reader["UnSkilled"] == DBNull.Value
+                    ? 0
+                    : Convert.ToInt16(reader["UnSkilled"]),
+
+                Other = reader["Other"] == DBNull.Value
+                    ? 0
+                    : Convert.ToInt16(reader["Other"])
+            });
+        }
+
+        return result;
     }
 }

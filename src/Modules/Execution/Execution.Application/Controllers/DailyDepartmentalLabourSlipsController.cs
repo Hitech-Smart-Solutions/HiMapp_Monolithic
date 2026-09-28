@@ -120,4 +120,21 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
 
         return Ok(result);
     }
+    [HttpGet("categorywise-manpower-count")]
+    public async Task<IActionResult> GetCategorywiseManPowerCount(
+           [FromQuery] int projectID,
+           [FromQuery] int contractorID,
+           [FromQuery] DateTime entryDate,
+           CancellationToken cancellationToken)
+    {
+        var query = new GetCategorywiseManPowerCount(
+            projectID,
+            contractorID,
+            entryDate
+        );
+
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return Ok(result);
+    }
 }
