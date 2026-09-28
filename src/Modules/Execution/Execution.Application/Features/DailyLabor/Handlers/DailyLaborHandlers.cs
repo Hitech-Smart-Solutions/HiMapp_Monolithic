@@ -31,7 +31,9 @@ internal sealed class DailyLaborHandlers :
     IRequestHandler<DeleteDailyLaborActionCommand, bool>,
     IRequestHandler<GetConsolidatedDailyLaborQuery, IReadOnlyCollection<DailyLaborConsolidatedModel>>,
     IRequestHandler<GetDailyLaborByProjectID, DataSet>,
-    IRequestHandler<DPRGetConsolidatedDailyLaborQuery, IReadOnlyCollection<DPRDailyLaborConsolidatedModel>>
+    IRequestHandler<DPRGetConsolidatedDailyLaborQuery, IReadOnlyCollection<DPRDailyLaborConsolidatedModel>>,
+    IRequestHandler<GetDailyLaborContractorsByProjectAndDateQuery, DataSet>,
+    IRequestHandler<GetProjectDPRReport, DataSet>
 {
     private readonly IExecutionDbContext _db;
     private readonly IProjectDirectory _projectDirectory;
@@ -113,7 +115,8 @@ internal sealed class DailyLaborHandlers :
             dd.ContractorName,
             dd.ActivityID,
             string.Empty,
-            dd.SectionID)).ToArray()
+            dd.SectionID,
+            dd.IsDepartment)).ToArray()
             ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(
@@ -186,6 +189,7 @@ internal sealed class DailyLaborHandlers :
                     ContractorName = d.ContractorName,
                     ActivityID = d.ActivityId,
                     SectionID = d.SectionId,
+                    IsDepartment = d.IsDepartment,
                     IsActive = true,
                     CreatedBy = userId,
                     CreatedDate = DateTime.UtcNow,
@@ -201,7 +205,7 @@ internal sealed class DailyLaborHandlers :
         _db.Set<DailyLaborEntity>().Add(entity);
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID, string.Empty, dd.SectionID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID, string.Empty, dd.SectionID, dd.IsDepartment)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(entity.ID, entity.UniqueID, entity.DLRCode, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.ProposedActionPlan, entity.ConstraintsAndReasons, entity.RemoveMenPower, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
@@ -285,6 +289,7 @@ internal sealed class DailyLaborHandlers :
                     ContractorName = d.ContractorName,
                     ActivityID = d.ActivityId,
                     SectionID = d.SectionId,
+                    IsDepartment = d.IsDepartment,
                     IsActive = true,
                     CreatedBy = userId,
                     CreatedDate = DateTime.UtcNow,
@@ -299,7 +304,7 @@ internal sealed class DailyLaborHandlers :
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID, string.Empty, dd.SectionID)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
+        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(dd.ID, dd.UniqueID, dd.ContractorID, dd.CategoryID, dd.Skilled, dd.UnSkilled, dd.Remarks, dd.Mat, dd.ContractorName, dd.ActivityID, string.Empty, dd.SectionID, dd.IsDepartment)).ToArray() ?? Array.Empty<DailyLaborDetailModel>();
 
         return new DailyLaborModel(entity.ID, entity.UniqueID, entity.DLRCode, entity.CompanyID, entity.ProjectID, entity.DLRDate, entity.Remarks, entity.ProposedActionPlan, entity.ConstraintsAndReasons, entity.RemoveMenPower, entity.StateID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
@@ -444,5 +449,148 @@ internal sealed class DailyLaborHandlers :
 
         return result;
     }
+    public async Task<DataSet> Handle(
+    GetProjectDPRReport request,
+    CancellationToken cancellationToken)
+    {
+        // Force Npgsql path: require the underlying DbContext
+        // to obtain connection string
+        var dbContext = _db as DbContext;
 
+        if (dbContext is null)
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+
+        var dsLocal = new DataSet("DailyDPRReport");
+
+        var connString = dbContext.Database
+            .GetDbConnection()
+            .ConnectionString;
+
+        using var conn = new NpgsqlConnection(connString);
+
+        await conn.OpenAsync(cancellationToken);
+
+        using var cmd = new NpgsqlCommand(
+            """
+        SELECT *
+        FROM execution.usp_get_dailydpr_report(
+            @p_type,
+            @p_fromdate,
+            @p_todate,
+            @p_project,
+            @p_activity,
+            @p_contractor,
+            @p_section,
+            @p_departmental
+        )
+        """,
+            conn);
+
+        cmd.CommandType = CommandType.Text;
+        cmd.CommandTimeout = 30;
+
+        cmd.Parameters.AddWithValue(
+            "@p_type",
+            NpgsqlDbType.Integer,
+            request.Type);
+
+        cmd.Parameters.AddWithValue(
+            "@p_fromdate",
+            NpgsqlDbType.Date,
+            request.FromDate.HasValue
+                ? request.FromDate.Value.Date
+                : (object)DBNull.Value);
+
+        cmd.Parameters.AddWithValue(
+            "@p_todate",
+            NpgsqlDbType.Date,
+            request.ToDate.HasValue
+                ? request.ToDate.Value.Date
+                : (object)DBNull.Value);
+
+        cmd.Parameters.AddWithValue(
+            "@p_project",
+            NpgsqlDbType.Integer,
+            request.Project);
+
+        cmd.Parameters.AddWithValue(
+            "@p_activity",
+            NpgsqlDbType.Integer,
+            request.Activity);
+
+        cmd.Parameters.AddWithValue(
+            "@p_contractor",
+            NpgsqlDbType.Integer,
+            request.Contractor);
+
+        cmd.Parameters.AddWithValue(
+            "@p_section",
+            NpgsqlDbType.Integer,
+            request.Section);
+
+        cmd.Parameters.AddWithValue(
+            "@p_departmental",
+            NpgsqlDbType.Boolean,
+            request.Departmental.HasValue
+                ? request.Departmental.Value
+                : (object)DBNull.Value);
+
+        var da = new NpgsqlDataAdapter(cmd);
+
+        var dt = new DataTable("Rows");
+
+        da.Fill(dt);
+
+        dsLocal.Tables.Add(dt);
+
+        return dsLocal;
+    }
+
+    public async Task<DataSet> Handle(GetDailyLaborContractorsByProjectAndDateQuery request, CancellationToken cancellationToken)
+    {
+        var ds = new DataSet("DailyLaborContractorsResult");
+
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+        }
+
+        var connString = dbContext.Database
+            .GetDbConnection()
+            .ConnectionString;
+
+        await using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        await using var cmd = new NpgsqlCommand(
+            "SELECT * FROM execution.uspgetdailylaborcontractorsbyprojectanddate(@p_projectid, @p_date)",
+            conn);
+
+        cmd.CommandType = CommandType.Text;
+        cmd.CommandTimeout = 30;
+
+        cmd.Parameters.AddWithValue(
+            "@p_projectid",
+            NpgsqlDbType.Integer,
+            request.ProjectId);
+
+        cmd.Parameters.AddWithValue(
+            "@p_date",
+            NpgsqlDbType.Date,
+            request.Date);
+
+        using var da = new NpgsqlDataAdapter(cmd);
+
+        var dt = new DataTable("Rows");
+
+        da.Fill(dt);
+
+        ds.Tables.Add(dt);
+
+        return ds;
+    }
 }

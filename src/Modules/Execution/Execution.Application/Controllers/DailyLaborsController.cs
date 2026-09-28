@@ -30,7 +30,7 @@ public sealed class DailyLaborsController : ControllerBase
     [HttpGet("GetConsolidated")]
     public async Task<IActionResult> GetConsolidated([FromQuery] int projectId, [FromQuery] DateOnly date, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetConsolidatedDailyLaborQuery(projectId,date),cancellationToken);
+        var result = await _mediator.Send(new GetConsolidatedDailyLaborQuery(projectId, date), cancellationToken);
 
         return Ok(result);
     }
@@ -84,6 +84,40 @@ public sealed class DailyLaborsController : ControllerBase
 
         return result is null ? NotFound() : Ok(result);
     }
+    [HttpGet("GetDailyDPRReport")]
+    public async Task<IActionResult> GetDailyDPRReport(
+    [FromQuery] int type = 0,
+    [FromQuery] DateTime? fromDate = null,
+    [FromQuery] DateTime? toDate = null,
+    [FromQuery] int project = 0,
+    [FromQuery] int activity = 0,
+    [FromQuery] int contractor = 0,
+    [FromQuery] int section = 0,
+    [FromQuery] bool? departmental = null,
+    CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(
+            new GetProjectDPRReport(
+                Type: type,
+                FromDate: fromDate,
+                ToDate: toDate,
+                Project: project,
+                Activity: activity,
+                Contractor: contractor,
+                Section: section,
+                Departmental: departmental
+            ),
+            cancellationToken);
+        return Ok(result);
+    }
+    
+    [HttpGet("GetDailyLaborContractorsByProjectAndDate")]
+    public async Task<IActionResult> GetDailyLaborContractorsByProjectAndDate([FromQuery] int projectId, [FromQuery] DateOnly date, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new GetDailyLaborContractorsByProjectAndDateQuery(projectId, date), cancellationToken);
 
+        return Ok(result);
+    }
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }
