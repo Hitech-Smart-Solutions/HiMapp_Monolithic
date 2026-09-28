@@ -73,5 +73,15 @@ public sealed class LockRequestsController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpGet("GetLockOpenRequestApprovalHistory")]
+    public async Task<IActionResult> GetLockOpenRequestApprovalHistory([FromQuery] int programId, [FromQuery] int id, CancellationToken cancellationToken)
+    {
+        if (programId <= 0 || id <= 0)
+            return BadRequest("programId and id must be greater than zero.");
+
+        var ds = await _mediator.Send(new GetLockOpenRequestApprovalHistory(programId, id), cancellationToken);
+        return Ok(ds);
+    }
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }
