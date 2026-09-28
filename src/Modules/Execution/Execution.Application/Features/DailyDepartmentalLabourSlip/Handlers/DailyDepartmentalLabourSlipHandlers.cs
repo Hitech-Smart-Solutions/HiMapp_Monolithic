@@ -2,6 +2,7 @@ using DocumentFormat.OpenXml.InkML;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Commands;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Models;
 using Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Queries;
+using Himapp.Execution.Application.Features.DailyLabor.Queries;
 using Himapp.Execution.Application.Features.Manpower.Queries;
 using Himapp.Execution.Application.Features.SiteDailyProgress.Queries;
 using Himapp.Execution.Contracts;

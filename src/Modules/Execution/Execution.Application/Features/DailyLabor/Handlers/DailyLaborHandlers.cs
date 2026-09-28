@@ -32,6 +32,7 @@ internal sealed class DailyLaborHandlers :
     IRequestHandler<GetConsolidatedDailyLaborQuery, IReadOnlyCollection<DailyLaborConsolidatedModel>>,
     IRequestHandler<GetDailyLaborByProjectID, DataSet>,
     IRequestHandler<DPRGetConsolidatedDailyLaborQuery, IReadOnlyCollection<DPRDailyLaborConsolidatedModel>>,
+    IRequestHandler<GetDailyLaborContractorsByProjectAndDateQuery, DataSet>,
     IRequestHandler<GetProjectDPRReport, DataSet>
 {
     private readonly IExecutionDbContext _db;
@@ -546,4 +547,50 @@ internal sealed class DailyLaborHandlers :
         return dsLocal;
     }
 
+    public async Task<DataSet> Handle(GetDailyLaborContractorsByProjectAndDateQuery request, CancellationToken cancellationToken)
+    {
+        var ds = new DataSet("DailyLaborContractorsResult");
+
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+        }
+
+        var connString = dbContext.Database
+            .GetDbConnection()
+            .ConnectionString;
+
+        await using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        await using var cmd = new NpgsqlCommand(
+            "SELECT * FROM execution.uspgetdailylaborcontractorsbyprojectanddate(@p_projectid, @p_date)",
+            conn);
+
+        cmd.CommandType = CommandType.Text;
+        cmd.CommandTimeout = 30;
+
+        cmd.Parameters.AddWithValue(
+            "@p_projectid",
+            NpgsqlDbType.Integer,
+            request.ProjectId);
+
+        cmd.Parameters.AddWithValue(
+            "@p_date",
+            NpgsqlDbType.Date,
+            request.Date);
+
+        using var da = new NpgsqlDataAdapter(cmd);
+
+        var dt = new DataTable("Rows");
+
+        da.Fill(dt);
+
+        ds.Tables.Add(dt);
+
+        return ds;
+    }
 }

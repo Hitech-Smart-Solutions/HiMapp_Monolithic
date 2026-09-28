@@ -30,7 +30,7 @@ public sealed class DailyLaborsController : ControllerBase
     [HttpGet("GetConsolidated")]
     public async Task<IActionResult> GetConsolidated([FromQuery] int projectId, [FromQuery] DateOnly date, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetConsolidatedDailyLaborQuery(projectId,date),cancellationToken);
+        var result = await _mediator.Send(new GetConsolidatedDailyLaborQuery(projectId, date), cancellationToken);
 
         return Ok(result);
     }
@@ -108,6 +108,14 @@ public sealed class DailyLaborsController : ControllerBase
                 Departmental: departmental
             ),
             cancellationToken);
+        return Ok(result);
+    }
+    
+    [HttpGet("GetDailyLaborContractorsByProjectAndDate")]
+    public async Task<IActionResult> GetDailyLaborContractorsByProjectAndDate([FromQuery] int projectId, [FromQuery] DateOnly date, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new GetDailyLaborContractorsByProjectAndDateQuery(projectId, date), cancellationToken);
 
         return Ok(result);
     }
