@@ -24,6 +24,7 @@ namespace Himapp.Execution.Domain.Entities
         public decimal? WorkingHours { get; set; }
         public decimal? TotalHours { get; set; }
         public decimal? Mandays { get; set; }
+        public int? Rate { get; set; }
         public int? WorkLocationID { get; set; }
         public int? ActivityID { get; set; }
         public string? ActivityDetails { get; set; }
