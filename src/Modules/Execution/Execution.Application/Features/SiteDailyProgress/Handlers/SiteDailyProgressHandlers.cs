@@ -24,7 +24,8 @@ internal sealed class SiteDailyProgressHandlers :
     IRequestHandler<GetSiteDailyProgressByProjectIDQuery, DataSet>,
     IRequestHandler<DeleteSiteDPRCommand, bool>,
     IRequestHandler<GetActivityWiseQuantityBySectionIDQuery, List<ActivityWiseQuantityBySectionModel>>,
-    IRequestHandler<GetLastSiteDPRBySectionIDQuery, SiteDailyProgressModel?>
+    IRequestHandler<GetLastSiteDPRBySectionIDQuery, SiteDailyProgressModel?>,
+    IRequestHandler<GetSiteDPRReport, DataSet>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
@@ -435,7 +436,102 @@ internal sealed class SiteDailyProgressHandlers :
 
         return dsLocal;
     }
+    public async Task<DataSet> Handle(
+    GetSiteDPRReport request,
+    CancellationToken cancellationToken)
+    {
+        // Force Npgsql path: require the underlying DbContext
+        // to obtain connection string
+        var dbContext = _db as DbContext;
 
+        if (dbContext is null)
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext. Cannot obtain connection string for Npgsql operations.");
+
+        var dsLocal = new DataSet("SiteDPRReport");
+
+        var connString = dbContext.Database
+            .GetDbConnection()
+            .ConnectionString;
+
+        using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        using var cmd = new NpgsqlCommand(
+            """
+        SELECT *
+        FROM execution.usp_get_sitedrp_report(
+            @p_type,
+            @p_fromdate,
+            @p_todate,
+            @p_project,
+            @p_activity,
+            @p_contractor,
+            @p_section,
+            @p_departmental
+        )
+        """,
+            conn);
+
+        cmd.CommandType = CommandType.Text;
+        cmd.CommandTimeout = 30;
+
+        cmd.Parameters.AddWithValue(
+            "@p_type",
+            NpgsqlDbType.Integer,
+            request.Type);
+
+        cmd.Parameters.AddWithValue(
+            "@p_fromdate",
+            NpgsqlDbType.Date,
+            request.FromDate.HasValue
+                ? request.FromDate.Value.Date
+                : (object)DBNull.Value);
+
+        cmd.Parameters.AddWithValue(
+            "@p_todate",
+            NpgsqlDbType.Date,
+            request.ToDate.HasValue
+                ? request.ToDate.Value.Date
+                : (object)DBNull.Value);
+
+        cmd.Parameters.AddWithValue(
+            "@p_project",
+            NpgsqlDbType.Integer,
+            request.Project);
+
+        cmd.Parameters.AddWithValue(
+            "@p_activity",
+            NpgsqlDbType.Integer,
+            request.Activity);
+
+        cmd.Parameters.AddWithValue(
+            "@p_contractor",
+            NpgsqlDbType.Integer,
+            request.Contractor);
+
+        cmd.Parameters.AddWithValue(
+            "@p_section",
+            NpgsqlDbType.Integer,
+            request.Section);
+
+        cmd.Parameters.AddWithValue(
+            "@p_departmental",
+            NpgsqlDbType.Boolean,
+            request.Departmental.HasValue
+                ? request.Departmental.Value
+                : (object)DBNull.Value);
+
+        var da = new NpgsqlDataAdapter(cmd);
+
+        var dt = new DataTable("Rows");
+
+        da.Fill(dt);
+
+        dsLocal.Tables.Add(dt);
+
+        return dsLocal;
+    }
     public async Task<List<ActivityWiseQuantityBySectionModel>> Handle(GetActivityWiseQuantityBySectionIDQuery request, CancellationToken cancellationToken)
     {
         var dbContext = _db as DbContext;

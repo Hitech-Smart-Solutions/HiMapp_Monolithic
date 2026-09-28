@@ -95,4 +95,29 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
         var ds = await _mediator.Send(new GetDDLSApprovalHistory(programId, id), cancellationToken);
         return Ok(ds);
     }
+    [HttpGet("GetDailyDepartmentalLabourReport")]
+    public async Task<IActionResult> GetDailyDepartmentalLabourReport(
+    [FromQuery] int project = 0,
+    [FromQuery] DateTime? fromDate = null,
+    [FromQuery] DateTime? toDate = null,
+    [FromQuery] int contractor = 0,
+    [FromQuery] int activity = 0,
+    [FromQuery] int location = 0,
+    [FromQuery] bool? isLumpSum = null,
+    CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(
+            new GetDailyDepartmentalLabourReport(
+                Project: project,
+                FromDate: fromDate,
+                ToDate: toDate,
+                Contractor: contractor,
+                Activity: activity,
+                Location: location,
+                IsLumpSum: isLumpSum
+            ),
+            cancellationToken);
+
+        return Ok(result);
+    }
 }
