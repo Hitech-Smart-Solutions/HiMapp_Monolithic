@@ -54,6 +54,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 d.DDLSlipCode,
                 d.IssueNumber,
                 d.PartyID,
+                d.TotalAmount,
                 d.Remarks,
                 d.StatusID,
                 d.IsActive,
@@ -107,7 +108,10 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.FromTime,
             dd.TOTime,
             dd.LunchHour,
+            dd.TotalHours,
+            dd.Mandays,
             dd.WorkingHours,
+            dd.Rate,
             dd.WorkLocationID,
             dd.ActivityID,
             dd.ActivityDetails,
@@ -116,7 +120,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.DebitPartyID,
             dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
-        return new DailyDepartmentalLabourSlipModel(d.ID, d.UniqueID, d.ProjectID, d.SlipDate, d.DDLSlipCode, d.IssueNumber, d.PartyID, d.Remarks, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details);
+        return new DailyDepartmentalLabourSlipModel(d.ID, d.UniqueID, d.ProjectID, d.SlipDate, d.DDLSlipCode, d.IssueNumber, d.PartyID, d.TotalAmount,d.Remarks, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details);
     }
 
     public async Task<DailyDepartmentalLabourSlipModel> Handle(CreateDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)
@@ -134,6 +138,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             DDLSlipCode = string.IsNullOrWhiteSpace(generatedCode) ? null : generatedCode,
             IssueNumber = r.IssueNumber,
             PartyID = r.PartyID,
+            TotalAmount = r.TotalAmount,
             SlipDate = r.SlipDate.HasValue ? DateTime.SpecifyKind(r.SlipDate.Value.Date, DateTimeKind.Utc) : DateTime.UtcNow.Date,
             Remarks = r.Remarks,
             StatusID = r.StatusID,
@@ -161,6 +166,9 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                     TOTime = d.ToTime,
                     LunchHour = d.LunchHour,
                     WorkingHours = workingHours,
+                    TotalHours = d.TotalHours,
+                    Mandays = d.Mandays,
+                    Rate = d.Rate,
                     WorkLocationID = d.WorkLocationId,
                     ActivityID = d.ActivityID,
                     ActivityDetails = d.ActivityDetails,
@@ -192,7 +200,10 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.FromTime,
             dd.TOTime,
             dd.LunchHour,
+            dd.TotalHours,
+            dd.Mandays,
             dd.WorkingHours,
+            dd.Rate,
             dd.WorkLocationID,
             dd.ActivityID,
             dd.ActivityDetails,
@@ -201,7 +212,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.DebitPartyID,
             dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
-        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.TotalAmount, entity.Remarks,entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<bool> Handle(GetDailyDepartmentalLabourSlipsByPartyAndDate request, CancellationToken cancellationToken)
@@ -249,6 +260,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         entity.SlipDate = r.SlipDate.HasValue ? DateTime.SpecifyKind(r.SlipDate.Value.Date, DateTimeKind.Utc) : entity.SlipDate;
         entity.IssueNumber = r.IssueNumber;
         entity.PartyID = r.PartyID;
+        entity.TotalAmount = r.TotalAmount;
         entity.Remarks = r.Remarks ?? entity.Remarks;
         entity.StatusID = r.StatusID;
         entity.LastModifiedBy = r.LastModifiedBy;
@@ -276,6 +288,9 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                     FromTime = d.FromTime,
                     TOTime = d.ToTime,
                     LunchHour = d.LunchHour,
+                    TotalHours = d.TotalHours,
+                    Mandays = d.Mandays,
+                    Rate = d.Rate,
                     WorkingHours = workingHours,
                     WorkLocationID = d.WorkLocationId,
                     ActivityID = d.ActivityID,
@@ -308,6 +323,9 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.TOTime,
             dd.LunchHour,
             dd.WorkingHours,
+            dd.TotalHours,
+            dd.Mandays,
+            dd.Rate,
             dd.WorkLocationID,
             dd.ActivityID,
             dd.ActivityDetails,
@@ -316,7 +334,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             dd.DebitPartyID,
             dd.Remarks)).ToArray() ?? Array.Empty<DailyDepartmentalLabourSlipDetailsModel>();
 
-        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
+        return new DailyDepartmentalLabourSlipModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.SlipDate, entity.DDLSlipCode, entity.IssueNumber, entity.PartyID, entity.TotalAmount,entity.Remarks, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details);
     }
 
     public async Task<bool> Handle(DeleteDailyDepartmentalLabourSlipCommand request, CancellationToken cancellationToken)

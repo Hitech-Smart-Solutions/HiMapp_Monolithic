@@ -32,6 +32,7 @@ namespace Himapp.Execution.Domain.Entities
 
         public int? IsDisapproved { get; set; }
         public int? TotalWrkMins { get; set; }
+        public int? TotalAmount { get; set; }
         public int? DPRSlipIssueID { get; set; }
         public int? TotalDPRManpower { get; set; }
         public int? Skilled { get; set; }
