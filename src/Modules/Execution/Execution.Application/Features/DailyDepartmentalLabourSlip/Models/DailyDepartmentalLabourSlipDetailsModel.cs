@@ -12,6 +12,8 @@ public sealed class DailyDepartmentalLabourSlipDetailsModel
     public DateTime? ToTime { get; init; }
     public decimal? LunchHour { get; init; }
     public decimal? WorkingHours { get; init; }
+    public decimal? TotalHours { get; set; }
+    public decimal? Mandays { get; set; }
     public int? WorkLocationId { get; init; }
     public int? ActivityId { get; init; }
     public string? ActivityDetails { get; init; }
@@ -20,7 +22,7 @@ public sealed class DailyDepartmentalLabourSlipDetailsModel
     public int? DebitPartyId { get; init; }
     public string? Remarks { get; init; }
 
-    public DailyDepartmentalLabourSlipDetailsModel(int id, Guid uniqueId, int? labourCategoryTypeId, bool? isLumSumWork, string? justification,int? numOfLabour, DateTime? fromTime, DateTime? toTime, decimal? lunchHour, decimal? workingHours, int? workLocationId, int? activityId, string? activityDetails, int? uomId, decimal? quantity, int? debitPartyId, string? remarks)
+    public DailyDepartmentalLabourSlipDetailsModel(int id, Guid uniqueId, int? labourCategoryTypeId, bool? isLumSumWork, string? justification, int? numOfLabour, DateTime? fromTime, DateTime? toTime, decimal? lunchHour, decimal? workingHours, decimal? totalHours, decimal? mandays, int? workLocationId, int? activityId, string? activityDetails, int? uomId, decimal? quantity, int? debitPartyId, string? remarks)
     {
         Id = id;
         UniqueId = uniqueId;
@@ -32,6 +34,8 @@ public sealed class DailyDepartmentalLabourSlipDetailsModel
         ToTime = toTime;
         LunchHour = lunchHour;
         WorkingHours = workingHours;
+        TotalHours = totalHours;
+        Mandays = mandays;
         WorkLocationId = workLocationId;
         ActivityId = activityId;
         ActivityDetails = activityDetails;
@@ -51,6 +55,8 @@ public sealed class DailyDepartmentalLabourSlipDetailsRequest
     public DateTime FromTime { get; set; }
     public DateTime ToTime { get; set; }
     public decimal? LunchHour { get; set; }
+    public decimal? TotalHours { get; set; }
+    public decimal? Mandays { get; set; }
     public int? WorkLocationId { get; set; }
     public int? ActivityID { get; set; }
     public string? ActivityDetails { get; set; }

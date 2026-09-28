@@ -22,7 +22,8 @@ namespace Himapp.Execution.Domain.Entities
         public DateTime TOTime { get; set; }
         public decimal? LunchHour { get; set; }
         public decimal? WorkingHours { get; set; }
-
+        public decimal? TotalHours { get; set; }
+        public decimal? Mandays { get; set; }
         public int? WorkLocationID { get; set; }
         public int? ActivityID { get; set; }
         public string? ActivityDetails { get; set; }
