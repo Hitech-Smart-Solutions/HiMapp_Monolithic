@@ -102,3 +102,11 @@ public sealed class DailyDepartmentalLabourSlipDto
     public int ProgramId { get; set; }
 }
 
+public sealed class CategoryWiseManpowerDto
+{
+    public int Skilled { get; set; }
+    public int UnSkilled { get; set; }
+    public int Other { get; set; }
+}
+
+
