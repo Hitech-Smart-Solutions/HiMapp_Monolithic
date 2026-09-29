@@ -32,7 +32,8 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
     IRequestHandler<GetDailyDepartmentalLabourSlipByIdAndProgramId, GetDailyDepartmentalLabourSlipByIdModel?>,
     IRequestHandler<GetDDLSApprovalHistory, DataSet>,
     IRequestHandler<GetDailyDepartmentalLabourReport, DataSet>,
-    IRequestHandler<GetCategorywiseManPowerCount, IEnumerable<CategoryWiseManpowerDto>>
+    IRequestHandler<GetCategorywiseManPowerCount, IEnumerable<CategoryWiseManpowerDto>>,
+    IRequestHandler<CheckDDLSOpenDate, DataSet>
 {
     private readonly IExecutionDbContext _db;
     private readonly IDdlSlipCodeGenerator _codeGenerator;
@@ -1047,5 +1048,61 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         }
 
         return result;
+    }
+    public async Task<DataSet> Handle(
+           CheckDDLSOpenDate request,
+           CancellationToken cancellationToken)
+    {
+        // Force Npgsql path: require the underlying DbContext
+        // to obtain connection string
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext. " +
+                "Cannot obtain connection string for Npgsql operations."
+            );
+        }
+
+        var dsLocal = new DataSet("CheckDDLSOpenDate");
+
+        var connString =
+            dbContext.Database.GetDbConnection().ConnectionString;
+
+        await using var conn = new NpgsqlConnection(connString);
+
+        await conn.OpenAsync(cancellationToken);
+
+        using var cmd = new NpgsqlCommand(
+            """
+                SELECT *
+                FROM execution."CheckLabourSlipOpenDate"(
+                    @p_open_date,
+                    @p_project_id
+                )
+                """,
+            conn
+        );
+
+        cmd.Parameters.AddWithValue(
+            "@p_open_date",
+            request.openDate.Date
+        );
+
+        cmd.Parameters.AddWithValue(
+            "@p_project_id",
+            request.projectId
+        );
+
+        using var da = new NpgsqlDataAdapter(cmd);
+
+        var dt = new DataTable("Rows");
+
+        da.Fill(dt);
+
+        dsLocal.Tables.Add(dt);
+
+        return dsLocal;
     }
 }
