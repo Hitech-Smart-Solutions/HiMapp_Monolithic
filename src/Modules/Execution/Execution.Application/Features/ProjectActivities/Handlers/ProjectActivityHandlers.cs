@@ -317,7 +317,8 @@ internal sealed class ProjectActivityHandlers :
                 ID = x.ID,
                 ProjectID = x.ProjectID,
                 Name = x.Name,
-                Rate = x.Rate
+                Rate = x.Rate,
+                TypeID = x.CategoryTypeID
             })
             .ToListAsync(cancellationToken);
 
