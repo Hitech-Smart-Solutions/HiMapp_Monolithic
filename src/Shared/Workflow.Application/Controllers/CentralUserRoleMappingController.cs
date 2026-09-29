@@ -64,5 +64,34 @@ public sealed class CentralUserRoleMappingController : ControllerBase
 
     }
 
+    [HttpGet("CheckDuplicateRoleName")]
+    public async Task<IActionResult> CheckDuplicateRoleName(string roleName, int companyId, int excludeId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _mediator.Send(new CheckDuplicateRoleNameQuery(roleName, companyId, excludeId), cancellationToken);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpGet("CheckRoleProjectMappingInWorkflow")]
+    public async Task<IActionResult> CheckRoleProjectMappingInWorkflow(int roleId, int projectId, int companyId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _mediator.Send(new CheckRoleProjectMappingInWorkflowQuery(roleId, projectId, companyId), cancellationToken);
+
+            return Ok(new { isLinked = result });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }

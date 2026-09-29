@@ -137,4 +137,18 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpGet("check-open-date")]
+    public async Task<IActionResult> CheckDDLSOpenDate(
+           [FromQuery] DateTime openDate,
+           [FromQuery] int projectId,
+           CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new CheckDDLSOpenDate(openDate, projectId),
+            cancellationToken
+        );
+
+        return Ok(result);
+    }
 }
