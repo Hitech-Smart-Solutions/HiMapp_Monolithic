@@ -44,6 +44,24 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
+    [HttpPost("DraftDDLS")]
+    public async Task<IActionResult> DraftDDLS([FromBody] CreateDailyDepartmentalLabourSlipRequest request, CancellationToken cancellationToken)
+    {
+        // Check duplicate entry for same Project + Party + Date
+        var slipAlradyExist = await _mediator.Send(new GetDailyDepartmentalLabourSlipsByPartyAndDate(request), cancellationToken);
+
+        if (slipAlradyExist)
+        {
+            return Conflict(new
+            {
+                message = "DDLS slip already exists for the selected party and date."
+            });
+        }
+
+        var result = await _mediator.Send(new CreateDailyDepartmentalLabourSlipCommand(request), cancellationToken);
+
+        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+    }
 
     [HttpPut("{id:int}")]
     [RequiresApproval(programId: 63, priority: 0)]
