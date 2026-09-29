@@ -17,7 +17,9 @@ internal sealed class CentralUserRoleMappingHandler :
     IRequestHandler<CreateCentralUserRoleMappingCommand, CentralUserRoleMappingDto>,
     IRequestHandler<UpdateCentralUserRoleMappingCommand, CentralUserRoleMappingDto?>,
     IRequestHandler<DeleteCentralUserRoleMappingCommand, bool>,
-    IRequestHandler<GetRoleMappingListByCompanyQuery, DataSet>
+    IRequestHandler<GetRoleMappingListByCompanyQuery, DataSet>,
+    IRequestHandler<CheckDuplicateRoleNameQuery, bool>,
+    IRequestHandler<CheckRoleProjectMappingInWorkflowQuery, bool>
 {
     private readonly IWorkflowDbContext _db;
 
@@ -349,4 +351,64 @@ internal sealed class CentralUserRoleMappingHandler :
 
         return ds;
     }
+
+    public async Task<bool> Handle(CheckDuplicateRoleNameQuery request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.RoleName))
+            return false;
+
+        string connectionString = _db.Database.GetDbConnection().ConnectionString;
+
+        using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        using var cmd = new NpgsqlCommand(
+            @"SELECT public.uspcheckduplicaterolename(
+            @p_companyid,
+            @p_rolename,
+            @p_excludeid)",
+            connection);
+
+        cmd.Parameters.AddWithValue("@p_companyid", request.CompanyId);
+        cmd.Parameters.AddWithValue("@p_rolename", request.RoleName.Trim());
+        cmd.Parameters.AddWithValue("@p_excludeid", request.ExcludeId);
+
+        var result = await cmd.ExecuteScalarAsync(cancellationToken);
+
+        return result switch
+        {
+            bool b => b,
+            int i => i > 0,
+            _ => false
+        };
+    }
+
+    public async Task<bool> Handle(CheckRoleProjectMappingInWorkflowQuery request, CancellationToken cancellationToken)
+    {
+        string connectionString = _db.Database.GetDbConnection().ConnectionString;
+
+        using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        using var cmd = new NpgsqlCommand(
+            @"SELECT public.uspcheckroleprojectmappinginworkflow(
+                    @p_companyid,
+                    @p_roleid,
+                    @p_projectid)",
+            connection);
+
+        cmd.Parameters.AddWithValue("@p_companyid", request.CompanyId);
+        cmd.Parameters.AddWithValue("@p_roleid", request.RoleId);
+        cmd.Parameters.AddWithValue("@p_projectid", request.ProjectId);
+
+        var result = await cmd.ExecuteScalarAsync(cancellationToken);
+
+        return result switch
+        {
+            bool b => b,
+            int i => i > 0,
+            _ => false
+        };
+    }
+
 }
