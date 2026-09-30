@@ -47,4 +47,10 @@ public sealed record DailyProgressForApprovalByIDModel
 
     public IReadOnlyCollection<DailyProgressPhotoModel> Photos { get; init; }
         = Array.Empty<DailyProgressPhotoModel>();
+
+    public IReadOnlyCollection<DailyProgressForApprovalSectionManpowerModel> SectionManpower { get; init; }
+        = Array.Empty<DailyProgressForApprovalSectionManpowerModel>();
+
+    public IReadOnlyCollection<DailyProgressForApprovalSectionActivityModel> SectionActivities { get; init; }
+        = Array.Empty<DailyProgressForApprovalSectionActivityModel>();
 }
