@@ -1026,7 +1026,9 @@ internal sealed class DailyProgressHandlers :
                 "Header",
                 "Details",
                 "Hindrances",
-                "Photos"
+                "Photos",
+                "SectionManpower",
+                "SectionActivities"
             FROM execution."uspGetDailyProgressForApprovalByID"(
                 @Id,
                 @ProgramId
@@ -1125,6 +1127,36 @@ internal sealed class DailyProgressHandlers :
                 ?? Array.Empty<DailyProgressPhotoModel>();
 
             // =========================================================
+            // SECTION MANPOWER
+            // =========================================================
+
+            var sectionManpowerJson = reader.IsDBNull(4)
+                ? "[]"
+                : reader.GetFieldValue<string>(4);
+
+            var sectionManpower =
+                JsonSerializer.Deserialize<
+                    DailyProgressForApprovalSectionManpowerModel[]>(
+                    sectionManpowerJson,
+                    jsonOptions)
+                ?? Array.Empty<DailyProgressForApprovalSectionManpowerModel>();
+
+            // =========================================================
+            // SECTION ACTIVITIES
+            // =========================================================
+
+            var sectionActivitiesJson = reader.IsDBNull(5)
+                ? "[]"
+                : reader.GetFieldValue<string>(5);
+
+            var sectionActivities =
+                JsonSerializer.Deserialize<
+                    DailyProgressForApprovalSectionActivityModel[]>(
+                    sectionActivitiesJson,
+                    jsonOptions)
+                ?? Array.Empty<DailyProgressForApprovalSectionActivityModel>();
+
+            // =========================================================
             // FINAL MODEL
             // =========================================================
 
@@ -1149,7 +1181,9 @@ internal sealed class DailyProgressHandlers :
                 NextApproverId = header.NextApproverId,
                 Details = details,
                 Hindrances = hindrances,
-                Photos = photos
+                Photos = photos,
+                SectionManpower = sectionManpower,
+                SectionActivities = sectionActivities
             };
         }
         finally
