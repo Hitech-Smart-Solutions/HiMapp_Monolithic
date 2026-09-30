@@ -75,5 +75,42 @@ public sealed class ManpowersController : ControllerBase
         return deleted ? Ok() : NotFound();
     }
 
+    [HttpGet("GetManpowerDashboard")]
+    public async Task<IActionResult> GetManpowerDashboard([FromQuery] ManpowerDashboardSearchParams searchParams,CancellationToken cancellationToken)
+    {
+        return Ok(
+            await _mediator.Send(
+                new GetManpowerDashboard(searchParams),
+                cancellationToken));
+    }
+
+    [HttpGet("GetActivityWisePlanVsAchievement")]
+    public async Task<IActionResult> GetActivityWisePlanVsAchievement([FromQuery] ManpowerDashboardSearchParams searchParams, CancellationToken cancellationToken)
+    {
+        return Ok(
+            await _mediator.Send(
+                new GetActivityWisePlanVsAchievement(searchParams),
+                cancellationToken));
+    }
+
+    [HttpGet("GetActivityWiseProductivity")]
+    public async Task<IActionResult> GetActivityWiseProductivity([FromQuery] ManpowerDashboardSearchParams searchParams, CancellationToken cancellationToken)
+    {
+        return Ok(
+            await _mediator.Send(
+                new GetActivityWiseProductivity(searchParams),
+                cancellationToken));
+    }
+
+    [HttpGet("GetLabourCostBudgetVsActual")]
+    public async Task<IActionResult> GetLabourCostBudgetVsActual([FromQuery] ManpowerDashboardSearchParams searchParams, CancellationToken cancellationToken)
+    {
+        return Ok(
+            await _mediator.Send(
+                new GetLabourCostBudgetVsActual(searchParams),
+                cancellationToken));
+    }
+
+
     private IActionResult OkOrNotFound(object? value) => value is null ? NotFound() : Ok(value);
 }

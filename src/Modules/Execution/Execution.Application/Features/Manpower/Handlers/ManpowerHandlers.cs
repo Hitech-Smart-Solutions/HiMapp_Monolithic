@@ -24,7 +24,11 @@ internal sealed class ManpowerHandlers :
     IRequestHandler<DeleteManpowerActionCommand, bool>,
     IRequestHandler<GetManpowerByProjectID, DataSet>,
     IRequestHandler<GetLastManpowerBySectionIDQuery, ManpowerModel?>,
-    IRequestHandler<GetManpowerBySectionProjectAndDateQuery, ManpowerModel?>
+    IRequestHandler<GetManpowerBySectionProjectAndDateQuery, ManpowerModel?>,
+    IRequestHandler<GetManpowerDashboard, DataSet>,
+    IRequestHandler<GetActivityWisePlanVsAchievement, DataSet>,
+    IRequestHandler<GetActivityWiseProductivity, DataSet>,
+    IRequestHandler<GetLabourCostBudgetVsActual, DataSet>
 {
     private readonly IExecutionDbContext _db;
     private readonly ICurrentUser _currentUser;
@@ -699,6 +703,288 @@ internal sealed class ManpowerHandlers :
             lastModifiedDate,
             details
         );
+    }
+
+    public async Task<DataSet> Handle(GetManpowerDashboard request, CancellationToken cancellationToken)
+    {
+        var p = request.SearchParams ?? new ManpowerDashboardSearchParams();
+
+        if (p.Month < 1 || p.Month > 12)
+        {
+            throw new ArgumentException("Month must be between 1 and 12.");
+        }
+
+        if (p.Year < 1)
+        {
+            throw new ArgumentException("Year must be a valid year.");
+        }
+
+
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext. " +
+                "Cannot obtain connection string for Npgsql operations.");
+        }
+
+        var dsLocal = new DataSet("ManpowerDashboard");
+
+        var connString = dbContext.Database
+            .GetDbConnection()
+            .ConnectionString;
+
+        await using var conn = new NpgsqlConnection(connString);
+
+        await conn.OpenAsync(cancellationToken);
+
+        using var cmd = new NpgsqlCommand(
+            """
+        SELECT *
+        FROM execution."GetManpowerDashboard"(
+            @p_month,
+            @p_year,
+            @p_project_ids
+        )
+        """,
+            conn);
+
+        cmd.CommandType = CommandType.Text;
+        cmd.CommandTimeout = 10;
+
+        cmd.Parameters.AddWithValue(
+            "@p_month",
+            NpgsqlDbType.Integer,
+            p.Month);
+
+        cmd.Parameters.AddWithValue(
+            "@p_year",
+            NpgsqlDbType.Integer,
+            p.Year);
+
+        if (p.ProjectIds is null || p.ProjectIds.Length == 0)
+        {
+            cmd.Parameters.AddWithValue(
+                "@p_project_ids",
+                NpgsqlDbType.Array | NpgsqlDbType.Integer,
+                DBNull.Value);
+        }
+        else
+        {
+            cmd.Parameters.AddWithValue(
+                "@p_project_ids",
+                NpgsqlDbType.Array | NpgsqlDbType.Integer,
+                p.ProjectIds);
+        }
+
+        var da = new NpgsqlDataAdapter(cmd);
+
+        var dt = new DataTable("Dashboard");
+
+        da.Fill(dt);
+
+        dsLocal.Tables.Add(dt);
+
+        return dsLocal;
+    }
+
+    public async Task<DataSet> Handle(GetActivityWisePlanVsAchievement request, CancellationToken cancellationToken)
+    {
+        var p = request.SearchParams ?? new ManpowerDashboardSearchParams();
+
+        if (p.Month < 1 || p.Month > 12)
+        {
+            throw new ArgumentException("Month must be between 1 and 12.");
+        }
+
+        if (p.Year < 1)
+        {
+            throw new ArgumentException("Year must be a valid year.");
+        }
+
+
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext. " +
+                "Cannot obtain connection string for Npgsql operations.");
+        }
+
+        var dsLocal = new DataSet("ManpowerDashboard");
+
+        var connString = dbContext.Database
+            .GetDbConnection()
+            .ConnectionString;
+
+        await using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        using var cmd = new NpgsqlCommand(
+            """
+        SELECT *
+        FROM execution."GetPlanVsActual"(@p_month, @p_year, @p_project_ids)
+        """, conn);
+
+        cmd.CommandType = CommandType.Text;
+        cmd.CommandTimeout = 10;
+
+        cmd.Parameters.AddWithValue("@p_month", NpgsqlDbType.Integer, p.Month);
+
+        cmd.Parameters.AddWithValue("@p_year", NpgsqlDbType.Integer, p.Year);
+
+        if (p.ProjectIds is null || p.ProjectIds.Length == 0)
+        {
+            cmd.Parameters.AddWithValue("@p_project_ids", NpgsqlDbType.Array | NpgsqlDbType.Integer, DBNull.Value);
+        }
+        else
+        {
+            cmd.Parameters.AddWithValue("@p_project_ids", NpgsqlDbType.Array | NpgsqlDbType.Integer, p.ProjectIds);
+        }
+
+        var da = new NpgsqlDataAdapter(cmd);
+
+        var dt = new DataTable("Dashboard");
+
+        da.Fill(dt);
+
+        dsLocal.Tables.Add(dt);
+
+        return dsLocal;
+    }
+
+    public async Task<DataSet> Handle(GetActivityWiseProductivity request, CancellationToken cancellationToken)
+    {
+        var p = request.SearchParams ?? new ManpowerDashboardSearchParams();
+
+        if (p.Month < 1 || p.Month > 12)
+        {
+            throw new ArgumentException("Month must be between 1 and 12.");
+        }
+
+        if (p.Year < 1)
+        {
+            throw new ArgumentException("Year must be a valid year.");
+        }
+
+
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext. " +
+                "Cannot obtain connection string for Npgsql operations.");
+        }
+
+        var dsLocal = new DataSet("ManpowerDashboard");
+
+        var connString = dbContext.Database
+            .GetDbConnection()
+            .ConnectionString;
+
+        await using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        using var cmd = new NpgsqlCommand(
+            """
+        SELECT *
+        FROM execution."GetProjectActivityInputOutput"(@p_month, @p_year, @p_project_ids)
+        """, conn);
+
+        cmd.CommandType = CommandType.Text;
+        cmd.CommandTimeout = 10;
+
+        cmd.Parameters.AddWithValue("@p_month", NpgsqlDbType.Integer, p.Month);
+
+        cmd.Parameters.AddWithValue("@p_year", NpgsqlDbType.Integer, p.Year);
+
+        if (p.ProjectIds is null || p.ProjectIds.Length == 0)
+        {
+            cmd.Parameters.AddWithValue("@p_project_ids", NpgsqlDbType.Array | NpgsqlDbType.Integer, DBNull.Value);
+        }
+        else
+        {
+            cmd.Parameters.AddWithValue("@p_project_ids", NpgsqlDbType.Array | NpgsqlDbType.Integer, p.ProjectIds);
+        }
+
+        var da = new NpgsqlDataAdapter(cmd);
+
+        var dt = new DataTable("Dashboard");
+
+        da.Fill(dt);
+
+        dsLocal.Tables.Add(dt);
+
+        return dsLocal;
+    }
+
+    public async Task<DataSet> Handle(GetLabourCostBudgetVsActual request, CancellationToken cancellationToken)
+    {
+        var p = request.SearchParams ?? new ManpowerDashboardSearchParams();
+
+        if (p.Month < 1 || p.Month > 12)
+        {
+            throw new ArgumentException("Month must be between 1 and 12.");
+        }
+
+        if (p.Year < 1)
+        {
+            throw new ArgumentException("Year must be a valid year.");
+        }
+
+
+        var dbContext = _db as DbContext;
+
+        if (dbContext is null)
+        {
+            throw new InvalidOperationException(
+                "IExecutionDbContext is not a DbContext. " +
+                "Cannot obtain connection string for Npgsql operations.");
+        }
+
+        var dsLocal = new DataSet("ManpowerDashboard");
+
+        var connString = dbContext.Database
+            .GetDbConnection()
+            .ConnectionString;
+
+        await using var conn = new NpgsqlConnection(connString);
+        await conn.OpenAsync(cancellationToken);
+
+        using var cmd = new NpgsqlCommand(
+            """
+        SELECT *
+        FROM execution."GetProjectCostSummary"(@p_month, @p_year, @p_project_ids)
+        """, conn);
+
+        cmd.CommandType = CommandType.Text;
+        cmd.CommandTimeout = 10;
+
+        cmd.Parameters.AddWithValue("@p_month", NpgsqlDbType.Integer, p.Month);
+
+        cmd.Parameters.AddWithValue("@p_year", NpgsqlDbType.Integer, p.Year);
+
+        if (p.ProjectIds is null || p.ProjectIds.Length == 0)
+        {
+            cmd.Parameters.AddWithValue("@p_project_ids", NpgsqlDbType.Array | NpgsqlDbType.Integer, DBNull.Value);
+        }
+        else
+        {
+            cmd.Parameters.AddWithValue("@p_project_ids", NpgsqlDbType.Array | NpgsqlDbType.Integer, p.ProjectIds);
+        }
+
+        var da = new NpgsqlDataAdapter(cmd);
+
+        var dt = new DataTable("Dashboard");
+
+        da.Fill(dt);
+
+        dsLocal.Tables.Add(dt);
+
+        return dsLocal;
     }
 }
 
