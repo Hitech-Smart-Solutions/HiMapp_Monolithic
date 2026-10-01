@@ -178,6 +178,7 @@ internal sealed class DailyProgressHandlers :
                         h.ID,
                         h.UniqueID,
                         h.SectionID,
+                        string.Empty,
                         h.Hindrance,
                         h.AudioUrl))
                     .ToArray()
@@ -189,6 +190,7 @@ internal sealed class DailyProgressHandlers :
                         p.ID,
                         p.UniqueID,
                         p.SectionID,
+                        string.Empty,
                         p.FileName,
                         p.FileType,
                         p.FileSize,
@@ -368,12 +370,14 @@ internal sealed class DailyProgressHandlers :
             h.ID,
             h.UniqueID,
             h.SectionID,
+            string.Empty,
             h.Hindrance,
             h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
         var photos = entity.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
             p.SectionID,
+            string.Empty,
             p.FileName,
             p.FileType,
             p.FileSize,
@@ -503,12 +507,14 @@ internal sealed class DailyProgressHandlers :
             h.ID,
             h.UniqueID,
             h.SectionID,
+            string.Empty,
             h.Hindrance,
             h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
         var photos = entity.DailyProgressPhoto?.Select(p => new DailyProgressPhotoModel(
             p.ID,
             p.UniqueID,
             p.SectionID,
+            string.Empty,
             p.FileName,
             p.FileType,
             p.FileSize,
@@ -838,6 +844,7 @@ internal sealed class DailyProgressHandlers :
             h.ID,
             h.UniqueID,
             h.SectionID,
+            string.Empty,
             h.Hindrance,
             h.AudioUrl)).ToArray() ?? Array.Empty<DailyProgressHindranceModel>();
 
@@ -845,6 +852,7 @@ internal sealed class DailyProgressHandlers :
             p.ID,
             p.UniqueID,
             p.SectionID,
+            string.Empty,
             p.FileName,
             p.FileType,
             p.FileSize,
