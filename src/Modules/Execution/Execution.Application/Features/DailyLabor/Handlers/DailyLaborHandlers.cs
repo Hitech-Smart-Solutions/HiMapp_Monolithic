@@ -410,23 +410,20 @@ internal sealed class DailyLaborHandlers :
         return dsLocal;
     }
 
-    public async Task<DPRDailyLaborConsolidatedResponse> Handle(
-    DPRGetConsolidatedDailyLaborQuery request,
-    CancellationToken cancellationToken)
+
+    public async Task<DPRDailyLaborConsolidatedResponse> Handle(DPRGetConsolidatedDailyLaborQuery request, CancellationToken cancellationToken)
     {
         var DPREntryContinue = await _db.Set<Domain.Entities.ExecutionProjectConfig>()
             .AsNoTracking()
-            .Where(x =>
-                x.IsActive &&
-                x.ProjectID == request.ProjectId).Select(t => t.DPREntryContinue).
-                FirstOrDefaultAsync(cancellationToken);
+            .Where(x => x.IsActive && x.ProjectID == request.ProjectId)
+            .Select(t => t.DPREntryContinue)
+            .FirstOrDefaultAsync(cancellationToken);
+
         if (DPREntryContinue && request.Id == 0)
         {
             var resultLastDPR = await _db.Set<Domain.Entities.DailyProgress>()
                 .AsNoTracking()
-                .Where(x =>
-                    x.IsActive &&
-                    x.ProjectID == request.ProjectId)
+                .Where(x => x.IsActive && x.ProjectID == request.ProjectId)
                 .OrderByDescending(x => x.ReportDate)
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -434,7 +431,6 @@ internal sealed class DailyLaborHandlers :
             {
                 var lastDPRDate = resultLastDPR.ReportDate;
                 var requestedDate = request.Date;
-
                 var expectedDate = lastDPRDate.AddDays(1);
 
                 if (requestedDate != expectedDate)
@@ -446,11 +442,44 @@ internal sealed class DailyLaborHandlers :
                             $"The specified date {requestedDate:yyyy-MM-dd} is invalid. " +
                             $"The next DPR date must be {expectedDate:yyyy-MM-dd}. " +
                             $"The last DPR date is {lastDPRDate:yyyy-MM-dd}.",
+                        IsManpowerNotAvailable = false,
                         Data = Array.Empty<DPRDailyLaborConsolidatedModel>()
                     };
                 }
             }
         }
+
+        var dailyLaborHeader = await _db.Set<Domain.Entities.DailyLabor>()
+            .AsNoTracking()
+            .Where(x =>
+                x.IsActive &&
+                x.ProjectID == request.ProjectId &&
+                DateOnly.FromDateTime(x.DLRDate) == request.Date)
+            .Select(x => new { x.Id, x.RemoveMenPower })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (dailyLaborHeader == null)
+        {
+            return new DPRDailyLaborConsolidatedResponse
+            {
+                Status = true,
+                Message = "No daily labor data found for the specified date. Please create manpower first.",
+                IsManpowerNotAvailable = false,
+                Data = Array.Empty<DPRDailyLaborConsolidatedModel>()
+            };
+        }
+
+        if (dailyLaborHeader.RemoveMenPower.GetValueOrDefault())
+        {
+            return new DPRDailyLaborConsolidatedResponse
+            {
+                Status = true,
+                Message = "Daily labor is marked as 'Manpower Not Available'. DPR entry is allowed.",
+                IsManpowerNotAvailable = true,
+                Data = Array.Empty<DPRDailyLaborConsolidatedModel>()
+            };
+        }
+
         var result = await (
             from dl in _db.Set<Domain.Entities.DailyLabor>()
                 .AsNoTracking()
@@ -500,6 +529,7 @@ internal sealed class DailyLaborHandlers :
             Message = result.Length > 0
                 ? "Consolidated daily labor report generated successfully."
                 : "No daily labor data found for the specified date.",
+            IsManpowerNotAvailable = false,
             Data = result
         };
     }
