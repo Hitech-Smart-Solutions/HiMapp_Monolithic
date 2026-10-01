@@ -53,7 +53,7 @@ internal sealed class DailyProgressHandlers :
     {
         return await _db.Set<DailyProgressEntity>()
             .AsNoTracking()
-            .Select(d => new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, Array.Empty<DailyProgressDetailModel>(), Array.Empty<DailyProgressHindranceModel>(), Array.Empty<DailyProgressPhotoModel>()))
+            .Select(d => new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.RemoveMenPower, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, Array.Empty<DailyProgressDetailModel>(), Array.Empty<DailyProgressHindranceModel>(), Array.Empty<DailyProgressPhotoModel>()))
             .ToArrayAsync(cancellationToken);
     }
 
@@ -280,6 +280,7 @@ internal sealed class DailyProgressHandlers :
             TotalAmount = r.TotalAmount,
             StatusID = r.StatusID,
             IsActive = true,
+            RemoveMenPower = r.removeMenPower,
             CreatedBy = userId,
             CreatedDate = DateTime.UtcNow,
             LastModifiedBy = userId,
@@ -379,7 +380,7 @@ internal sealed class DailyProgressHandlers :
             p.PhotoUrl,
             p.Caption)).ToArray() ?? Array.Empty<DailyProgressPhotoModel>();
 
-        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.DPRCode, entity.ReportDate, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, hindrances, photos);
+        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.DPRCode, entity.ReportDate, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.StatusID, entity.IsActive, entity.RemoveMenPower,entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, hindrances, photos);
     }
 
     public async Task<DailyProgressModel?> Handle(UpdateDailyProgressCommand request, CancellationToken cancellationToken)
@@ -398,6 +399,7 @@ internal sealed class DailyProgressHandlers :
         entity.Remarks = request.Request.Remarks;
         entity.TotalAmount = request.Request.TotalAmount;
         entity.StatusID = request.Request.StatusID;
+        entity.RemoveMenPower = request.Request.removeMenPower;
         entity.LastModifiedBy = LastModifiedBy;
         entity.LastModifiedDate = DateTime.UtcNow;
 
@@ -513,7 +515,7 @@ internal sealed class DailyProgressHandlers :
             p.PhotoUrl,
             p.Caption)).ToArray() ?? Array.Empty<DailyProgressPhotoModel>();
 
-        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.DPRCode, entity.ReportDate, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.StatusID, entity.IsActive, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, hindrances, photos);
+        return new DailyProgressModel(entity.ID, entity.UniqueID, entity.ProjectID, entity.DPRCode, entity.ReportDate, entity.NextDayPlan, entity.Remarks, entity.TotalAmount, entity.StatusID, entity.IsActive, entity.RemoveMenPower, entity.CreatedBy, entity.CreatedDate, entity.LastModifiedBy, entity.LastModifiedDate, details, hindrances, photos);
     }
 
     public async Task<bool> Handle(DeleteDailyProgressCommand request, CancellationToken cancellationToken)
@@ -849,7 +851,7 @@ internal sealed class DailyProgressHandlers :
             p.PhotoUrl,
             p.Caption)).ToArray() ?? Array.Empty<DailyProgressPhotoModel>();
 
-        return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details, hindrances, photos);
+        return new DailyProgressModel(d.ID, d.UniqueID, d.ProjectID, d.DPRCode, d.ReportDate, d.NextDayPlan, d.Remarks, d.TotalAmount, d.StatusID, d.IsActive, d.RemoveMenPower, d.CreatedBy, d.CreatedDate, d.LastModifiedBy, d.LastModifiedDate, details, hindrances, photos);
     }
 
     public async Task<List<SectionWiseHindranceModel>> Handle(GetSectionWiseHindrancesByProjectQuery request, CancellationToken cancellationToken)

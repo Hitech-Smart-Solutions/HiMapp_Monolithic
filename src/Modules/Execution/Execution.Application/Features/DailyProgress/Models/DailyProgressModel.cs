@@ -13,6 +13,7 @@ public sealed record DailyProgressModel(
     decimal TotalAmount,
     int StatusID,
     bool IsActive,
+    bool? removeMenPower,
     int CreatedBy,
     System.DateTimeOffset CreatedDate,
     int LastModifiedBy,
@@ -30,6 +31,7 @@ public sealed record CreateDailyProgressRequest(
     decimal TotalAmount,
     int StatusID,
     int CreatedBy,
+    bool? removeMenPower,
     DateTimeOffset CreatedDate,
     List<DailyProgressDetailRequest>? Details = null,
     List<DailyProgressHindranceRequest>? Hindrances = null,
@@ -47,6 +49,7 @@ public sealed record UpdateDailyProgressRequest(
     int StatusID,
     int LastModifiedBy,
     DateTimeOffset LastModifiedDate,
+    bool? removeMenPower,
     List<DailyProgressDetailRequest>? Details = null,
     List<DailyProgressHindranceRequest>? Hindrances = null,
     List<DailyProgressPhotoRequest>? Photos = null

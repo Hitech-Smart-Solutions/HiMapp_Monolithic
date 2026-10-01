@@ -21,6 +21,7 @@ public class DailyProgress : BaseEntity
     public decimal TotalAmount { get; set; }
     public int StatusID { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool? RemoveMenPower { get; set; }
     public virtual ICollection<DailyProgressDetail> DailyProgressDetail { get; set; }
     public virtual ICollection<DailyProgressHindrance> DailyProgressHindrance { get; set; }
     public virtual ICollection<DailyProgressPhoto> DailyProgressPhoto { get; set; }
