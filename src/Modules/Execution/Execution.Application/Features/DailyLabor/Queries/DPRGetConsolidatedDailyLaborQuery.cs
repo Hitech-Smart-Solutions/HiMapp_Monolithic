@@ -7,4 +7,4 @@ using System.Text;
 
 namespace Himapp.Execution.Application.Features.DailyLabor.Queries;
 
-public sealed record DPRGetConsolidatedDailyLaborQuery(DateOnly Date, int ProjectId) : IRequest<DPRDailyLaborConsolidatedResponse>;
+public sealed record DPRGetConsolidatedDailyLaborQuery(DateOnly Date, int ProjectId,int Id) : IRequest<DPRDailyLaborConsolidatedResponse>;
