@@ -415,9 +415,9 @@ internal sealed class DailyLaborHandlers :
             .AsNoTracking()
             .Where(x =>
                 x.IsActive &&
-                x.ProjectID == request.ProjectId).Select(t=> t.DPREntryContinue).
+                x.ProjectID == request.ProjectId).Select(t => t.DPREntryContinue).
                 FirstOrDefaultAsync(cancellationToken);
-        if (DPREntryContinue)
+        if (DPREntryContinue && request.Id == 0)
         {
             var resultLastDPR = await _db.Set<Domain.Entities.DailyProgress>()
                 .AsNoTracking()

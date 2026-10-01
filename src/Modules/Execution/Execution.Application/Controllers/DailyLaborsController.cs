@@ -68,7 +68,7 @@ public sealed class DailyLaborsController : ControllerBase
     }
 
     [HttpGet("GetConsolidatedForDPR")]
-    public async Task<IActionResult> GetConsolidatedForDPR([FromQuery] DateOnly date, [FromQuery] int projectId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetConsolidatedForDPR([FromQuery] DateOnly date, [FromQuery] int projectId, [FromQuery] int Id, CancellationToken cancellationToken)
     {
         if (projectId <= 0)
         {
@@ -80,7 +80,7 @@ public sealed class DailyLaborsController : ControllerBase
             return BadRequest("date is required.");
         }
 
-        var result = await _mediator.Send(new DPRGetConsolidatedDailyLaborQuery(date, projectId), cancellationToken);
+        var result = await _mediator.Send(new DPRGetConsolidatedDailyLaborQuery(date, projectId,Id), cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
