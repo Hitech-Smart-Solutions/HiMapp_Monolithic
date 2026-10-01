@@ -9,14 +9,16 @@ public sealed class DailyProgressHindranceModel
     public int Id { get; init; }
     public Guid UniqueId { get; init; }
     public int SectionId { get; init; }
+    public string? SectionName { get; init; }
     public string? Hindrance { get; set; }
     public string? AudioUrl { get; set; }
 
-    public DailyProgressHindranceModel(int id, Guid uniqueId, int sectionId, string? hindrance, string? audioUrl)
+    public DailyProgressHindranceModel(int id, Guid uniqueId, int sectionId, string? sectionName, string? hindrance, string? audioUrl)
     {
         Id = id;
         UniqueId = uniqueId;
         SectionId = sectionId;
+        SectionName = sectionName;
         Hindrance = hindrance;
         AudioUrl = audioUrl;
     }
