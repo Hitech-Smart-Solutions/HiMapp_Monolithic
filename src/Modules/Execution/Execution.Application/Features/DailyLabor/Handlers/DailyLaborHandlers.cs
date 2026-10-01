@@ -31,7 +31,7 @@ internal sealed class DailyLaborHandlers :
     IRequestHandler<DeleteDailyLaborActionCommand, bool>,
     IRequestHandler<GetConsolidatedDailyLaborQuery, IReadOnlyCollection<DailyLaborConsolidatedModel>>,
     IRequestHandler<GetDailyLaborByProjectID, DataSet>,
-    IRequestHandler<DPRGetConsolidatedDailyLaborQuery, IReadOnlyCollection<DPRDailyLaborConsolidatedModel>>,
+    IRequestHandler<DPRGetConsolidatedDailyLaborQuery, DPRDailyLaborConsolidatedResponse>,
     IRequestHandler<GetDailyLaborContractorsByProjectAndDateQuery, DataSet>,
     IRequestHandler<GetProjectDPRReport, DataSet>
 {
@@ -410,15 +410,59 @@ internal sealed class DailyLaborHandlers :
         return dsLocal;
     }
 
-    public async Task<IReadOnlyCollection<DPRDailyLaborConsolidatedModel>> Handle(DPRGetConsolidatedDailyLaborQuery request, CancellationToken cancellationToken)
+    public async Task<DPRDailyLaborConsolidatedResponse> Handle(
+    DPRGetConsolidatedDailyLaborQuery request,
+    CancellationToken cancellationToken)
     {
+        var DPREntryContinue = await _db.Set<Domain.Entities.ExecutionProjectConfig>()
+            .AsNoTracking()
+            .Where(x =>
+                x.IsActive &&
+                x.ProjectID == request.ProjectId).Select(t=> t.DPREntryContinue).
+                FirstOrDefaultAsync(cancellationToken);
+        if (DPREntryContinue)
+        {
+            var resultLastDPR = await _db.Set<Domain.Entities.DailyProgress>()
+                .AsNoTracking()
+                .Where(x =>
+                    x.IsActive &&
+                    x.ProjectID == request.ProjectId)
+                .OrderByDescending(x => x.ReportDate)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (resultLastDPR != null)
+            {
+                var lastDPRDate = resultLastDPR.ReportDate;
+                var requestedDate = request.Date;
+
+                var expectedDate = lastDPRDate.AddDays(1);
+
+                if (requestedDate != expectedDate)
+                {
+                    return new DPRDailyLaborConsolidatedResponse
+                    {
+                        Status = false,
+                        Message =
+                            $"The specified date {requestedDate:yyyy-MM-dd} is invalid. " +
+                            $"The next DPR date must be {expectedDate:yyyy-MM-dd}. " +
+                            $"The last DPR date is {lastDPRDate:yyyy-MM-dd}.",
+                        Data = Array.Empty<DPRDailyLaborConsolidatedModel>()
+                    };
+                }
+            }
+        }
         var result = await (
             from dl in _db.Set<Domain.Entities.DailyLabor>()
-            .AsNoTracking()
+                .AsNoTracking()
+
             from d in dl.DailyLaborDetail!
+                .Where(x => x.IsActive)
+                .DefaultIfEmpty()
 
             join a in _db.Set<Domain.Entities.Activity>()
-                on d.ActivityID equals a.ID
+                on d.ActivityID equals a.ID into activityGroup
+
+            from a in activityGroup.DefaultIfEmpty()
 
             where
                 DateOnly.FromDateTime(dl.DLRDate) == request.Date &&
@@ -450,7 +494,14 @@ internal sealed class DailyLaborHandlers :
             )
         ).ToArrayAsync(cancellationToken);
 
-        return result;
+        return new DPRDailyLaborConsolidatedResponse
+        {
+            Status = true,
+            Message = result.Length > 0
+                ? "Consolidated daily labor report generated successfully."
+                : "No daily labor data found for the specified date.",
+            Data = result
+        };
     }
     public async Task<DataSet> Handle(
     GetProjectDPRReport request,
@@ -596,4 +647,6 @@ internal sealed class DailyLaborHandlers :
 
         return ds;
     }
+
+
 }
