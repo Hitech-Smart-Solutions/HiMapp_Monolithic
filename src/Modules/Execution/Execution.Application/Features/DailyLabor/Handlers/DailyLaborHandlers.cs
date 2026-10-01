@@ -326,13 +326,15 @@ internal sealed class DailyLaborHandlers :
                     md.ActivityID,
                     md.SkilledCount,
                     md.UnskilledCount,
-                    md.OtherCount
+                    md.OtherCount,
+                    md.IsDepartment
                 }))
             .GroupBy(x => new
             {
                 x.SectionID,
                 x.ContractorID,
-                x.ActivityID
+                x.ActivityID,
+                x.IsDepartment
             })
             .Select(g => new DailyLaborConsolidatedModel(
                 g.Key.SectionID,
@@ -344,7 +346,8 @@ internal sealed class DailyLaborHandlers :
                 g.Sum(x =>
                     x.SkilledCount +
                     x.UnskilledCount +
-                    x.OtherCount)
+                    x.OtherCount),
+                g.Key.IsDepartment
             ))
             .ToArrayAsync(cancellationToken);
 
