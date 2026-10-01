@@ -8,7 +8,7 @@ public class DPRDailyLaborConsolidatedResponse
 {
     public bool Status { get; set; }
     public string Message { get; set; } = string.Empty;
-
+    public bool IsManpowerNotAvailable { get; set; }
     public IReadOnlyCollection<DPRDailyLaborConsolidatedModel> Data { get; set; }
         = Array.Empty<DPRDailyLaborConsolidatedModel>();
 }
