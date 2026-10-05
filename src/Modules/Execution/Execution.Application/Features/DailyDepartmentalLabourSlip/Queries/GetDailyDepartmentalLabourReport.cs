@@ -13,6 +13,9 @@ namespace Himapp.Execution.Application.Features.DailyDepartmentalLabourSlip.Quer
      int Contractor = 0,
      int Activity = 0,
      int Location = 0,
-     bool? IsLumpSum = null
+     bool? IsLumpSum = null,
+     string? SortColumn = "SlipDate desc",
+     int PageIndex = 0,
+     int PageSize = 10
  ) : IRequest<DataSet>;
 }
