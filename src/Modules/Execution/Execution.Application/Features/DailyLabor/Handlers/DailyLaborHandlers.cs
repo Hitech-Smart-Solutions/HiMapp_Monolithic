@@ -103,7 +103,9 @@ internal sealed class DailyLaborHandlers :
 
         if (entity is null) return null;
 
-        var details = entity.DailyLaborDetail?.Select(dd => new DailyLaborDetailModel(
+        var details = entity.DailyLaborDetail?
+            .OrderBy(dd => dd.SectionID)
+            .Select(dd => new DailyLaborDetailModel(
             dd.ID,
             dd.UniqueID,
             dd.ContractorID,
