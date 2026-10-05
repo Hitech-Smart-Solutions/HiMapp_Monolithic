@@ -85,15 +85,8 @@ public sealed class DailyLaborsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
     [HttpGet("GetDailyDPRReport")]
-    public async Task<IActionResult> GetDailyDPRReport(
-    [FromQuery] int type = 0,
-    [FromQuery] DateTime? fromDate = null,
-    [FromQuery] DateTime? toDate = null,
-    [FromQuery] int project = 0,
-    [FromQuery] int activity = 0,
-    [FromQuery] int contractor = 0,
-    [FromQuery] int section = 0,
-    [FromQuery] bool? departmental = null,
+    public async Task<IActionResult> GetDailyDPRReport([FromQuery] int type = 0, [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null, [FromQuery] int project = 0, [FromQuery] int activity = 0, 
+        [FromQuery] int contractor = 0, [FromQuery] int section = 0, [FromQuery] bool? departmental = null, [FromQuery] string? sortColumn = "SlipDate desc", [FromQuery] int pageIndex = 0, [FromQuery] int pageSize = 10, 
     CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(
@@ -105,7 +98,10 @@ public sealed class DailyLaborsController : ControllerBase
                 Activity: activity,
                 Contractor: contractor,
                 Section: section,
-                Departmental: departmental
+                Departmental: departmental,
+                SortColumn: sortColumn,
+                PageIndex: pageIndex,
+                PageSize: pageSize
             ),
             cancellationToken);
         return Ok(result);
