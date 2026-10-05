@@ -13,7 +13,10 @@ namespace Himapp.Execution.Application.Features.DailyLabor.Queries
    int Project,
    int Activity,
    int Contractor,
-   int Section,
-   bool? Departmental
+   int Section, 
+   bool? Departmental, 
+   string? SortColumn = "ReportDate desc", 
+   int PageIndex = 0, 
+   int PageSize = 10
 ) : IRequest<DataSet>;
 }

@@ -568,7 +568,10 @@ internal sealed class DailyLaborHandlers :
             @p_activity,
             @p_contractor,
             @p_section,
-            @p_departmental
+            @p_departmental,
+            @p_sortcolumn,
+            @p_pageindex,
+            @p_pagesize
         )
         """,
             conn);
@@ -621,6 +624,10 @@ internal sealed class DailyLaborHandlers :
             request.Departmental.HasValue
                 ? request.Departmental.Value
                 : (object)DBNull.Value);
+
+        cmd.Parameters.Add(new NpgsqlParameter("@p_sortcolumn", NpgsqlDbType.Text) { Value = request.SortColumn ?? "ReportDate desc" });
+        cmd.Parameters.Add(new NpgsqlParameter("@p_pageindex", NpgsqlDbType.Integer) { Value = request.PageIndex });
+        cmd.Parameters.Add(new NpgsqlParameter("@p_pagesize", NpgsqlDbType.Integer) { Value = request.PageSize });
 
         var da = new NpgsqlDataAdapter(cmd);
 
