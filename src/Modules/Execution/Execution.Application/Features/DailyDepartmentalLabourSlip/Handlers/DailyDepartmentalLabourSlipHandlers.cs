@@ -889,9 +889,8 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
 
         return dsLocal;
     }
-    public async Task<DataSet> Handle(
-    GetDailyDepartmentalLabourReport request,
-    CancellationToken cancellationToken)
+    
+    public async Task<DataSet> Handle(GetDailyDepartmentalLabourReport request, CancellationToken cancellationToken)
     {
         var dbContext = _db as DbContext;
 
@@ -919,7 +918,10 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
             @p_contractor,
             @p_activity,
             @p_location,
-            @p_is_lumpsum
+            @p_is_lumpsum,
+            @p_sortcolumn,
+            @p_pageindex,
+            @p_pagesize
         )
         """,
             conn);
@@ -968,6 +970,11 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
                 ? request.IsLumpSum.Value
                 : (object)DBNull.Value);
 
+
+        cmd.Parameters.Add(new NpgsqlParameter("@p_sortcolumn", NpgsqlDbType.Text) { Value = request.SortColumn ?? "SlipDate desc" });
+        cmd.Parameters.Add(new NpgsqlParameter("@p_pageindex", NpgsqlDbType.Integer) { Value = request.PageIndex });
+        cmd.Parameters.Add(new NpgsqlParameter("@p_pagesize", NpgsqlDbType.Integer) { Value = request.PageSize });
+
         var da = new NpgsqlDataAdapter(cmd);
 
         var dt = new DataTable("Rows");
@@ -979,9 +986,7 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
         return dsLocal;
     }
 
-    public async Task<IEnumerable<CategoryWiseManpowerDto>> Handle(
-          GetCategorywiseManPowerCount request,
-          CancellationToken cancellationToken)
+    public async Task<IEnumerable<CategoryWiseManpowerDto>> Handle(GetCategorywiseManPowerCount request, CancellationToken cancellationToken)
     {
         var dbContext = _db as DbContext;
 
@@ -1049,9 +1054,8 @@ internal sealed class DailyDepartmentalLabourSlipHandlers :
 
         return result;
     }
-    public async Task<DataSet> Handle(
-           CheckDDLSOpenDate request,
-           CancellationToken cancellationToken)
+    
+    public async Task<DataSet> Handle(CheckDDLSOpenDate request, CancellationToken cancellationToken)
     {
         // Force Npgsql path: require the underlying DbContext
         // to obtain connection string

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Himapp.Execution.Application.Controllers;
 
 [ApiController]
-//[Authorize]
+[Authorize]
 [Route("v1/execution/daily-departmental-labour-slips")]
 public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
 {
@@ -113,16 +113,12 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
         var ds = await _mediator.Send(new GetDDLSApprovalHistory(programId, id), cancellationToken);
         return Ok(ds);
     }
+    
+    
     [HttpGet("GetDailyDepartmentalLabourReport")]
-    public async Task<IActionResult> GetDailyDepartmentalLabourReport(
-    [FromQuery] int project = 0,
-    [FromQuery] DateTime? fromDate = null,
-    [FromQuery] DateTime? toDate = null,
-    [FromQuery] int contractor = 0,
-    [FromQuery] int activity = 0,
-    [FromQuery] int location = 0,
-    [FromQuery] bool? isLumpSum = null,
-    CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetDailyDepartmentalLabourReport([FromQuery] int project = 0, [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null, [FromQuery] int contractor = 0, 
+        [FromQuery] int activity = 0, [FromQuery] int location = 0, [FromQuery] bool? isLumpSum = null, [FromQuery] string? sortColumn = "SlipDate desc", [FromQuery] int pageIndex = 0, [FromQuery] int pageSize = 10, 
+        CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(
             new GetDailyDepartmentalLabourReport(
@@ -132,12 +128,18 @@ public sealed class DailyDepartmentalLabourSlipsController : ControllerBase
                 Contractor: contractor,
                 Activity: activity,
                 Location: location,
-                IsLumpSum: isLumpSum
+                IsLumpSum: isLumpSum,
+                SortColumn: sortColumn,
+                PageIndex: pageIndex,
+                PageSize: pageSize
             ),
             cancellationToken);
 
         return Ok(result);
     }
+
+
+
     [HttpGet("categorywise-manpower-count")]
     public async Task<IActionResult> GetCategorywiseManPowerCount(
            [FromQuery] int projectID,
