@@ -157,6 +157,7 @@ internal sealed class DailyProgressHandlers :
 
             var details =
                 entity.DailyProgressDetail?
+                    .OrderBy(dd => dd.SectionID)
                     .Select(dd => new DailyProgressDetailModel(
                         dd.ID,
                         dd.UniqueID,
@@ -174,6 +175,7 @@ internal sealed class DailyProgressHandlers :
 
             var hindrances =
                 entity.DailyProgressHindrance?
+                    .OrderBy(h => h.SectionID)
                     .Select(h => new DailyProgressHindranceModel(
                         h.ID,
                         h.UniqueID,
@@ -186,6 +188,7 @@ internal sealed class DailyProgressHandlers :
 
             var photos =
                 entity.DailyProgressPhoto?
+                    .OrderBy(p => p.SectionID)
                     .Select(p => new DailyProgressPhotoModel(
                         p.ID,
                         p.UniqueID,
