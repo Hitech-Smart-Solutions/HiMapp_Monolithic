@@ -34,11 +34,37 @@ namespace Himapp.Api.src.Shared.Middleware
         {
             var traceId = context.TraceIdentifier;
 
+            // Get the deepest/actual exception
+            var rootException = exception;
+            while (rootException.InnerException != null)
+            {
+                rootException = rootException.InnerException;
+            }
+
+            // Log complete exception details
             _logger.LogError(
                 exception,
-                "Unhandled exception. TraceId: {TraceId}, Path: {Path}",
+                """
+                Unhandled Exception
+
+                TraceId: {TraceId}
+                Request: {Method} {Path}
+                Exception Type: {ExceptionType}
+                Exception Message: {ExceptionMessage}
+                Root Exception Type: {RootExceptionType}
+                Root Exception Message: {RootExceptionMessage}
+                Stack Trace:
+                {StackTrace}
+                """,
                 traceId,
-                context.Request.Path);
+                context.Request.Method,
+                context.Request.Path,
+                exception.GetType().FullName,
+                exception.Message,
+                rootException.GetType().FullName,
+                rootException.Message,
+                exception.ToString()
+            );
 
             var statusCode = StatusCodes.Status500InternalServerError;
             var message = "An unexpected error occurred.";

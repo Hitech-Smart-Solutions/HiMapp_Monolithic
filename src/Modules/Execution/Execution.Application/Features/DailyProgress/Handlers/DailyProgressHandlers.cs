@@ -759,6 +759,7 @@ internal sealed class DailyProgressHandlers :
             var uomShortNameOrdinal = reader.GetOrdinal("UOMShortName");
             var revenueRateOrdinal = reader.GetOrdinal("RevenueRate");
             var quantityOrdinal = reader.GetOrdinal("ActualQuantity");
+            var isSiteDPRExistOrdinal = reader.GetOrdinal("IsSiteDPRExist");
 
             while (await reader.ReadAsync(cancellationToken))
             {
@@ -798,7 +799,11 @@ internal sealed class DailyProgressHandlers :
 
                     RevenueRate = reader.IsDBNull(revenueRateOrdinal)
                         ? 0
-                        : reader.GetDecimal(revenueRateOrdinal)
+                        : reader.GetDecimal(revenueRateOrdinal),
+
+                    IsSiteDPRExist = reader.IsDBNull(isSiteDPRExistOrdinal)
+                        ? null
+                        : reader.GetBoolean(isSiteDPRExistOrdinal)
                 });
             }
         }
