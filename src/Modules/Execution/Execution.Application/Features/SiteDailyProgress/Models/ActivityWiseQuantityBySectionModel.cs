@@ -16,5 +16,6 @@ namespace Himapp.Execution.Application.Features.SiteDailyProgress.Models
         public string? UOMName { get; set; }
         public string? UOMShortName { get; set; }
         public decimal RevenueRate { get; set; }
+        public bool? IsSiteDPRExist { get; set; }
     }
 }
