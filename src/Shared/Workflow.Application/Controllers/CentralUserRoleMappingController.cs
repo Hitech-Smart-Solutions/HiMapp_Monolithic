@@ -85,7 +85,11 @@ public sealed class CentralUserRoleMappingController : ControllerBase
         {
             var result = await _mediator.Send(new CheckRoleProjectMappingInWorkflowQuery(roleId, projectId, companyId), cancellationToken);
 
-            return Ok(new { isLinked = result });
+            return Ok(new
+            {
+                isLinked = result.IsLinked,
+                workflowNames = result.WorkflowNames
+            });
         }
         catch (Exception ex)
         {
