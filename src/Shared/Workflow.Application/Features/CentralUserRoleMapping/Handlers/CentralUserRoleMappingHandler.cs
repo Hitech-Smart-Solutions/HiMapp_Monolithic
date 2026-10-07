@@ -19,7 +19,7 @@ internal sealed class CentralUserRoleMappingHandler :
     IRequestHandler<DeleteCentralUserRoleMappingCommand, bool>,
     IRequestHandler<GetRoleMappingListByCompanyQuery, DataSet>,
     IRequestHandler<CheckDuplicateRoleNameQuery, bool>,
-    IRequestHandler<CheckRoleProjectMappingInWorkflowQuery, bool>
+    IRequestHandler<CheckRoleProjectMappingInWorkflowQuery, RoleMappingWithWorkflowResult>
 {
     private readonly IWorkflowDbContext _db;
 
@@ -383,32 +383,38 @@ internal sealed class CentralUserRoleMappingHandler :
         };
     }
 
-    public async Task<bool> Handle(CheckRoleProjectMappingInWorkflowQuery request, CancellationToken cancellationToken)
+    public async Task<RoleMappingWithWorkflowResult> Handle(CheckRoleProjectMappingInWorkflowQuery request, CancellationToken cancellationToken)
     {
         string connectionString = _db.Database.GetDbConnection().ConnectionString;
 
-        using var connection = new NpgsqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
 
-        using var cmd = new NpgsqlCommand(
-            @"SELECT public.uspcheckroleprojectmappinginworkflow(
-                    @p_companyid,
-                    @p_roleid,
-                    @p_projectid)",
+        await using var cmd = new NpgsqlCommand(
+            @"SELECT ""IsLinked"", ""WorkflowNames""
+          FROM public.uspcheckroleprojectmappinginworkflow(
+              @p_companyid,
+              @p_roleid,
+              @p_projectid)",
             connection);
 
         cmd.Parameters.AddWithValue("@p_companyid", request.CompanyId);
         cmd.Parameters.AddWithValue("@p_roleid", request.RoleId);
         cmd.Parameters.AddWithValue("@p_projectid", request.ProjectId);
 
-        var result = await cmd.ExecuteScalarAsync(cancellationToken);
+        await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
 
-        return result switch
+        if (await reader.ReadAsync(cancellationToken))
         {
-            bool b => b,
-            int i => i > 0,
-            _ => false
-        };
+            bool isLinked = reader.GetBoolean(0);
+            string? workflowNames = reader.IsDBNull(1)
+                ? null
+                : reader.GetString(1);
+
+            return new RoleMappingWithWorkflowResult(isLinked, workflowNames);
+        }
+
+        return new RoleMappingWithWorkflowResult(false, null);
     }
 
 }
