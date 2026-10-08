@@ -70,7 +70,15 @@ public sealed class BackgroundAuditConsumer : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to flush {Count} audit log entries to database. Entries will be dropped.", batch.Count);
+            var fullException = ex
+                .ToString()
+                .ReplaceLineEndings(" | ");
+
+            _logger.LogError(
+                "Failed to flush {Count} audit log entries to database. Entries will be dropped. | Exception={Exception}",
+                batch.Count,
+                fullException);
+
             // Entries are lost on failure (fire-and-forget semantics per US-LOG-006)
         }
     }
