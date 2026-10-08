@@ -1,5 +1,6 @@
 ﻿using Himapp.Api.src.Shared.Exceptions;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Himapp.Api.src.Shared.Middleware
 {
@@ -34,27 +35,73 @@ namespace Himapp.Api.src.Shared.Middleware
         {
             var traceId = context.TraceIdentifier;
 
-            // Get the deepest/actual exception
+            // Find deepest/root exception
             var rootException = exception;
+
             while (rootException.InnerException != null)
             {
                 rootException = rootException.InnerException;
             }
 
-            // Log complete exception details
+            // =========================================================
+            // Build complete exception chain
+            // =========================================================
+
+            var exceptionChain = new List<string>();
+
+            var currentException = exception;
+            var level = 0;
+
+            while (currentException != null)
+            {
+                exceptionChain.Add($"""
+                    ===== Exception Level {level} =====
+                    Type: {currentException.GetType().FullName}
+                    Message: {currentException.Message}
+                    StackTrace:
+                    {currentException.StackTrace}
+                    """);
+
+                currentException = currentException.InnerException;
+                level++;
+            }
+
+            var detailedException = string.Join(
+                Environment.NewLine + Environment.NewLine,
+                exceptionChain
+            );
+
+            // =========================================================
+            // General exception logging
+            // =========================================================
+
             _logger.LogError(
                 exception,
                 """
-                Unhandled Exception
+                ==================== UNHANDLED EXCEPTION ====================
 
-                TraceId: {TraceId}
-                Request: {Method} {Path}
-                Exception Type: {ExceptionType}
-                Exception Message: {ExceptionMessage}
-                Root Exception Type: {RootExceptionType}
-                Root Exception Message: {RootExceptionMessage}
-                Stack Trace:
-                {StackTrace}
+                TraceId:
+                {TraceId}
+
+                Request:
+                {Method} {Path}
+
+                Exception Type:
+                {ExceptionType}
+
+                Exception Message:
+                {ExceptionMessage}
+
+                Root Exception Type:
+                {RootExceptionType}
+
+                Root Exception Message:
+                {RootExceptionMessage}
+
+                FULL EXCEPTION CHAIN:
+                {DetailedException}
+
+                =============================================================
                 """,
                 traceId,
                 context.Request.Method,
@@ -63,8 +110,70 @@ namespace Himapp.Api.src.Shared.Middleware
                 exception.Message,
                 rootException.GetType().FullName,
                 rootException.Message,
-                exception.ToString()
+                detailedException
             );
+
+            // =========================================================
+            // Special PostgreSQL logging
+            // =========================================================
+
+            var postgresException =
+                exception.GetBaseException() as PostgresException;
+
+            if (postgresException != null)
+            {
+                _logger.LogError(
+                    """
+                    ==================== POSTGRESQL ERROR ====================
+
+                    TraceId:
+                    {TraceId}
+
+                    Severity:
+                    {Severity}
+
+                    SqlState:
+                    {SqlState}
+
+                    Message:
+                    {Message}
+
+                    Detail:
+                    {Detail}
+
+                    Hint:
+                    {Hint}
+
+                    Table:
+                    {Table}
+
+                    Column:
+                    {Column}
+
+                    Constraint:
+                    {Constraint}
+
+                    Where:
+                    {Where}
+
+                    ==========================================================
+                    """,
+                    traceId,
+                    postgresException.Severity,
+                    postgresException.SqlState,
+                    postgresException.MessageText,
+                    postgresException.Detail,
+                    postgresException.Hint,
+                    postgresException.TableName,
+                    postgresException.ColumnName,
+                    postgresException.ConstraintName,
+                    postgresException.Where
+                );
+            }
+
+            // =========================================================
+            // Response
+            // =========================================================
 
             var statusCode = StatusCodes.Status500InternalServerError;
             var message = "An unexpected error occurred.";
@@ -88,9 +197,7 @@ namespace Himapp.Api.src.Shared.Middleware
                 traceId
             };
 
-            var jsonResponse = JsonSerializer.Serialize(response);
-
-            await context.Response.WriteAsync(jsonResponse);
+            await context.Response.WriteAsJsonAsync(response);
         }
     }
 }
