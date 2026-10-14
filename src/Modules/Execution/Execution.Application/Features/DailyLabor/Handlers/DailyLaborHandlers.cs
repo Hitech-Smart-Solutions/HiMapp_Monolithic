@@ -535,9 +535,8 @@ internal sealed class DailyLaborHandlers :
             Data = result
         };
     }
-    public async Task<DataSet> Handle(
-    GetProjectDPRReport request,
-    CancellationToken cancellationToken)
+
+    public async Task<DataSet> Handle(GetProjectDPRReport request, CancellationToken cancellationToken)
     {
         // Force Npgsql path: require the underlying DbContext
         // to obtain connection string
