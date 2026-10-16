@@ -109,9 +109,18 @@ internal sealed class ActivityHandlers :
             .Where(x => x.ActivityID == model.ProgramRowId)
             .ToListAsync(cancellationToken);
 
+        var labourCategory = await _db.Set<ActivityCategoryDetails>()
+           .Where(x => x.ActivityID == model.ProgramRowId)
+           .ToListAsync(cancellationToken);
+
         foreach (var pa in pas)
         {
             pa.IsActive = model.Actions == Actions.Activated ? true : false; // or pa.Enabled = false;
+        }
+
+        foreach (var la in labourCategory)
+        {
+            la.IsActive = model.Actions == Actions.Activated ? true : false; // or pa.Enabled = false;
         }
 
         // Mark main entity inactive
