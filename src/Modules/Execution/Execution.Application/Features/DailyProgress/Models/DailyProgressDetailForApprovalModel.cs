@@ -31,4 +31,8 @@ public sealed class DailyProgressDetailForApprovalModel
     public string? SectionName { get; init; }
 
     public string? UOMShortName { get; init; }
+
+    public decimal? PlannedManpower { get; init; }
+
+    public decimal? ActualManpower { get; init; }
 }

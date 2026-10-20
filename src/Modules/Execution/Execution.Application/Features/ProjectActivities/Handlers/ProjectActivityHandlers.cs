@@ -161,7 +161,7 @@ internal sealed class ProjectActivityHandlers :
                     CategoryTypeID = (int)categoryType,
                     Name = GetActivityCategoryDetailName(activityName, categoryType),
                     Rate = rate,
-                    IsActive = true,
+                    IsActive = projectActivity.Enabled,
                     CreatedBy = lastModifiedBy ?? 0,
                     CreatedDate = now,
                     LastModifiedBy = lastModifiedBy ?? 0,
@@ -172,7 +172,7 @@ internal sealed class ProjectActivityHandlers :
 
             detail.Name = GetActivityCategoryDetailName(activityName, categoryType);
             detail.Rate = rate;
-            detail.IsActive = true;
+            detail.IsActive = projectActivity.Enabled;
             detail.LastModifiedBy = lastModifiedBy ?? 0;
             detail.LastModifiedDate = now;
         }
