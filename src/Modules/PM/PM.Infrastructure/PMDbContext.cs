@@ -9,6 +9,8 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     public PMDbContext(DbContextOptions<PMDbContext> options) : base(options)
     {
     }
+    public DbSet<DynamicsEquipmentCategory> DynamicsEquipmentCategory { get; set; } = null!;
+    public DbSet<DynamicsEquipmentMaster> DynamicsEquipmentMaster { get; set; } = null!;
 
     // DbSets for PM domain entities
     public DbSet<DocumentType> DocumentTypes { get; set; } = null!;
@@ -18,7 +20,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("PM");
+        modelBuilder.HasDefaultSchema("PAndM"); // your schema name
         base.OnModelCreating(modelBuilder);
 
         // ============================================================
