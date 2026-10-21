@@ -14,9 +14,14 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
     // DbSets for PM domain entities
     public DbSet<DocumentType> DocumentTypes { get; set; } = null!;
+    public DbSet<WorkDescription> WorkDescriptions { get; set; } = null!;
+    public DbSet<EquipmentSubPart> EquipmentSubParts { get; set; } = null!;
+    public DbSet<EquipmentChecklistPoint> EquipmentChecklistPoints { get; set; } = null!;
     public DbSet<PreventiveMaintenancePoint> PreventiveMaintenancePoints { get; set; } = null!;
     public DbSet<MeterReadingType> MeterReadingTypes { get; set; } = null!;
     public DbSet<EquipmentPreventiveMaintenancePoints> EquipmentPreventiveMaintenancePoints { get; set; } = null!;
+
+    public DbSet<SparePartCatalogue> SparePartCatalogue { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,12 +39,6 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
             entity.Property(x => x.ID)
                 .HasColumnName("ID")
-                .ValueGeneratedOnAdd();
-
-            entity.Property(x => x.UniqueID)
-                .HasColumnName("UniqueID")
-                .IsRequired()
-                .HasDefaultValueSql("NEWID()")
                 .ValueGeneratedOnAdd();
 
             entity.Property(x => x.MaintenancePointName)
@@ -69,12 +68,6 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                 .HasColumnName("ID")
                 .ValueGeneratedOnAdd();
 
-            entity.Property(x => x.UniqueID)
-                .HasColumnName("UniqueID")
-                .IsRequired()
-                .HasDefaultValueSql("NEWID()")     // SQL Server; use gen_random_uuid() if PostgreSQL
-                .ValueGeneratedOnAdd();
-
             entity.Property(x => x.ReadingTypeName)
                 .HasColumnName("ReadingTypeName")
                 .HasMaxLength(50)
@@ -85,6 +78,34 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                 .HasColumnName("Description")
                 .IsUnicode(false)                   // varchar(MAX)
                 .IsRequired(false);
+
+            entity.Property(x => x.StatusID)
+                .HasColumnName("StatusID");
+
+            entity.Property(x => x.IsActive)
+                .HasColumnName("IsActive")
+                .HasDefaultValue(true);
+
+        });
+
+        modelBuilder.Entity<SparePartCatalogue>(entity =>
+        {
+            entity.ToTable("SparePartCatalogue");
+
+            entity.HasKey(x => x.ID);
+
+            entity.Property(x => x.ID)
+                .HasColumnName("ID")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.EquipmentcategoryID)
+                .HasColumnName("EquipmentcategoryID");
+
+            entity.Property(x => x.BrandName)
+                .HasColumnName("BrandName");
+
+            entity.Property(x => x.ModelName)
+                .HasColumnName("ModelName");
 
             entity.Property(x => x.StatusID)
                 .HasColumnName("StatusID");
@@ -106,12 +127,6 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
             entity.Property(x => x.ID)
                 .HasColumnName("ID")
-                .ValueGeneratedOnAdd();
-
-            entity.Property(x => x.UniqueID)
-                .HasColumnName("UniqueID")
-                .IsRequired()
-                .HasDefaultValueSql("NEWID()")
                 .ValueGeneratedOnAdd();
 
             entity.Property(x => x.EquipmentID).HasColumnName("EquipmentID");
@@ -143,6 +158,68 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
             entity.HasIndex(x => x.EquipmentID)
                 .HasDatabaseName("IX_EquipmentPreventiveMaintenancePoints_EquipmentID");
+        });
+
+
+        modelBuilder.Entity<DocumentType>(entity =>
+        {
+            entity.ToTable("DocumentTypes");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+        });
+
+        modelBuilder.Entity<WorkDescription>(entity =>
+        {
+            entity.ToTable("WorkDescriptions");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.WorkDescriptionName)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<EquipmentSubPart>(entity =>
+        {
+            entity.ToTable("EquipmentSubParts");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.EquipmentSubPartName)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<EquipmentChecklistPoint>(entity =>
+        {
+            entity.ToTable("EquipmentChecklistPoints");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.Description)
+                  .IsRequired();
+
+            entity.Property(e => e.Type)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true);
         });
 
 

@@ -4,10 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Himapp.PM.Infrastructure.Migrations
+namespace Himapp.PM.Infrastructure.Migrations.PM
 {
     /// <inheritdoc />
-    public partial class CategoryAndEquipment_v04 : Migration
+    public partial class Soumy_AddEquipmentSubPartV1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -104,6 +104,26 @@ namespace Himapp.PM.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_DynamicsEquipmentMaster", x => x.ID);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "EquipmentSubParts",
+                schema: "PAndM",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EquipmentSubPartName = table.Column<string>(type: "text", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<int>(type: "integer", nullable: false),
+                    LastModifiedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EquipmentSubParts", x => x.ID);
+                });
         }
 
         /// <inheritdoc />
@@ -115,6 +135,10 @@ namespace Himapp.PM.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "DynamicsEquipmentMaster",
+                schema: "PAndM");
+
+            migrationBuilder.DropTable(
+                name: "EquipmentSubParts",
                 schema: "PAndM");
         }
     }
