@@ -13,115 +13,79 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "PM");
+                name: "PAndM");
 
+            // Move existing tables from "PM" to "PAndM"
+            migrationBuilder.RenameTable(
+                name: "EquipmentPreventiveMaintenancePoints",
+                schema: "PM",
+                newName: "EquipmentPreventiveMaintenancePoints",
+                newSchema: "PAndM");
+
+            migrationBuilder.RenameTable(
+                name: "MeterReadingType",
+                schema: "PM",
+                newName: "MeterReadingType",
+                newSchema: "PAndM");
+
+            migrationBuilder.RenameTable(
+                name: "PreventiveMaintenancePoint",
+                schema: "PM",
+                newName: "PreventiveMaintenancePoint",
+                newSchema: "PAndM");
+
+            // Move existing tables from "pm" to "PAndM"
             migrationBuilder.RenameTable(
                 name: "DocumentTypes",
                 schema: "pm",
                 newName: "DocumentTypes",
-                newSchema: "PM");
+                newSchema: "PAndM");
 
-            migrationBuilder.CreateTable(
-                name: "EquipmentPreventiveMaintenancePoints",
-                schema: "PM",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    EquipmentID = table.Column<int>(type: "integer", nullable: true),
-                    MaintenancePointID = table.Column<int>(type: "integer", nullable: true),
-                    ItemID = table.Column<int>(type: "integer", nullable: true),
-                    ReadingTypeID = table.Column<int>(type: "integer", nullable: true),
-                    IntervalValue = table.Column<decimal>(type: "numeric(18,2)", nullable: true),
-                    TolerenceValue = table.Column<decimal>(type: "numeric(18,2)", nullable: true),
-                    Months = table.Column<int>(type: "integer", nullable: true),
-                    Remarks = table.Column<string>(type: "text", unicode: false, nullable: true),
-                    StatusID = table.Column<int>(type: "integer", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "NEWID()"),
-                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<int>(type: "integer", nullable: false),
-                    LastModifiedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EquipmentPreventiveMaintenancePoints", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MeterReadingType",
-                schema: "PM",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ReadingTypeName = table.Column<string>(type: "character varying(50)", unicode: false, maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "text", unicode: false, nullable: true),
-                    StatusID = table.Column<int>(type: "integer", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "NEWID()"),
-                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<int>(type: "integer", nullable: false),
-                    LastModifiedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MeterReadingType", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PreventiveMaintenancePoint",
-                schema: "PM",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MaintenancePointName = table.Column<string>(type: "character varying(500)", unicode: false, maxLength: 500, nullable: true),
-                    StatusID = table.Column<int>(type: "integer", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                    UniqueID = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "NEWID()"),
-                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<int>(type: "integer", nullable: false),
-                    LastModifiedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PreventiveMaintenancePoint", x => x.ID);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EquipmentPreventiveMaintenancePoints_EquipmentID",
-                schema: "PM",
-                table: "EquipmentPreventiveMaintenancePoints",
-                column: "EquipmentID");
+            migrationBuilder.RenameTable(
+                name: "WorkDescriptions",
+                schema: "pm",
+                newName: "WorkDescriptions",
+                newSchema: "PAndM");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "EquipmentPreventiveMaintenancePoints",
-                schema: "PM");
-
-            migrationBuilder.DropTable(
-                name: "MeterReadingType",
-                schema: "PM");
-
-            migrationBuilder.DropTable(
-                name: "PreventiveMaintenancePoint",
-                schema: "PM");
+            migrationBuilder.EnsureSchema(
+                name: "PM");
 
             migrationBuilder.EnsureSchema(
                 name: "pm");
 
             migrationBuilder.RenameTable(
+                name: "WorkDescriptions",
+                schema: "PAndM",
+                newName: "WorkDescriptions",
+                newSchema: "pm");
+
+            migrationBuilder.RenameTable(
                 name: "DocumentTypes",
-                schema: "PM",
+                schema: "PAndM",
                 newName: "DocumentTypes",
                 newSchema: "pm");
+
+            migrationBuilder.RenameTable(
+                name: "PreventiveMaintenancePoint",
+                schema: "PAndM",
+                newName: "PreventiveMaintenancePoint",
+                newSchema: "PM");
+
+            migrationBuilder.RenameTable(
+                name: "MeterReadingType",
+                schema: "PAndM",
+                newName: "MeterReadingType",
+                newSchema: "PM");
+
+            migrationBuilder.RenameTable(
+                name: "EquipmentPreventiveMaintenancePoints",
+                schema: "PAndM",
+                newName: "EquipmentPreventiveMaintenancePoints",
+                newSchema: "PM");
         }
     }
 }

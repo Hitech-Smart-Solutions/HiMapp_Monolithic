@@ -131,7 +131,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
         modelBuilder.Entity<DocumentType>(entity =>
         {
-            entity.ToTable("DocumentTypes", "pm");
+            entity.ToTable("DocumentTypes");
 
             entity.HasKey(e => e.ID);
 
@@ -141,7 +141,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
         modelBuilder.Entity<WorkDescription>(entity =>
         {
-            entity.ToTable("WorkDescriptions", "pm");
+            entity.ToTable("WorkDescriptions");
 
             entity.HasKey(e => e.ID);
 
