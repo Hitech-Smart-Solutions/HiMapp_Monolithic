@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.PM.Infrastructure.Migrations
 {
     [DbContext(typeof(PMDbContext))]
-    [Migration("20261021080204_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20261021081835_CategoryAndEquipment_v04")]
+    partial class CategoryAndEquipment_v04
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
