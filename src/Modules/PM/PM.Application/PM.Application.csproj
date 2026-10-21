@@ -5,6 +5,8 @@
     <PackageReference Include="MediatR" Version="12.4.1" />
     <ProjectReference Include="..\PM.Contracts\PM.Contracts.csproj" />
     <ProjectReference Include="..\PM.Domain\PM.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Shared\Integrations.D365\Integrations.D365.csproj" />
+    <ProjectReference Include="..\..\..\Shared\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <RootNamespace>Himapp.PM.Application</RootNamespace>

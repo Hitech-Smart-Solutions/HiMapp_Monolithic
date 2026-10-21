@@ -2,6 +2,7 @@ using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Hangfire;
 using Himapp.Admin.Application;
 // Admin.Contracts moved to Admin.Application
 using Himapp.Admin.Infrastructure;
@@ -33,6 +34,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Microsoft.VisualBasic;
+using Shared.Integrations.D365.Extensions.HangfireExtensions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Security.Claims;
@@ -58,6 +60,8 @@ builder.Services.AddControllers()
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
     );  // 🔥 Registers the global auto-log action filter for ALL controllers
 builder.Services.AddHealthChecks();
+builder.Services.AddSharedBackgroundJobs(
+    builder.Configuration);
 builder.Services.AddSignalR();
 builder.Configuration
     .SetBasePath(builder.Environment.ContentRootPath)
@@ -283,6 +287,7 @@ app.MapHealthChecks("/health");
 
 // SignalR Hub
 app.MapHub<NotificationsHub>("/hubs/notifications");
+app.UseHangfireDashboard("/hangfire");
 app.MapControllers();
 
 // Root redirect
