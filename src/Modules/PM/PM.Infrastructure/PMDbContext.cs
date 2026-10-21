@@ -22,6 +22,8 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     public DbSet<MeterReadingType> MeterReadingTypes { get; set; } = null!;
     public DbSet<EquipmentPreventiveMaintenancePoints> EquipmentPreventiveMaintenancePoints { get; set; } = null!;
 
+    public DbSet<SparePartCatalogue> SparePartCatalogue { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("PAndM"); // your schema name
@@ -77,6 +79,34 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                 .HasColumnName("Description")
                 .IsUnicode(false)                   // varchar(MAX)
                 .IsRequired(false);
+
+            entity.Property(x => x.StatusID)
+                .HasColumnName("StatusID");
+
+            entity.Property(x => x.IsActive)
+                .HasColumnName("IsActive")
+                .HasDefaultValue(true);
+
+        });
+
+        modelBuilder.Entity<SparePartCatalogue>(entity =>
+        {
+            entity.ToTable("SparePartCatalogue");
+
+            entity.HasKey(x => x.ID);
+
+            entity.Property(x => x.ID)
+                .HasColumnName("ID")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.EquipmentcategoryID)
+                .HasColumnName("EquipmentcategoryID");
+
+            entity.Property(x => x.BrandName)
+                .HasColumnName("BrandName");
+
+            entity.Property(x => x.ModelName)
+                .HasColumnName("ModelName");
 
             entity.Property(x => x.StatusID)
                 .HasColumnName("StatusID");

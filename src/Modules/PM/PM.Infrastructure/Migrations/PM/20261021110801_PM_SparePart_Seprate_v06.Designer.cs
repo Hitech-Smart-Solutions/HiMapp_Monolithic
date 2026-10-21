@@ -3,17 +3,20 @@ using System;
 using Himapp.PM.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Himapp.PM.Infrastructure.Migrations
+namespace Himapp.PM.Infrastructure.Migrations.PM
 {
     [DbContext(typeof(PMDbContext))]
-    partial class PMDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261021110801_PM_SparePart_Seprate_v06")]
+    partial class PM_SparePart_Seprate_v06
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -442,43 +445,6 @@ namespace Himapp.PM.Infrastructure.Migrations
                     b.ToTable("EquipmentPreventiveMaintenancePoints", "PAndM");
                 });
 
-            modelBuilder.Entity("Himapp.PM.Domain.Entities.EquipmentSubPart", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("EquipmentSubPartName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<int>("LastModifiedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UniqueID")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("EquipmentSubParts", "PAndM");
-                });
-
             modelBuilder.Entity("Himapp.PM.Domain.Entities.MeterReadingType", b =>
                 {
                     b.Property<int>("ID")
@@ -573,6 +539,63 @@ namespace Himapp.PM.Infrastructure.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("PreventiveMaintenancePoint", "PAndM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.SparePartCatalogue", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("BrandName")
+                        .HasColumnType("text")
+                        .HasColumnName("BrandName");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DocumentName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DocumentPath")
+                        .HasColumnType("text");
+
+                    b.Property<int>("EquipmentcategoryID")
+                        .HasColumnType("integer")
+                        .HasColumnName("EquipmentcategoryID");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModelName")
+                        .HasColumnType("text")
+                        .HasColumnName("ModelName");
+
+                    b.Property<int>("StatusID")
+                        .HasColumnType("integer")
+                        .HasColumnName("StatusID");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("SparePartCatalogue", "PAndM");
                 });
 
             modelBuilder.Entity("Himapp.PM.Domain.Entities.WorkDescription", b =>
