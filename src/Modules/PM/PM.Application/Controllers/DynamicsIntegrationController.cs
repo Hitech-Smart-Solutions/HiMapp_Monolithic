@@ -12,7 +12,7 @@ using Shared.Integrations.D365.BackgroundJobs.Interfaces;
 namespace Himapp.PM.Application.Controllers;
 
 [ApiController]
-[Authorize]
+// [Authorize]
 [Route("v1/dynamics/integration")]
 public sealed class DynamicsIntegrationController : ControllerBase
 {
