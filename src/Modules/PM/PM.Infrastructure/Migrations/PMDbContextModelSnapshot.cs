@@ -17,7 +17,7 @@ namespace Himapp.PM.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("PM")
+                .HasDefaultSchema("PAndM")
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -58,7 +58,233 @@ namespace Himapp.PM.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("DocumentTypes", "pm");
+                    b.ToTable("DocumentTypes", "PAndM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.DynamicsEquipmentCategory", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataAreaId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ISFUELCONSUMPTIONREQUIRED_ISPL")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ISLOGBOOKREQUIRED_ISPL")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ISPLISSYNC")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ISPLISUPDATED")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NAME")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OBJECTLIFECYCLEMODELID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OBJECTTYPEID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SHORTNAME_ISPL")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("DynamicsEquipmentCategory", "PAndM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.DynamicsEquipmentMaster", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<decimal?>("ACQUISITIONCOST")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("ACQUISITIONDATE")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ACTIVEFROM")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ACTIVETO")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CATEGORYLEVEL1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CATEGORYLEVEL2")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CATEGORYLEVEL3")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CRITICALITY")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataAreaId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FIXEDASSETID")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FIXEDASSETNAME")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FUNCTIONALLOCATION")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("HimappProjectID")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ISPLBATCHNUMBER")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ISPLHIREDDATE")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ISPLISHIREDASSET")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ISPLISSYNC")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ISPLISUPDATED")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ISPLITEMID")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ISPLITEMNAME")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ISPLPONUMBER")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ISPLVEHICLENUMBER")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ISPLVENDORACCOUNT")
+                        .HasColumnType("text");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MANUFACTURER")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MODEL")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("MODELRECID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("MODELYEAR")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NAME")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OBJECTACTIVE")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OBJECTID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OBJECTIDPARENT")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OBJECTIDPARENTNAME")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OBJECTLIFECYCLESTATE")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OBJECTTYPE")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PURCHID")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RESOURCE")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SERIALID")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("SERVICELEVEL")
+                        .HasColumnType("integer");
+
+                    b.Property<float?>("STDFUELCONSUMPTION_ISPL")
+                        .HasColumnType("real");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VENDACCOUNT")
+                        .HasColumnType("text");
+
+                    b.Property<string>("VENDNAME")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("WARRANTYDATEFROMVEND")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("WARRANTYDATETOVEND")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("WARRANTYVEND")
+                        .HasColumnType("text");
+
+                    b.Property<string>("WRKCTRLDESCRIPTION")
+                        .HasColumnType("text");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("DynamicsEquipmentMaster", "PAndM");
                 });
 
             modelBuilder.Entity("Himapp.PM.Domain.Entities.EquipmentPreventiveMaintenancePoints", b =>
@@ -133,7 +359,44 @@ namespace Himapp.PM.Infrastructure.Migrations
                     b.HasIndex("EquipmentID")
                         .HasDatabaseName("IX_EquipmentPreventiveMaintenancePoints_EquipmentID");
 
-                    b.ToTable("EquipmentPreventiveMaintenancePoints", "PM");
+                    b.ToTable("EquipmentPreventiveMaintenancePoints", "PAndM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.EquipmentSubPart", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EquipmentSubPartName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("EquipmentSubParts", "PAndM");
                 });
 
             modelBuilder.Entity("Himapp.PM.Domain.Entities.MeterReadingType", b =>
@@ -184,7 +447,7 @@ namespace Himapp.PM.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("MeterReadingType", "PM");
+                    b.ToTable("MeterReadingType", "PAndM");
                 });
 
             modelBuilder.Entity("Himapp.PM.Domain.Entities.PreventiveMaintenancePoint", b =>
@@ -229,7 +492,7 @@ namespace Himapp.PM.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("PreventiveMaintenancePoint", "PM");
+                    b.ToTable("PreventiveMaintenancePoint", "PAndM");
                 });
 
             modelBuilder.Entity("Himapp.PM.Domain.Entities.WorkDescription", b =>
@@ -266,7 +529,7 @@ namespace Himapp.PM.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("WorkDescriptions", "pm");
+                    b.ToTable("WorkDescriptions", "PAndM");
                 });
 #pragma warning restore 612, 618
         }
