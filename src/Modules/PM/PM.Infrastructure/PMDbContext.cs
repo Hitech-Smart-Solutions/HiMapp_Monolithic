@@ -15,6 +15,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     // DbSets for PM domain entities
     public DbSet<DocumentType> DocumentTypes { get; set; } = null!;
     public DbSet<WorkDescription> WorkDescriptions { get; set; } = null!;
+    public DbSet<EquipmentSubPart> EquipmentSubParts { get; set; } = null!;
     public DbSet<PreventiveMaintenancePoint> PreventiveMaintenancePoints { get; set; } = null!;
     public DbSet<MeterReadingType> MeterReadingTypes { get; set; } = null!;
     public DbSet<EquipmentPreventiveMaintenancePoints> EquipmentPreventiveMaintenancePoints { get; set; } = null!;
@@ -149,6 +150,22 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                   .ValueGeneratedOnAdd();
 
             entity.Property(e => e.WorkDescriptionName)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<EquipmentSubPart>(entity =>
+        {
+            entity.ToTable("EquipmentSubParts");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.EquipmentSubPartName)
                   .IsRequired();
 
             entity.Property(e => e.IsActive)
