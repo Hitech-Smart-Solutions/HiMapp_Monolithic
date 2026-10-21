@@ -10,6 +10,8 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     {
     }
 
+    // DbSets for PM domain entities
+    public DbSet<DocumentType> DocumentTypes { get; set; } = null!;
     public DbSet<PreventiveMaintenancePoint> PreventiveMaintenancePoints { get; set; } = null!;
     public DbSet<MeterReadingType> MeterReadingTypes { get; set; } = null!;
     public DbSet<EquipmentPreventiveMaintenancePoints> EquipmentPreventiveMaintenancePoints { get; set; } = null!;
