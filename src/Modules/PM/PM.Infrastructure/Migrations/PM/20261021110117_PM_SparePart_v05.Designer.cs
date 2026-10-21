@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.PM.Infrastructure.Migrations.PM
 {
     [DbContext(typeof(PMDbContext))]
-    [Migration("20261021075312_Soumy_AddWorkDescription")]
-    partial class Soumy_AddWorkDescription
+    [Migration("20261021110117_PM_SparePart_v05")]
+    partial class PM_SparePart_v05
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("PM")
+                .HasDefaultSchema("PAndM")
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -54,6 +54,66 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Remarks")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("DocumentTypes", "PAndM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.DynamicsEquipmentCategory", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DataAreaId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ISFUELCONSUMPTIONREQUIRED_ISPL")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ISLOGBOOKREQUIRED_ISPL")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ISPLISSYNC")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ISPLISUPDATED")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NAME")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OBJECTLIFECYCLEMODELID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OBJECTTYPEID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SHORTNAME_ISPL")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid>("UniqueID")
@@ -187,7 +247,7 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
 
                     b.HasKey("ID");
 
-                    b.ToTable("MeterReadingType", "PM");
+                    b.ToTable("MeterReadingType", "PAndM");
                 });
 
             modelBuilder.Entity("Himapp.PM.Domain.Entities.PreventiveMaintenancePoint", b =>
@@ -232,7 +292,7 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
 
                     b.HasKey("ID");
 
-                    b.ToTable("PreventiveMaintenancePoint", "PM");
+                    b.ToTable("PreventiveMaintenancePoint", "PAndM");
                 });
 
             modelBuilder.Entity("Himapp.PM.Domain.Entities.WorkDescription", b =>
@@ -269,7 +329,7 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
 
                     b.HasKey("ID");
 
-                    b.ToTable("WorkDescriptions", "pm");
+                    b.ToTable("WorkDescriptions", "PAndM");
                 });
 #pragma warning restore 612, 618
         }
