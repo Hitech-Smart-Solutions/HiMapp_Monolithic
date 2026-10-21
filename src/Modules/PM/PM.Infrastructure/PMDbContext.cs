@@ -16,6 +16,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     public DbSet<DocumentType> DocumentTypes { get; set; } = null!;
     public DbSet<WorkDescription> WorkDescriptions { get; set; } = null!;
     public DbSet<EquipmentSubPart> EquipmentSubParts { get; set; } = null!;
+    public DbSet<EquipmentChecklistPoint> EquipmentChecklistPoints { get; set; } = null!;
     public DbSet<PreventiveMaintenancePoint> PreventiveMaintenancePoints { get; set; } = null!;
     public DbSet<MeterReadingType> MeterReadingTypes { get; set; } = null!;
     public DbSet<EquipmentPreventiveMaintenancePoints> EquipmentPreventiveMaintenancePoints { get; set; } = null!;
@@ -166,6 +167,25 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                   .ValueGeneratedOnAdd();
 
             entity.Property(e => e.EquipmentSubPartName)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<EquipmentChecklistPoint>(entity =>
+        {
+            entity.ToTable("EquipmentChecklistPoints");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.Description)
+                  .IsRequired();
+
+            entity.Property(e => e.Type)
                   .IsRequired();
 
             entity.Property(e => e.IsActive)
