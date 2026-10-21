@@ -298,5 +298,4 @@ app.MapGet("/api/architecture", () => Results.Ok(new
 }));
 
 #endregion
-
 app.Run();
