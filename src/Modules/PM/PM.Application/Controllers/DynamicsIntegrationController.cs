@@ -12,7 +12,7 @@ using Shared.Integrations.D365.BackgroundJobs.Interfaces;
 namespace Himapp.PM.Application.Controllers;
 
 [ApiController]
-[Authorize]
+// [Authorize]
 [Route("v1/dynamics/integration")]
 public sealed class DynamicsIntegrationController : ControllerBase
 {
@@ -147,6 +147,51 @@ public sealed class DynamicsIntegrationController : ControllerBase
             {
                 JobId = jobId,
                 Message = "AssetType reset sync has been queued."
+            });
+        }
+
+        [HttpPost("run-job/assetmaster-add")]
+        public IActionResult RunAddAssetMasterSync()
+        {
+            var jobId =
+                _backgroundJobService
+                    .Enqueue<DynamicsAssetTypeJobs>(
+                        job => job.RunAddAssetMasterSync());
+
+            return Accepted(new
+            {
+                JobId = jobId,
+                Message = "AssetMaster add sync has been queued."
+            });
+        }
+
+        [HttpPost("run-job/assetmaster-update")]
+        public IActionResult RunUpdateAssetMasterSync()
+        {
+            var jobId =
+                _backgroundJobService
+                    .Enqueue<DynamicsAssetTypeJobs>(
+                        job => job.RunUpdateAssetMasterSync());
+
+            return Accepted(new
+            {
+                JobId = jobId,
+                Message = "AssetMaster update sync has been queued."
+            });
+        }
+
+        [HttpPost("run-job/assetmaster-reset")]
+        public IActionResult RunResetAssetMasterSync()
+        {
+            var jobId =
+                _backgroundJobService
+                    .Enqueue<DynamicsAssetTypeJobs>(
+                        job => job.RunResetAssetMasterSync());
+
+            return Accepted(new
+            {
+                JobId = jobId,
+                Message = "AssetMaster reset sync has been queued."
             });
         }
 
