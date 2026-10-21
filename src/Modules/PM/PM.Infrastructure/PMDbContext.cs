@@ -12,6 +12,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
     // DbSets for PM domain entities
     public DbSet<DocumentType> DocumentTypes { get; set; } = null!;
+    public DbSet<WorkDescription> WorkDescriptions { get; set; } = null!;
     public DbSet<PreventiveMaintenancePoint> PreventiveMaintenancePoints { get; set; } = null!;
     public DbSet<MeterReadingType> MeterReadingTypes { get; set; } = null!;
     public DbSet<EquipmentPreventiveMaintenancePoints> EquipmentPreventiveMaintenancePoints { get; set; } = null!;
@@ -32,12 +33,6 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
             entity.Property(x => x.ID)
                 .HasColumnName("ID")
-                .ValueGeneratedOnAdd();
-
-            entity.Property(x => x.UniqueID)
-                .HasColumnName("UniqueID")
-                .IsRequired()
-                .HasDefaultValueSql("NEWID()")
                 .ValueGeneratedOnAdd();
 
             entity.Property(x => x.MaintenancePointName)
@@ -65,12 +60,6 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
             entity.Property(x => x.ID)
                 .HasColumnName("ID")
-                .ValueGeneratedOnAdd();
-
-            entity.Property(x => x.UniqueID)
-                .HasColumnName("UniqueID")
-                .IsRequired()
-                .HasDefaultValueSql("NEWID()")     // SQL Server; use gen_random_uuid() if PostgreSQL
                 .ValueGeneratedOnAdd();
 
             entity.Property(x => x.ReadingTypeName)
@@ -106,12 +95,6 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                 .HasColumnName("ID")
                 .ValueGeneratedOnAdd();
 
-            entity.Property(x => x.UniqueID)
-                .HasColumnName("UniqueID")
-                .IsRequired()
-                .HasDefaultValueSql("NEWID()")
-                .ValueGeneratedOnAdd();
-
             entity.Property(x => x.EquipmentID).HasColumnName("EquipmentID");
             entity.Property(x => x.MaintenancePointID).HasColumnName("MaintenancePointID");
             entity.Property(x => x.ItemID).HasColumnName("ItemID");
@@ -141,6 +124,33 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
             entity.HasIndex(x => x.EquipmentID)
                 .HasDatabaseName("IX_EquipmentPreventiveMaintenancePoints_EquipmentID");
+        });
+
+
+        modelBuilder.Entity<DocumentType>(entity =>
+        {
+            entity.ToTable("DocumentTypes", "pm");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+        });
+
+        modelBuilder.Entity<WorkDescription>(entity =>
+        {
+            entity.ToTable("WorkDescriptions", "pm");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.WorkDescriptionName)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true);
         });
 
 
