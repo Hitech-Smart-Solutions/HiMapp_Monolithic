@@ -240,6 +240,214 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
 
                     b.ToTable("PreventiveMaintenancePoint", "PM");
                 });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.EquipmentPreventiveMaintenancePoints", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("EquipmentID")
+                        .HasColumnType("integer")
+                        .HasColumnName("EquipmentID");
+
+                    b.Property<decimal?>("IntervalValue")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("IntervalValue");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
+
+                    b.Property<int?>("ItemID")
+                        .HasColumnType("integer")
+                        .HasColumnName("ItemID");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("MaintenancePointID")
+                        .HasColumnType("integer")
+                        .HasColumnName("MaintenancePointID");
+
+                    b.Property<int?>("Months")
+                        .HasColumnType("integer")
+                        .HasColumnName("Months");
+
+                    b.Property<int?>("ReadingTypeID")
+                        .HasColumnType("integer")
+                        .HasColumnName("ReadingTypeID");
+
+                    b.Property<string>("Remarks")
+                        .IsUnicode(false)
+                        .HasColumnType("text")
+                        .HasColumnName("Remarks");
+
+                    b.Property<int>("StatusID")
+                        .HasColumnType("integer")
+                        .HasColumnName("StatusID");
+
+                    b.Property<decimal?>("TolerenceValue")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("TolerenceValue");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("EquipmentID")
+                        .HasDatabaseName("IX_EquipmentPreventiveMaintenancePoints_EquipmentID");
+
+                    b.ToTable("EquipmentPreventiveMaintenancePoints", "PM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.MeterReadingType", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsUnicode(false)
+                        .HasColumnType("text")
+                        .HasColumnName("Description");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReadingTypeName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("ReadingTypeName");
+
+                    b.Property<int>("StatusID")
+                        .HasColumnType("integer")
+                        .HasColumnName("StatusID");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("MeterReadingType", "PM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.PreventiveMaintenancePoint", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MaintenancePointName")
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("MaintenancePointName");
+
+                    b.Property<int>("StatusID")
+                        .HasColumnType("integer")
+                        .HasColumnName("StatusID");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("PreventiveMaintenancePoint", "PM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.WorkDescription", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("WorkDescriptionName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("WorkDescriptions", "pm");
+                });
 #pragma warning restore 612, 618
         }
     }
