@@ -12,3 +12,10 @@ public enum EquipmentBreakdownReasonType
     Electrical = 2,
     Mechanical = 3
 }
+
+public enum SpecificationType
+{
+    Numeric = 1,
+    AlphaNumeric = 2,
+    DateAndTime = 3
+}

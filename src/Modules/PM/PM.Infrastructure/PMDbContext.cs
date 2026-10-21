@@ -18,6 +18,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     public DbSet<EquipmentSubPart> EquipmentSubParts { get; set; } = null!;
     public DbSet<EquipmentChecklistPoint> EquipmentChecklistPoints { get; set; } = null!;
     public DbSet<EquipmentBreakdownReasons> EquipmentBreakdownReasons { get; set; } = null!;
+    public DbSet<SpecificationMaster> SpecificationMasters { get; set; } = null!;
     public DbSet<PreventiveMaintenancePoint> PreventiveMaintenancePoints { get; set; } = null!;
     public DbSet<MeterReadingType> MeterReadingTypes { get; set; } = null!;
     public DbSet<EquipmentPreventiveMaintenancePoints> EquipmentPreventiveMaintenancePoints { get; set; } = null!;
@@ -185,6 +186,25 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                   .ValueGeneratedOnAdd();
 
             entity.Property(e => e.WorkDescriptionName)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<SpecificationMaster>(entity =>
+        {
+            entity.ToTable("SpecificationMaster");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.SpecificationName)
+                  .IsRequired();
+
+            entity.Property(e => e.Type)
                   .IsRequired();
 
             entity.Property(e => e.IsActive)
