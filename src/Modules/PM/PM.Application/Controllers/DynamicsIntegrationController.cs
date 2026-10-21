@@ -12,8 +12,8 @@ using Shared.Integrations.D365.BackgroundJobs.Interfaces;
 namespace Himapp.PM.Application.Controllers;
 
 [ApiController]
-// [Authorize]
-[Route("v1/dynamics/integration")]
+[Authorize]
+[Route("v1/pm/dynamics/integration")]
 public sealed class DynamicsIntegrationController : ControllerBase
 {
     private readonly IMediator _mediator;

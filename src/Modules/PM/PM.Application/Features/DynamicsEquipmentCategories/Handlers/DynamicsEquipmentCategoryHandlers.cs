@@ -100,25 +100,33 @@ internal sealed class GetDynamicsEquipmentCategoriesQueryHandler : IRequestHandl
 
     public async Task<PagedResult<DynamicsEquipmentCategoryDto>> Handle(GetDynamicsEquipmentCategoriesQuery query, CancellationToken cancellationToken)
     {
-        var page = Math.Max(1, query.Page);
-        var pageSize = Math.Clamp(query.PageSize, 1, 200);
+        var p = query.Params;
+        var page = Math.Max(1, p.PageIndex);
+        var pageSize = Math.Clamp(p.PageSize, 1, 200);
+        var filterColumn = string.IsNullOrWhiteSpace(p.FilterColumn) ? null : p.FilterColumn.Trim();
+        var filterValue = string.IsNullOrWhiteSpace(p.FilterValue) ? null : p.FilterValue.Trim();
+        var sortColumn = string.IsNullOrWhiteSpace(p.SortColumn) ? null : p.SortColumn.Trim();
+        var sortDirection = string.Equals(p.SortDirection?.Trim(), "desc", StringComparison.OrdinalIgnoreCase) ? "desc" : "asc";
 
-        var q = _db.Set<DynamicsEquipmentCategory>().AsNoTracking().AsQueryable();
-        if (!string.IsNullOrWhiteSpace(query.Search))
+        try
         {
-            var term = query.Search.Trim().ToLower();
-            q = q.Where(c => c.NAME.ToLower().Contains(term)
-                          || c.OBJECTTYPEID.ToLower().Contains(term)
-                          || c.SHORTNAME_ISPL.ToLower().Contains(term)
-                          || c.DataAreaId.ToLower().Contains(term));
+            // Paging, filtering and sorting are done by the PostgreSQL functions created in migration AddEquipmentListFunctions.
+            var rows = await _db.Set<DynamicsEquipmentCategory>()
+                .FromSqlInterpolated($"SELECT * FROM \"PAndM\".uspgetdynamicsequipmentcategories({filterColumn}::text, {filterValue}::text, {page}, {pageSize}, {sortColumn}::text, {sortDirection}::text)")
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            var total = await _db.Database
+                .SqlQuery<long>($"SELECT cnt AS \"Value\" FROM \"PAndM\".uspgetdynamicsequipmentcategoriescount({filterColumn}::text, {filterValue}::text)")
+                .SingleAsync(cancellationToken);
+
+            return new PagedResult<DynamicsEquipmentCategoryDto>(rows.Select(DynamicsEquipmentCategoryMapper.ToDto).ToArray(), page, pageSize, (int)total);
         }
-
-        var total = await q.CountAsync(cancellationToken);
-        var rows = await q.OrderBy(c => c.NAME).ThenBy(c => c.ID)
-            .Skip((page - 1) * pageSize).Take(pageSize)
-            .ToListAsync(cancellationToken);
-
-        return new PagedResult<DynamicsEquipmentCategoryDto>(rows.Select(DynamicsEquipmentCategoryMapper.ToDto).ToArray(), page, pageSize, total);
+        catch (Npgsql.PostgresException ex) when (ex.SqlState == "22023")
+        {
+            // Raised by the function when the filter column does not exist.
+            throw new ArgumentException(ex.MessageText);
+        }
     }
 }
 
