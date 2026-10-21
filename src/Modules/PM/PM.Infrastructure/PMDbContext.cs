@@ -17,9 +17,14 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     public DbSet<WorkDescription> WorkDescriptions { get; set; } = null!;
     public DbSet<EquipmentSubPart> EquipmentSubParts { get; set; } = null!;
     public DbSet<EquipmentChecklistPoint> EquipmentChecklistPoints { get; set; } = null!;
+    public DbSet<EquipmentBreakdownReasons> EquipmentBreakdownReasons { get; set; } = null!;
+    public DbSet<SpecificationMaster> SpecificationMasters { get; set; } = null!;
     public DbSet<PreventiveMaintenancePoint> PreventiveMaintenancePoints { get; set; } = null!;
     public DbSet<MeterReadingType> MeterReadingTypes { get; set; } = null!;
     public DbSet<EquipmentPreventiveMaintenancePoints> EquipmentPreventiveMaintenancePoints { get; set; } = null!;
+
+    public DbSet<EquipmentMeterEpochDetails> EquipmentMeterEpochDetails { get; set; } = null!;
+    public DbSet<EquipmentMeterCumulativeDetail> EquipmentMeterCumulativeDetails { get; set; } = null!;
 
     public DbSet<SparePartCatalogue> SparePartCatalogue { get; set; } = null!;
 
@@ -187,6 +192,25 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                   .HasDefaultValue(true);
         });
 
+        modelBuilder.Entity<SpecificationMaster>(entity =>
+        {
+            entity.ToTable("SpecificationMaster");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.SpecificationName)
+                  .IsRequired();
+
+            entity.Property(e => e.Type)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true);
+        });
+
         modelBuilder.Entity<EquipmentSubPart>(entity =>
         {
             entity.ToTable("EquipmentSubParts");
@@ -220,6 +244,105 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
             entity.Property(e => e.IsActive)
                   .HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<EquipmentBreakdownReasons>(entity =>
+        {
+            entity.ToTable("EquipmentBreakdownReasons");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.BreakdownReason)
+                  .IsRequired();
+
+            entity.Property(e => e.Type)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true);
+        });
+
+
+        // ============================================================
+        // EquipmentMeterEpochDetails
+        // ============================================================
+        modelBuilder.Entity<EquipmentMeterEpochDetails>(entity =>
+        {
+            entity.ToTable("EquipmentMeterEpochDetails");
+
+            entity.HasKey(x => x.ID);
+
+            entity.Property(x => x.ID)
+                .HasColumnName("ID")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.EquipmentID).HasColumnName("EquipmentID");
+            entity.Property(x => x.MeterReadingID).HasColumnName("MeterReadingID");
+            entity.Property(x => x.ReasonID).HasColumnName("ReasonID");
+
+            entity.Property(x => x.OpenningDate)
+                .HasColumnName("OpenningDate")
+                .HasColumnType("datetime");
+
+            entity.Property(x => x.ResetReadingAmount)
+                .HasColumnName("ResetReadingAmount")
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(x => x.OpeningReadingAmount)
+                .HasColumnName("OpeningReadingAmount")
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(x => x.Remarks)
+                .HasColumnName("Remarks")
+                .IsUnicode(false)
+                .IsRequired(false);
+
+            entity.Property(x => x.StatusID).HasColumnName("StatusID");
+
+            entity.Property(x => x.IsActive)
+                .HasColumnName("IsActive")
+                .HasDefaultValue(true);
+
+            entity.HasIndex(x => x.EquipmentID)
+                .HasDatabaseName("IX_EquipmentMeterEpochDetails_EquipmentID");
+
+        });
+
+        // ============================================================
+        // EquipmentMeterCumulativeDetail
+        // ============================================================
+        modelBuilder.Entity<EquipmentMeterCumulativeDetail>(entity =>
+        {
+            entity.ToTable("EquipmentMeterCumulativeDetail");
+
+            entity.HasKey(x => x.ID);
+
+            entity.Property(x => x.ID)
+                .HasColumnName("ID")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.EquipmentID).HasColumnName("EquipmentID");
+
+            entity.Property(x => x.FinalReadingAmount)
+                .HasColumnName("FinalReadingAmount")
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(x => x.ActualOpeningReadingAmount)
+                .HasColumnName("ActualOpeningReadingAmount")
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(x => x.StatusID).HasColumnName("StatusID");
+
+            entity.Property(x => x.IsActive)
+                .HasColumnName("IsActive")
+                .HasDefaultValue(true);
+
+            entity.HasIndex(x => x.EquipmentID)
+                .HasDatabaseName("IX_EquipmentMeterCumulativeDetail_EquipmentID");
+
         });
 
 

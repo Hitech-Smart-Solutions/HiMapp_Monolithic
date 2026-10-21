@@ -287,6 +287,86 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
                     b.ToTable("DynamicsEquipmentMaster", "PAndM");
                 });
 
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.EquipmentBreakdownReasons", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("BreakdownReason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("EquipmentBreakdownReasons", "PAndM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.EquipmentChecklistPoint", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("EquipmentChecklistPoints", "PAndM");
+                });
+
             modelBuilder.Entity("Himapp.PM.Domain.Entities.EquipmentPreventiveMaintenancePoints", b =>
                 {
                     b.Property<int>("ID")
@@ -360,6 +440,43 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
                         .HasDatabaseName("IX_EquipmentPreventiveMaintenancePoints_EquipmentID");
 
                     b.ToTable("EquipmentPreventiveMaintenancePoints", "PAndM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.EquipmentSubPart", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EquipmentSubPartName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("EquipmentSubParts", "PAndM");
                 });
 
             modelBuilder.Entity("Himapp.PM.Domain.Entities.MeterReadingType", b =>
@@ -513,6 +630,46 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
                     b.HasKey("ID");
 
                     b.ToTable("SparePartCatalogue", "PAndM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.SpecificationMaster", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SpecificationName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("SpecificationMaster", "PAndM");
                 });
 
             modelBuilder.Entity("Himapp.PM.Domain.Entities.WorkDescription", b =>
