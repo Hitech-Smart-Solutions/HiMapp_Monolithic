@@ -68,7 +68,7 @@ namespace Himapp.PM.Domain.Entities;
         public string? WRKCTRLDESCRIPTION { get; set; }
         public int? HimappProjectID { get; set; }
 
-        private DynamicsEquipmentMaster()
+        public DynamicsEquipmentMaster()
         {
         }
 
