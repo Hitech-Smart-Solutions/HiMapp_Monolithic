@@ -23,6 +23,9 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     public DbSet<MeterReadingType> MeterReadingTypes { get; set; } = null!;
     public DbSet<EquipmentPreventiveMaintenancePoints> EquipmentPreventiveMaintenancePoints { get; set; } = null!;
 
+    public DbSet<EquipmentMeterEpochDetails> EquipmentMeterEpochDetails { get; set; } = null!;
+    public DbSet<EquipmentMeterCumulativeDetail> EquipmentMeterCumulativeDetails { get; set; } = null!;
+
     public DbSet<SparePartCatalogue> SparePartCatalogue { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -260,6 +263,86 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
             entity.Property(e => e.IsActive)
                   .HasDefaultValue(true);
+        });
+
+
+        // ============================================================
+        // EquipmentMeterEpochDetails
+        // ============================================================
+        modelBuilder.Entity<EquipmentMeterEpochDetails>(entity =>
+        {
+            entity.ToTable("EquipmentMeterEpochDetails");
+
+            entity.HasKey(x => x.ID);
+
+            entity.Property(x => x.ID)
+                .HasColumnName("ID")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.EquipmentID).HasColumnName("EquipmentID");
+            entity.Property(x => x.MeterReadingID).HasColumnName("MeterReadingID");
+            entity.Property(x => x.ReasonID).HasColumnName("ReasonID");
+
+            entity.Property(x => x.OpenningDate)
+                .HasColumnName("OpenningDate")
+                .HasColumnType("datetime");
+
+            entity.Property(x => x.ResetReadingAmount)
+                .HasColumnName("ResetReadingAmount")
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(x => x.OpeningReadingAmount)
+                .HasColumnName("OpeningReadingAmount")
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(x => x.Remarks)
+                .HasColumnName("Remarks")
+                .IsUnicode(false)
+                .IsRequired(false);
+
+            entity.Property(x => x.StatusID).HasColumnName("StatusID");
+
+            entity.Property(x => x.IsActive)
+                .HasColumnName("IsActive")
+                .HasDefaultValue(true);
+
+            entity.HasIndex(x => x.EquipmentID)
+                .HasDatabaseName("IX_EquipmentMeterEpochDetails_EquipmentID");
+
+        });
+
+        // ============================================================
+        // EquipmentMeterCumulativeDetail
+        // ============================================================
+        modelBuilder.Entity<EquipmentMeterCumulativeDetail>(entity =>
+        {
+            entity.ToTable("EquipmentMeterCumulativeDetail");
+
+            entity.HasKey(x => x.ID);
+
+            entity.Property(x => x.ID)
+                .HasColumnName("ID")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.EquipmentID).HasColumnName("EquipmentID");
+
+            entity.Property(x => x.FinalReadingAmount)
+                .HasColumnName("FinalReadingAmount")
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(x => x.ActualOpeningReadingAmount)
+                .HasColumnName("ActualOpeningReadingAmount")
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(x => x.StatusID).HasColumnName("StatusID");
+
+            entity.Property(x => x.IsActive)
+                .HasColumnName("IsActive")
+                .HasDefaultValue(true);
+
+            entity.HasIndex(x => x.EquipmentID)
+                .HasDatabaseName("IX_EquipmentMeterCumulativeDetail_EquipmentID");
+
         });
 
 

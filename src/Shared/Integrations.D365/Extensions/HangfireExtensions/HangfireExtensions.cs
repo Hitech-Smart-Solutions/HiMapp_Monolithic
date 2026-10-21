@@ -30,6 +30,12 @@ public static class HangfireExtensions
                       });
         });
 
+        GlobalJobFilters.Filters.Add(
+        new AutomaticRetryAttribute
+        {
+            Attempts = 1
+        });
+
         services.AddHangfireServer();
 
         services.AddScoped<

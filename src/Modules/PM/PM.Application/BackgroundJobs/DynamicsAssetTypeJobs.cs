@@ -78,4 +78,62 @@ public class DynamicsAssetTypeJobs
         _logger.LogInformation(
             "AssetType Reset Sync completed.");
     }
+
+    public async Task RunAddAssetMasterSync()
+    {
+        _logger.LogInformation(
+            "Starting AssetMaster Add Sync background job.");
+
+        var result =
+            await _dynamicsIntegrationService
+                .SyncAssetMasterIntegration(false);
+
+        if (!result.Success)
+        {
+            throw new InvalidOperationException(
+                result.Message);
+        }
+
+        _logger.LogInformation(
+            "AssetMaster Add Sync completed. " +
+            "Inserted: {Inserted}, Updated: {Updated}",
+            result.Inserted,
+            result.Updated);
+    }
+
+
+    public async Task RunUpdateAssetMasterSync()
+    {
+        _logger.LogInformation(
+            "Starting AssetMaster Update Sync background job.");
+
+        var result =
+            await _dynamicsIntegrationService
+                .SyncAssetMasterIntegration(true);
+
+        if (!result.Success)
+        {
+            throw new InvalidOperationException(
+                result.Message);
+        }
+
+        _logger.LogInformation(
+            "AssetMaster Update Sync completed. " +
+            "Inserted: {Inserted}, Updated: {Updated}",
+            result.Inserted,
+            result.Updated);
+    }
+
+
+    public async Task RunResetAssetMasterSync()
+    {
+        _logger.LogInformation(
+            "Starting AssetMaster Reset background job.");
+
+        await _dynamicsIntegrationService
+            .ResetAssetMasterIntegrationInDynamics();
+
+        _logger.LogInformation(
+            "AssetMaster Reset Sync completed.");
+    }
 }

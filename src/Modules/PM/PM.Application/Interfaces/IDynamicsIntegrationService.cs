@@ -10,5 +10,7 @@ namespace Himapp.PM.Application.Interfaces
     {
         Task<SyncResultDTO> SyncAssetTypes(bool isUpdateSync);
         Task<List<DynamicsEquipmentCategory>> ResetAssetTypesInDynamics();
+        Task<List<DynamicsEquipmentMaster>> ResetAssetMasterIntegrationInDynamics();
+        Task<SyncResultDTO> SyncAssetMasterIntegration(bool isUpdateSync);
     }
 }

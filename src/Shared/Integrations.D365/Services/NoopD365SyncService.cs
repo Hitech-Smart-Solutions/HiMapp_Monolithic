@@ -38,15 +38,15 @@ public sealed class NoopD365SyncService : ID365SyncService
             var values = new Dictionary<string, string>
             {
                 { "grant_type", "client_credentials" },
-                { "client_id", _config["Dynamics:ClientId"] },
-                { "client_secret", _config["Dynamics:ClientSecret"] },
-                { "resource", _config["Dynamics:Resource"] }
+                { "client_id", _config["D365:ClientId"] },
+                { "client_secret", _config["D365:ClientSecret"] },
+                { "resource", _config["D365:Resource"] }
             };
 
             var content = new FormUrlEncodedContent(values);
 
             var response = await _httpClient.PostAsync(
-                $"https://login.microsoftonline.com/{_config["Dynamics:TenantId"]}/oauth2/token",
+                $"https://login.microsoftonline.com/{_config["D365:TenantId"]}/oauth2/token",
                 content
             );
 
@@ -62,40 +62,63 @@ public sealed class NoopD365SyncService : ID365SyncService
             return _accessToken;
         }
 
-        public async Task<List<T>> FetchFromDynamics<T>(string entityName, string filter)
+        public async Task<List<T>> FetchFromDynamics<T>(
+            string entityName,
+            string filter)
         {
-            var baseUrl = _config["Dynamics:BaseUrl"];
+            var baseUrl = _config["D365:BaseUrl"];
             var url = $"{baseUrl}/data/{entityName}?$filter={Uri.EscapeDataString(filter)}";
 
             try
             {
-                var response = await _httpClient.GetAsync(url);
+                var token = await GetDynamicsToken();
+
+                using var request = new HttpRequestMessage(
+                    HttpMethod.Get,
+                    url);
+
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await _httpClient.SendAsync(request);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogError("Dynamics API Error. Entity: {Entity}, URL: {Url}, Status: {StatusCode}, Content: {Content}",
-                        entityName, url, response.StatusCode, errorContent);
+                    var errorContent =
+                        await response.Content.ReadAsStringAsync();
 
-                    throw new Exception($"Dynamics API returned {response.StatusCode} for {entityName}.");
+                    _logger.LogError(
+                        "Dynamics API Error. Entity: {Entity}, URL: {Url}, Status: {StatusCode}, Content: {Content}",
+                        entityName,
+                        url,
+                        response.StatusCode,
+                        errorContent);
+
+                    throw new Exception(
+                        $"Dynamics API returned {response.StatusCode} for {entityName}.");
                 }
 
                 var json = await response.Content.ReadAsStringAsync();
 
-                var result = JsonConvert.DeserializeObject<ODataResponseDTO<T>>(json);
+                var result =
+                    JsonConvert.DeserializeObject<ODataResponseDTO<T>>(json);
 
                 return result?.Value ?? new List<T>();
             }
             catch (HttpRequestException httpEx)
             {
-                _logger.LogError(httpEx, "Network error reaching Dynamics at {Url}", url);
+                _logger.LogError(
+                    httpEx,
+                    "Network error reaching Dynamics at {Url}",
+                    url);
+
                 throw;
             }
         }
 
         public async Task<bool> PatchToDynamics(string resourcePath, string token, object payload)
         {
-            var url = $"{_config["Dynamics:BaseUrl"]}/data/{resourcePath}";
+            var url = $"{_config["D365:BaseUrl"]}/data/{resourcePath}";
 
             try
             {
@@ -132,7 +155,7 @@ public sealed class NoopD365SyncService : ID365SyncService
         {
             try
             {
-                var baseUrl = _config["Dynamics:BaseUrl"];
+                var baseUrl = _config["D365:BaseUrl"];
                 if (string.IsNullOrEmpty(baseUrl))
                 {
                     throw new Exception("Dynamics BaseUrl is not configured.");
