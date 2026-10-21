@@ -9,6 +9,6 @@ namespace Himapp.PM.Application.Interfaces
     public interface IDynamicsIntegrationService 
     {
         Task<SyncResultDTO> SyncAssetTypes(bool isUpdateSync);
-        Task<List<DynamicsAssetType>> ResetAssetTypesInDynamics();
+        Task<List<DynamicsEquipmentCategory>> ResetAssetTypesInDynamics();
     }
 }

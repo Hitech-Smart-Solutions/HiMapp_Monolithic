@@ -8,6 +8,6 @@ public interface IPMDbContext
     DbSet<TEntity> Set<TEntity>() where TEntity : class;
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
-    public DbSet<DynamicsAssetType> DynamicsAssetTypes { get; set; }
-    public DbSet<DynamicsAssetMasterIntegration> DynamicsAssetMasterIntegrations { get; set; }
+    public DbSet<DynamicsEquipmentCategory> DynamicsEquipmentCategory { get; set; }
+    public DbSet<DynamicsEquipmentMaster> DynamicsEquipmentMaster { get; set; }
 }

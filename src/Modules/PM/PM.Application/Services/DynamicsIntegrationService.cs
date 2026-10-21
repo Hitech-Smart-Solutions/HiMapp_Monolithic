@@ -8,21 +8,22 @@ using Himapp.PM.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Himapp.PM.Domain.Constants.Enums;
 using Himapp.PM.Application.DTOs;
+using Himapp.PM.Application.Interfaces;
 namespace Himapp.PM.Application.Services;
 
-public class DynamicsIntegrationService
+public class DynamicsIntegrationService : IDynamicsIntegrationService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<DynamicsIntegrationService> _logger;
     private readonly IPMDbContext _db;
-    private ID365SyncService _d365SyncService;
+    private readonly ID365SyncService _d365SyncService;
 
-    public DynamicsIntegrationService(HttpClient httpClient, ILogger<DynamicsIntegrationService> logger, IPMDbContext db)
+    public DynamicsIntegrationService(HttpClient httpClient, ILogger<DynamicsIntegrationService> logger, IPMDbContext db, ID365SyncService d365SyncService)
     {
         _httpClient = httpClient;
         _logger = logger;
         _db = db;
-        _d365SyncService = new NoopD365SyncService(null, null, null);
+        _d365SyncService = d365SyncService;
     }
     
     #region Sync AssetTypes
@@ -46,7 +47,7 @@ public class DynamicsIntegrationService
                 return new SyncResultDTO { Success = true, Message = "No asset types to sync." };
             }
 
-            var existingAssetTypes = await _db.DynamicsAssetTypes
+            var existingAssetTypes = await _db.DynamicsEquipmentCategory
                 .ToDictionaryAsync(x => x.OBJECTTYPEID);
 
             int inserted = 0;
@@ -61,7 +62,7 @@ public class DynamicsIntegrationService
 
                 if (!existingAssetTypes.TryGetValue(at.ObjectTypeID, out var existing))
                 {
-                    _db.DynamicsAssetTypes.Add(new DynamicsAssetType
+                    _db.DynamicsEquipmentCategory.Add(new DynamicsEquipmentCategory
                     {
                         UniqueID = Guid.NewGuid(),
                         OBJECTTYPEID = at.ObjectTypeID,
@@ -118,11 +119,11 @@ public class DynamicsIntegrationService
     }
 
 
-    public async Task<List<DynamicsAssetType>> ResetAssetTypesInDynamics()
+    public async Task<List<DynamicsEquipmentCategory>> ResetAssetTypesInDynamics()
     {
         var token = await _d365SyncService.GetDynamicsToken();
 
-        List<DynamicsAssetType> dynamicsAssetType = await _db.DynamicsAssetTypes
+        List<DynamicsEquipmentCategory> dynamicsAssetType = await _db.DynamicsEquipmentCategory
             .OrderBy(x => x.OBJECTTYPEID).ToListAsync();
 
         var payload = new
@@ -142,6 +143,4 @@ public class DynamicsIntegrationService
     }
 
     #endregion
-
-    
 }

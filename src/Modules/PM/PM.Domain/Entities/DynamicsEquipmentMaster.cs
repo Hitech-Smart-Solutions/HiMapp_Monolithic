@@ -20,7 +20,7 @@ namespace Himapp.PM.Domain.Entities;
     ///   - DTO mapping updates
     ///   - Validation and integration review
     /// </remarks>
-    public sealed class DynamicsAssetMasterIntegration : BaseEntity
+    public sealed class DynamicsEquipmentMaster : BaseEntity
     {
         public string DataAreaId { get; set; }
         public string OBJECTID { get; set; } = null!;
@@ -68,13 +68,13 @@ namespace Himapp.PM.Domain.Entities;
         public string? WRKCTRLDESCRIPTION { get; set; }
         public int? HimappProjectID { get; set; }
 
-        private DynamicsAssetMasterIntegration()
+        private DynamicsEquipmentMaster()
         {
         }
 
-        public static DynamicsAssetMasterIntegration Register(string dataAreaId, string objectId, decimal? acquisitionCost, DateTime? acquisitionDate, DateTime? activeFrom, DateTime? activeTo, string? categoryLevel1, string? categoryLevel2, string? categoryLevel3, int? criticality, string? fixedAssetId, string? fixedAssetName, string? functionalAllocation, string? isplBatchNumber, DateTime? isplHiredDate, ISPLYesNo isplIsHiredAsset, ISPLYesNo objectActive, ISPLISSync isplIsSync, ISPLISUpdated isplIsUpdated, string? isplItemId, string? isplItemName, string? isplPoNumber, string? isplVehicleNumber, string? isplVendorAccount, string? manufacturer, string? model, long? modelRecId, string? modelYear, string name, string? objectIdParent, string? objectIdParentName, string? objectLifecycleState, string? objectType, string? purchId, string? resource, string? serialId, int? serviceLevel, float? stdFuelConsumptionIsPl, string? vendAccount, string? vendName, DateTime? warrantyDateFromVend, DateTime? warrantyDateToVend, string? warrantyVend)
+        public static DynamicsEquipmentMaster Register(string dataAreaId, string objectId, decimal? acquisitionCost, DateTime? acquisitionDate, DateTime? activeFrom, DateTime? activeTo, string? categoryLevel1, string? categoryLevel2, string? categoryLevel3, int? criticality, string? fixedAssetId, string? fixedAssetName, string? functionalAllocation, string? isplBatchNumber, DateTime? isplHiredDate, ISPLYesNo isplIsHiredAsset, ISPLYesNo objectActive, ISPLISSync isplIsSync, ISPLISUpdated isplIsUpdated, string? isplItemId, string? isplItemName, string? isplPoNumber, string? isplVehicleNumber, string? isplVendorAccount, string? manufacturer, string? model, long? modelRecId, string? modelYear, string name, string? objectIdParent, string? objectIdParentName, string? objectLifecycleState, string? objectType, string? purchId, string? resource, string? serialId, int? serviceLevel, float? stdFuelConsumptionIsPl, string? vendAccount, string? vendName, DateTime? warrantyDateFromVend, DateTime? warrantyDateToVend, string? warrantyVend)
         {
-            return new DynamicsAssetMasterIntegration
+            return new DynamicsEquipmentMaster
             {
                 UniqueID = Guid.NewGuid(),
                 DataAreaId = dataAreaId,

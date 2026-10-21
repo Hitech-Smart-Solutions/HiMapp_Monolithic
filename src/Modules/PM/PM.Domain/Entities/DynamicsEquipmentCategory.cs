@@ -21,7 +21,7 @@ namespace Himapp.PM.Domain.Entities;
     ///   - DTO mapping updates
     ///   - Validation and integration review
     /// </remarks>
-    public sealed class DynamicsAssetType : BaseEntity
+    public sealed class DynamicsEquipmentCategory : BaseEntity
     {
         public string DataAreaId { get; set; }
         public string OBJECTTYPEID { get; set; }
@@ -35,13 +35,13 @@ namespace Himapp.PM.Domain.Entities;
         public DateTime? CreatedDate { get; set; }
         public DateTime? LastModifiedDate { get; set; }
 
-        public DynamicsAssetType()
+        public DynamicsEquipmentCategory()
         {
         }
 
-        public static DynamicsAssetType Register(string dataAreaId, string objectTypeId, ISPLYesNo isFuelConsumptionRequired, ISPLYesNo isLogbookRequired, ISPLISSync isPlIsSync, ISPLISUpdated isPlIsUpdated, string name, string objectLifecycleModelId, string shortNameIsPl)
+        public static DynamicsEquipmentCategory Register(string dataAreaId, string objectTypeId, ISPLYesNo isFuelConsumptionRequired, ISPLYesNo isLogbookRequired, ISPLISSync isPlIsSync, ISPLISUpdated isPlIsUpdated, string name, string objectLifecycleModelId, string shortNameIsPl)
         {
-            return new DynamicsAssetType
+            return new DynamicsEquipmentCategory
             {
                 UniqueID = Guid.NewGuid(),
                 DataAreaId = dataAreaId,
