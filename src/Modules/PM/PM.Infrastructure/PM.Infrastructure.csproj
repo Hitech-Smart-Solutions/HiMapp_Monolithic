@@ -11,8 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\PM.Domain\PM.Domain.csproj" />
-	<ProjectReference Include="..\PM.Application\PM.Application.csproj" />
+	<ProjectReference Include="..\PM.Application\PM.Application.csproj" />	  <ProjectReference Include="..\PM.Application\PM.Application.csproj" />
+	  <ProjectReference Include="..\PM.Domain\PM.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
