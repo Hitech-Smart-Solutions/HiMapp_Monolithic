@@ -12,4 +12,5 @@ public interface IPMDbContext
 
     public DbSet<DynamicsEquipmentCategory> DynamicsEquipmentCategory { get; set; }
     public DbSet<DynamicsEquipmentMaster> DynamicsEquipmentMaster { get; set; }
+    public DbSet<DynamicsSyncLog> DynamicsSyncLog { get; set; }
 }

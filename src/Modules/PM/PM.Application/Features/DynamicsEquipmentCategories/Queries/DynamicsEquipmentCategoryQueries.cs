@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Himapp.PM.Application.Features.DynamicsEquipmentCategories.Queries;
 
-public sealed record GetDynamicsEquipmentCategoriesQuery(int Page, int PageSize, string? Search)
+public sealed record GetDynamicsEquipmentCategoriesQuery(ListSearchParams Params)
     : IRequest<PagedResult<DynamicsEquipmentCategoryDto>>;
 
 public sealed record GetDynamicsEquipmentCategoryByIdQuery(int Id) : IRequest<DynamicsEquipmentCategoryDto?>;

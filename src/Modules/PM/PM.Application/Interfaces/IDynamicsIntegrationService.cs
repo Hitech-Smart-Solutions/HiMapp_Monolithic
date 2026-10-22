@@ -8,9 +8,9 @@ namespace Himapp.PM.Application.Interfaces
 {
     public interface IDynamicsIntegrationService 
     {
-        Task<SyncResultDTO> SyncAssetTypes(bool isUpdateSync);
-        Task<List<DynamicsEquipmentCategory>> ResetAssetTypesInDynamics();
-        Task<List<DynamicsEquipmentMaster>> ResetAssetMasterIntegrationInDynamics();
-        Task<SyncResultDTO> SyncAssetMasterIntegration(bool isUpdateSync);
+        Task<SyncResultDTO> SyncAssetTypes(bool isUpdateSync, int? logId = null);
+        Task<List<DynamicsEquipmentCategory>> ResetAssetTypesInDynamics(int? logId = null);
+        Task<List<DynamicsEquipmentMaster>> ResetAssetMasterIntegrationInDynamics(int? logId = null);
+        Task<SyncResultDTO> SyncAssetMasterIntegration(bool isUpdateSync, int? logId = null);
     }
 }
