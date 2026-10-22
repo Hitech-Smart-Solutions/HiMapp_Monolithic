@@ -1,4 +1,5 @@
 using Himapp.PM.Application.Features.SpecificationMaster.Commands;
+using Himapp.PM.Application.Features.Common;
 using Himapp.PM.Application.Features.SpecificationMaster.Models;
 using Himapp.PM.Application.Features.SpecificationMaster.Queries;
 using MediatR;
@@ -115,6 +116,20 @@ internal sealed class GetSpecificationMasterByIdQueryHandler : IRequestHandler<G
             .FirstOrDefaultAsync(p => p.ID == request.Id && p.IsActive, cancellationToken);
         return entity?.ToDto();
     }
+}
+
+internal sealed class GetSpecificationMasterListHandler : IRequestHandler<GetSpecificationMasterList, PagedResult<SpecificationMasterListItemDto>>
+{
+    private readonly IPMDbContext _db;
+
+    public GetSpecificationMasterListHandler(IPMDbContext db) => _db = db;
+
+    public Task<PagedResult<SpecificationMasterListItemDto>> Handle(GetSpecificationMasterList request, CancellationToken cancellationToken) =>
+        PagedStoredProcedureQueryExecutor.ExecuteAsync(_db, "uspgetspecificationmaster", "uspgetspecificationmastercount", request.Page, request.PageSize, request.FilterColumn, request.FilterValue, request.SortColumn, request.IsActive,
+            reader => new SpecificationMasterListItemDto(
+                reader.GetInt32(reader.GetOrdinal("ID")), reader.GetString(reader.GetOrdinal("SpecificationName")), reader.GetBoolean(reader.GetOrdinal("IsActive")),
+                (SpecificationType)reader.GetInt32(reader.GetOrdinal("Type")), reader.GetGuid(reader.GetOrdinal("UniqueID")), reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                reader.GetInt32(reader.GetOrdinal("CreatedBy")), reader.GetDateTime(reader.GetOrdinal("LastModifiedDate")), reader.GetInt32(reader.GetOrdinal("LastModifiedBy"))), cancellationToken);
 }
 
 file static class SpecificationMasterMappings
