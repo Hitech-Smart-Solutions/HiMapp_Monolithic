@@ -1,4 +1,5 @@
 using Himapp.PM.Application.Features.EquipmentSubParts.Commands;
+using Himapp.PM.Application.Features.Common;
 using Himapp.PM.Application.Features.EquipmentSubParts.Models;
 using Himapp.PM.Application.Features.EquipmentSubParts.Queries;
 using Himapp.PM.Domain.Entities;
@@ -109,4 +110,33 @@ internal sealed class GetEquipmentSubPartByIdQueryHandler : IRequestHandler<GetE
             .FirstOrDefaultAsync(d => d.ID == request.Id && d.IsActive, cancellationToken);
         return dto is null ? null : new EquipmentSubPartDto(dto.ID, dto.EquipmentSubPartName, dto.IsActive);
     }
+}
+
+internal sealed class GetEquipmentSubPartListHandler : IRequestHandler<GetEquipmentSubPartList, PagedResult<EquipmentSubPartListItemDto>>
+{
+    private readonly IPMDbContext _db;
+
+    public GetEquipmentSubPartListHandler(IPMDbContext db) => _db = db;
+
+    public Task<PagedResult<EquipmentSubPartListItemDto>> Handle(GetEquipmentSubPartList request, CancellationToken cancellationToken) =>
+        PagedStoredProcedureQueryExecutor.ExecuteAsync(
+            _db,
+            "uspgetequipmentsubpart",
+            "uspgetequipmentsubpartcount",
+            request.Page,
+            request.PageSize,
+            request.FilterColumn,
+            request.FilterValue,
+            request.SortColumn,
+            request.IsActive,
+            reader => new EquipmentSubPartListItemDto(
+                reader.GetInt32(reader.GetOrdinal("ID")),
+                reader.GetString(reader.GetOrdinal("EquipmentSubPartName")),
+                reader.GetBoolean(reader.GetOrdinal("IsActive")),
+                reader.GetGuid(reader.GetOrdinal("UniqueID")),
+                reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                reader.GetInt32(reader.GetOrdinal("CreatedBy")),
+                reader.GetDateTime(reader.GetOrdinal("LastModifiedDate")),
+                reader.GetInt32(reader.GetOrdinal("LastModifiedBy"))),
+            cancellationToken);
 }
