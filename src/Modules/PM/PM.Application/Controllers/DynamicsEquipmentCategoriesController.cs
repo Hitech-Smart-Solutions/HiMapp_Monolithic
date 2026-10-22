@@ -1,3 +1,4 @@
+using Himapp.PM.Application.Features.Common;
 using Himapp.PM.Application.Features.DynamicsEquipmentCategories.Commands;
 using Himapp.PM.Application.Features.DynamicsEquipmentCategories.Models;
 using Himapp.PM.Application.Features.DynamicsEquipmentCategories.Queries;
@@ -16,8 +17,17 @@ public sealed class DynamicsEquipmentCategoriesController : ControllerBase
     public DynamicsEquipmentCategoriesController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 25, [FromQuery] string? search = null, CancellationToken cancellationToken = default) =>
-        Ok(await _mediator.Send(new GetDynamicsEquipmentCategoriesQuery(page, pageSize, search), cancellationToken));
+    public async Task<IActionResult> GetAll([FromQuery] ListSearchParams searchParams, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Ok(await _mediator.Send(new GetDynamicsEquipmentCategoriesQuery(searchParams), cancellationToken));
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)

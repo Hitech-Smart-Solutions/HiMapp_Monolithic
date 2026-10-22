@@ -21,14 +21,18 @@ public class DynamicsAssetTypeJobs
         _logger = logger;
     }
 
-    public async Task RunAddAssetTypeSync()
+    // Kept without a parameter for any existing caller; the run is then logged as "System".
+    public Task RunAddAssetTypeSync() => RunAddAssetTypeSync(null);
+
+    /// <param name="logId">Id of the DynamicsSyncLog row created when the job was queued (null = create a new one).</param>
+    public async Task RunAddAssetTypeSync(int? logId)
     {
         _logger.LogInformation(
-            "Starting AssetType Add Sync background job.");
+            "Starting AssetType Add Sync background job. LogId: {LogId}", logId);
 
         var result =
             await _dynamicsIntegrationService
-                .SyncAssetTypes(false);
+                .SyncAssetTypes(false, logId);
 
         if (!result.Success)
         {
@@ -43,15 +47,18 @@ public class DynamicsAssetTypeJobs
             result.Updated);
     }
 
+    // Kept without a parameter for any existing caller; the run is then logged as "System".
+    public Task RunUpdateAssetTypeSync() => RunUpdateAssetTypeSync(null);
 
-    public async Task RunUpdateAssetTypeSync()
+    /// <param name="logId">Id of the DynamicsSyncLog row created when the job was queued (null = create a new one).</param>
+    public async Task RunUpdateAssetTypeSync(int? logId)
     {
         _logger.LogInformation(
-            "Starting AssetType Update Sync background job.");
+            "Starting AssetType Update Sync background job. LogId: {LogId}", logId);
 
         var result =
             await _dynamicsIntegrationService
-                .SyncAssetTypes(true);
+                .SyncAssetTypes(true, logId);
 
         if (!result.Success)
         {
@@ -66,27 +73,34 @@ public class DynamicsAssetTypeJobs
             result.Updated);
     }
 
+    // Kept without a parameter for any existing caller; the run is then logged as "System".
+    public Task RunResetAssetTypeSync() => RunResetAssetTypeSync(null);
 
-    public async Task RunResetAssetTypeSync()
+    /// <param name="logId">Id of the DynamicsSyncLog row created when the job was queued (null = create a new one).</param>
+    public async Task RunResetAssetTypeSync(int? logId)
     {
         _logger.LogInformation(
-            "Starting AssetType Reset background job.");
+            "Starting AssetType Reset background job. LogId: {LogId}", logId);
 
         await _dynamicsIntegrationService
-            .ResetAssetTypesInDynamics();
+            .ResetAssetTypesInDynamics(logId);
 
         _logger.LogInformation(
-            "AssetType Reset Sync completed.");
+            "AssetType Reset Reset completed.");
     }
 
-    public async Task RunAddAssetMasterSync()
+    // Kept without a parameter for any existing caller; the run is then logged as "System".
+    public Task RunAddAssetMasterSync() => RunAddAssetMasterSync(null);
+
+    /// <param name="logId">Id of the DynamicsSyncLog row created when the job was queued (null = create a new one).</param>
+    public async Task RunAddAssetMasterSync(int? logId)
     {
         _logger.LogInformation(
-            "Starting AssetMaster Add Sync background job.");
+            "Starting AssetMaster Add Sync background job. LogId: {LogId}", logId);
 
         var result =
             await _dynamicsIntegrationService
-                .SyncAssetMasterIntegration(false);
+                .SyncAssetMasterIntegration(false, logId);
 
         if (!result.Success)
         {
@@ -101,15 +115,18 @@ public class DynamicsAssetTypeJobs
             result.Updated);
     }
 
+    // Kept without a parameter for any existing caller; the run is then logged as "System".
+    public Task RunUpdateAssetMasterSync() => RunUpdateAssetMasterSync(null);
 
-    public async Task RunUpdateAssetMasterSync()
+    /// <param name="logId">Id of the DynamicsSyncLog row created when the job was queued (null = create a new one).</param>
+    public async Task RunUpdateAssetMasterSync(int? logId)
     {
         _logger.LogInformation(
-            "Starting AssetMaster Update Sync background job.");
+            "Starting AssetMaster Update Sync background job. LogId: {LogId}", logId);
 
         var result =
             await _dynamicsIntegrationService
-                .SyncAssetMasterIntegration(true);
+                .SyncAssetMasterIntegration(true, logId);
 
         if (!result.Success)
         {
@@ -124,16 +141,19 @@ public class DynamicsAssetTypeJobs
             result.Updated);
     }
 
+    // Kept without a parameter for any existing caller; the run is then logged as "System".
+    public Task RunResetAssetMasterSync() => RunResetAssetMasterSync(null);
 
-    public async Task RunResetAssetMasterSync()
+    /// <param name="logId">Id of the DynamicsSyncLog row created when the job was queued (null = create a new one).</param>
+    public async Task RunResetAssetMasterSync(int? logId)
     {
         _logger.LogInformation(
-            "Starting AssetMaster Reset background job.");
+            "Starting AssetMaster Reset background job. LogId: {LogId}", logId);
 
         await _dynamicsIntegrationService
-            .ResetAssetMasterIntegrationInDynamics();
+            .ResetAssetMasterIntegrationInDynamics(logId);
 
         _logger.LogInformation(
-            "AssetMaster Reset Sync completed.");
+            "AssetMaster Reset Reset completed.");
     }
 }
