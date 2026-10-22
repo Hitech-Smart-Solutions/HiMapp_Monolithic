@@ -1,0 +1,136 @@
+using Himapp.PM.Application.Features.Common;
+using Himapp.PM.Application.Features.DynamicsEquipmentCategories.Commands;
+using Himapp.PM.Application.Features.DynamicsEquipmentCategories.Models;
+using Himapp.PM.Application.Features.DynamicsEquipmentCategories.Queries;
+using Himapp.PM.Domain.Entities;
+using Himapp.SharedKernel.Abstractions;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace Himapp.PM.Application.Features.DynamicsEquipmentCategories.Handlers;
+
+internal sealed class CreateDynamicsEquipmentCategoryCommandHandler : IRequestHandler<CreateDynamicsEquipmentCategoryCommand, DynamicsEquipmentCategoryDto>
+{
+    private readonly IPMDbContext _db;
+    private readonly ICurrentUser _currentUser;
+    public CreateDynamicsEquipmentCategoryCommandHandler(IPMDbContext db, ICurrentUser currentUser) => (_db, _currentUser) = (db, currentUser);
+
+    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
+
+    public async Task<DynamicsEquipmentCategoryDto> Handle(CreateDynamicsEquipmentCategoryCommand command, CancellationToken cancellationToken)
+    {
+        var userId = CurrentUserId;
+        var r = command.Request;
+        var exists = await _db.Set<DynamicsEquipmentCategory>().AsNoTracking()
+            .AnyAsync(c => c.DataAreaId == r.DataAreaId && c.OBJECTTYPEID == r.OBJECTTYPEID, cancellationToken);
+        if (exists)
+            throw new InvalidOperationException($"An equipment category with DataAreaId '{r.DataAreaId}' and OBJECTTYPEID '{r.OBJECTTYPEID}' already exists.");
+
+        var now = DateTime.UtcNow;
+        var entity = new DynamicsEquipmentCategory
+        {
+            UniqueID = Guid.NewGuid(),
+            CreatedBy = userId,
+            CreatedDate = now,
+            LastModifiedBy = userId,
+            LastModifiedDate = now
+        };
+        DynamicsEquipmentCategoryMapper.Apply(entity, r);
+
+        _db.Set<DynamicsEquipmentCategory>().Add(entity);
+        await _db.SaveChangesAsync(cancellationToken);
+        return DynamicsEquipmentCategoryMapper.ToDto(entity);
+    }
+}
+
+internal sealed class UpdateDynamicsEquipmentCategoryCommandHandler : IRequestHandler<UpdateDynamicsEquipmentCategoryCommand, DynamicsEquipmentCategoryDto?>
+{
+    private readonly IPMDbContext _db;
+    private readonly ICurrentUser _currentUser;
+    public UpdateDynamicsEquipmentCategoryCommandHandler(IPMDbContext db, ICurrentUser currentUser) => (_db, _currentUser) = (db, currentUser);
+
+    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
+
+    public async Task<DynamicsEquipmentCategoryDto?> Handle(UpdateDynamicsEquipmentCategoryCommand command, CancellationToken cancellationToken)
+    {
+        var userId = CurrentUserId;
+        var r = command.Request;
+        var entity = await _db.Set<DynamicsEquipmentCategory>().FirstOrDefaultAsync(c => c.ID == command.Id, cancellationToken);
+        if (entity is null) return null;
+
+        var duplicate = await _db.Set<DynamicsEquipmentCategory>().AsNoTracking()
+            .AnyAsync(c => c.ID != command.Id && c.DataAreaId == r.DataAreaId && c.OBJECTTYPEID == r.OBJECTTYPEID, cancellationToken);
+        if (duplicate)
+            throw new InvalidOperationException($"An equipment category with DataAreaId '{r.DataAreaId}' and OBJECTTYPEID '{r.OBJECTTYPEID}' already exists.");
+
+        DynamicsEquipmentCategoryMapper.Apply(entity, r);
+        entity.LastModifiedBy = userId;
+        entity.LastModifiedDate = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync(cancellationToken);
+        return DynamicsEquipmentCategoryMapper.ToDto(entity);
+    }
+}
+
+internal sealed class DeleteDynamicsEquipmentCategoryCommandHandler : IRequestHandler<DeleteDynamicsEquipmentCategoryCommand, bool>
+{
+    private readonly IPMDbContext _db;
+    private readonly ICurrentUser _currentUser;
+    public DeleteDynamicsEquipmentCategoryCommandHandler(IPMDbContext db, ICurrentUser currentUser) => (_db, _currentUser) = (db, currentUser);
+
+    private int CurrentUserId => _currentUser.UserId ?? throw new UnauthorizedAccessException("An authenticated user is required.");
+
+    public async Task<bool> Handle(DeleteDynamicsEquipmentCategoryCommand command, CancellationToken cancellationToken)
+    {
+        var userId = CurrentUserId;
+        var entity = await _db.Set<DynamicsEquipmentCategory>().FirstOrDefaultAsync(c => c.ID == command.Id, cancellationToken);
+        if (entity is null) return false;
+        // TODO: soft delete (IsActive = false) once the IsActive column is migrated. For now this only stamps the audit fields.
+        entity.LastModifiedBy = userId;
+        entity.LastModifiedDate = DateTime.UtcNow;
+        await _db.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+}
+
+internal sealed class GetDynamicsEquipmentCategoriesQueryHandler : IRequestHandler<GetDynamicsEquipmentCategoriesQuery, PagedResult<DynamicsEquipmentCategoryDto>>
+{
+    private readonly IPMDbContext _db;
+    public GetDynamicsEquipmentCategoriesQueryHandler(IPMDbContext db) => _db = db;
+
+    public async Task<PagedResult<DynamicsEquipmentCategoryDto>> Handle(GetDynamicsEquipmentCategoriesQuery query, CancellationToken cancellationToken)
+    {
+        var page = Math.Max(1, query.Page);
+        var pageSize = Math.Clamp(query.PageSize, 1, 200);
+
+        var q = _db.Set<DynamicsEquipmentCategory>().AsNoTracking().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var term = query.Search.Trim().ToLower();
+            q = q.Where(c => c.NAME.ToLower().Contains(term)
+                          || c.OBJECTTYPEID.ToLower().Contains(term)
+                          || c.SHORTNAME_ISPL.ToLower().Contains(term)
+                          || c.DataAreaId.ToLower().Contains(term));
+        }
+
+        var total = await q.CountAsync(cancellationToken);
+        var rows = await q.OrderBy(c => c.NAME).ThenBy(c => c.ID)
+            .Skip((page - 1) * pageSize).Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<DynamicsEquipmentCategoryDto>(rows.Select(DynamicsEquipmentCategoryMapper.ToDto).ToArray(), page, pageSize, total);
+    }
+}
+
+internal sealed class GetDynamicsEquipmentCategoryByIdQueryHandler : IRequestHandler<GetDynamicsEquipmentCategoryByIdQuery, DynamicsEquipmentCategoryDto?>
+{
+    private readonly IPMDbContext _db;
+    public GetDynamicsEquipmentCategoryByIdQueryHandler(IPMDbContext db) => _db = db;
+
+    public async Task<DynamicsEquipmentCategoryDto?> Handle(GetDynamicsEquipmentCategoryByIdQuery query, CancellationToken cancellationToken)
+    {
+        var entity = await _db.Set<DynamicsEquipmentCategory>().AsNoTracking()
+            .FirstOrDefaultAsync(c => c.ID == query.Id, cancellationToken);
+        return entity is null ? null : DynamicsEquipmentCategoryMapper.ToDto(entity);
+    }
+}

@@ -2,6 +2,9 @@ using Himapp.PM.Application.Lookups;
 using Himapp.PM.Application.Features.Equipments;
 using Himapp.PM.Contracts.Equipment;
 using Microsoft.Extensions.DependencyInjection;
+using Himapp.PM.Application.BackgroundJobs;
+using Himapp.PM.Application.Services;
+using Himapp.PM.Application.Interfaces;
 
 namespace Himapp.PM.Application;
 
@@ -14,6 +17,9 @@ public static class DependencyInjection
 
         services.AddSingleton<IEquipmentRepository, InMemoryEquipmentRepository>();
         services.AddSingleton<IEquipmentLookup, InMemoryEquipmentLookup>();
+        services.AddScoped<DynamicsAssetTypeJobs>();
+        services.AddHttpClient();
+        services.AddHttpClient<IDynamicsIntegrationService, DynamicsIntegrationService>();
         return services;
     }
 }
