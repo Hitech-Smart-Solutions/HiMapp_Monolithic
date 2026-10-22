@@ -7,6 +7,7 @@ using Himapp.Admin.Application;
 using Himapp.Admin.Infrastructure;
 using Himapp.Api.src.Shared.Middleware;
 using Himapp.Audit;
+using Himapp.DynamicAudit;
 using Himapp.Execution.Application;
 // Execution.Contracts moved to Execution.Application
 using Himapp.Execution.Infrastructure;
@@ -95,7 +96,8 @@ builder.Services
     .AddWorkflowModule()
     .AddHimappFiles()
     .AddD365Integration()
-    .AddAuditLogging(builder.Configuration); // 🔥 Registers audit services (DbContext, Channel, Background consumer)
+    .AddAuditLogging(builder.Configuration)  // 🔥 Registers audit services (DbContext, Channel, Background consumer)
+    .AddDynamicAudit(builder.Configuration); // 🔥 Opt-in MediatR audit log ([AuditLog] attribute)
 
 // Modules
 builder.Services
