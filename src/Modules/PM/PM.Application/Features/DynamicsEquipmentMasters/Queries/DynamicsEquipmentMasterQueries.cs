@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Himapp.PM.Application.Features.DynamicsEquipmentMasters.Queries;
 
-public sealed record GetDynamicsEquipmentMastersQuery(int Page, int PageSize, string? Search)
+public sealed record GetDynamicsEquipmentMastersQuery(ListSearchParams Params)
     : IRequest<PagedResult<DynamicsEquipmentMasterDto>>;
 
 public sealed record GetDynamicsEquipmentMasterByIdQuery(int Id) : IRequest<DynamicsEquipmentMasterDto?>;

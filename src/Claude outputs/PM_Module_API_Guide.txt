@@ -1,0 +1,288 @@
+PLANT AND MACHINERY MODULE - APPLICATION PROGRAMMING INTERFACE (API) GUIDE FOR FRONTEND DEVELOPERS
+=====================================================================================================
+
+Controllers covered:
+  1. DynamicsEquipmentCategoriesController
+  2. DynamicsEquipmentMastersController
+  3. DynamicsIntegrationController
+
+GENERAL NOTES
+-------------
+- All paths below are relative to the base address of the HiMapp server (for example https://<server>/v1/pm/...).
+- Request and response bodies are JavaScript Object Notation (JSON). Set the header  Content-Type: application/json  on requests that send a body.
+- Authentication:
+    Controllers 1 and 2 need a logged-in user. Send the header  Authorization: Bearer <access token>.
+    Without a valid token the server answers 401 Unauthorized.
+    Controller 3 (DynamicsIntegrationController) currently does not require a token.
+- The server fills in CreatedBy and LastModifiedBy from the logged-in user's token. Do NOT send these fields.
+- Dates are in ISO 8601 format, for example 2026-10-21T10:30:00Z.
+- Response field names follow the framework default (first letter in lower case, for example dataAreaId). Names that are fully in capitals come back fully in lower case (for example objecttypeid). Please confirm against one real response. Request field names are not case sensitive.
+- Enumeration (fixed choice) fields are sent and returned as numbers:
+    YesNo fields (ISFUELCONSUMPTIONREQUIRED_ISPL, ISLOGBOOKREQUIRED_ISPL, ISPLISHIREDASSET, OBJECTACTIVE):  0 = No, 1 = Yes
+    ISPLISSYNC:    1 = Yes, 2 = No
+    ISPLISUPDATED: 1 = Yes, 2 = No
+- Common error responses:
+    400 Bad Request    - a required field is missing. Body: { "message": "<reason>" }
+    401 Unauthorized   - missing or invalid token.
+    404 Not Found      - no record with that identifier.
+    409 Conflict       - a record with the same key already exists. Body: { "message": "<reason>" }
+
+
+=====================================================================================================
+1. EQUIPMENT CATEGORIES  (DynamicsEquipmentCategoriesController)
+=====================================================================================================
+Base path: /v1/pm/dynamics-equipment-categories
+Purpose: Create, view, edit and remove the equipment category (asset type) master data.
+A category is uniquely identified by the pair DataAreaId + OBJECTTYPEID.
+
+Category object (used in responses):
+  id                                  number   Record identifier
+  uniqueID                            text     Globally unique identifier (GUID)
+  dataAreaId                          text     Company / data area code
+  objecttypeid                        text     Category code
+  name                                text     Category name
+  objectlifecyclemodelid              text     Life cycle model code
+  shortname_ISPL                      text     Short name
+  isfuelconsumptionrequired_ISPL      number   0 = No, 1 = Yes
+  islogbookrequired_ISPL              number   0 = No, 1 = Yes
+  isplissync                          number   1 = Yes, 2 = No
+  isplisupdated                       number   1 = Yes, 2 = No
+  createdDate, createdBy, lastModifiedDate, lastModifiedBy   audit information
+
+-----------------------------------------------------------------------------------------------------
+1.1  List categories
+-----------------------------------------------------------------------------------------------------
+Endpoint : GET /v1/pm/dynamics-equipment-categories
+Purpose  : Returns a page of categories, with optional search.
+Query parameters (all optional):
+  page      number   Page number, starting from 1. Default 1.
+  pageSize  number   Records per page. Default 25, maximum 200.
+  search    text     Matches part of name, category code, short name or data area code (not case sensitive).
+Response 200 OK:
+  {
+    "items": [ <Category object>, ... ],
+    "page": 1,
+    "pageSize": 25,
+    "totalCount": 120,
+    "totalPages": 5
+  }
+
+-----------------------------------------------------------------------------------------------------
+1.2  Get one category
+-----------------------------------------------------------------------------------------------------
+Endpoint : GET /v1/pm/dynamics-equipment-categories/{id}
+Purpose  : Returns one category by its record identifier.
+Path parameter: id (number) - the record identifier.
+Response 200 OK: <Category object>
+Response 404 Not Found: no category with that identifier.
+
+-----------------------------------------------------------------------------------------------------
+1.3  Create a category
+-----------------------------------------------------------------------------------------------------
+Endpoint : POST /v1/pm/dynamics-equipment-categories
+Purpose  : Adds a new category.
+Request body:
+  {
+    "dataAreaId": "ispl",                      (required)
+    "objecttypeid": "EXC",                     (required)
+    "name": "Excavator",                       (required)
+    "objectlifecyclemodelid": "LCM01",
+    "shortname_ISPL": "EXC",
+    "isfuelconsumptionrequired_ISPL": 1,
+    "islogbookrequired_ISPL": 1,
+    "isplissync": 2,
+    "isplisupdated": 2
+  }
+Response 201 Created: <Category object> (also includes the location of the new record in the Location header).
+Response 400: dataAreaId, objecttypeid or name is empty.
+Response 409: a category with the same dataAreaId and objecttypeid already exists.
+
+-----------------------------------------------------------------------------------------------------
+1.4  Update a category
+-----------------------------------------------------------------------------------------------------
+Endpoint : PUT /v1/pm/dynamics-equipment-categories/{id}
+Purpose  : Replaces all editable fields of an existing category. Send the complete body, as in 1.3.
+Path parameter: id (number) - the record identifier.
+Request body: same as 1.3.
+Response 200 OK: <Category object> (updated)
+Response 400 / 404 / 409 as described in the general notes.
+
+-----------------------------------------------------------------------------------------------------
+1.5  Delete a category
+-----------------------------------------------------------------------------------------------------
+Endpoint : DELETE /v1/pm/dynamics-equipment-categories/{id}
+Purpose  : Deletes a category. (Note: at present this only records who touched the record last; full deletion will be enabled in a later release.)
+Path parameter: id (number) - the record identifier.
+Response 200 OK: empty body.
+Response 404 Not Found: no category with that identifier.
+
+
+=====================================================================================================
+2. EQUIPMENT MASTERS  (DynamicsEquipmentMastersController)
+=====================================================================================================
+Base path: /v1/pm/dynamics-equipment-masters
+Purpose  : Create, view, edit and remove the equipment (asset) master records.
+An equipment record is uniquely identified by the pair DataAreaId + OBJECTID.
+
+Equipment object (used in requests and responses). Fields marked * are required in requests.
+  dataAreaId *                 text     Company / data area code
+  objectid *                   text     Equipment code
+  name *                       text     Equipment name
+  acquisitioncost              decimal  Purchase cost
+  acquisitiondate              date     Purchase date
+  activefrom, activeto         date     Active period
+  categorylevel1, categorylevel2, categorylevel3   text   Category hierarchy
+  criticality                  number   Criticality level
+  fixedassetid, fixedassetname text     Fixed asset code and name
+  functionallocation           text     Functional location
+  isplbatchnumber              text     Batch number
+  isplhireddate                date     Hired date
+  isplishiredasset             number   0 = No, 1 = Yes
+  objectactive                 number   0 = No, 1 = Yes
+  isplissync                   number   1 = Yes, 2 = No
+  isplisupdated                number   1 = Yes, 2 = No
+  isplitemid, isplitemname     text     Item code and name
+  isplponumber                 text     Purchase order number
+  isplvehiclenumber            text     Vehicle registration number
+  isplvendoraccount            text     Vendor account
+  manufacturer, model, modelyear   text   Manufacturer details
+  modelrecid                   number   Model record identifier
+  objectidparent, objectidparentname   text   Parent equipment code and name
+  objectlifecyclestate         text     Life cycle state
+  objecttype                   text     Equipment type (category code)
+  purchid                      text     Purchase identifier
+  resource                     text     Resource
+  serialid                     text     Serial number
+  servicelevel                 number   Service level
+  stdfuelconsumption_ISPL      decimal  Standard fuel consumption
+  vendaccount, vendname        text     Vendor account and name
+  warrantydatefromvend, warrantydatetovend   date   Vendor warranty period
+  warrantyvend                 text     Warranty vendor
+  wrkctrldescription           text     Work centre description
+  himappProjectID              number   HiMapp project identifier
+Response only: id (number), uniqueID (text), createdDate, createdBy, lastModifiedDate, lastModifiedBy.
+
+-----------------------------------------------------------------------------------------------------
+2.1  List equipment
+-----------------------------------------------------------------------------------------------------
+Endpoint : GET /v1/pm/dynamics-equipment-masters
+Purpose  : Returns a page of equipment records, with optional search.
+Query parameters (all optional):
+  page      number   Page number, starting from 1. Default 1.
+  pageSize  number   Records per page. Default 25, maximum 200.
+  search    text     Matches part of equipment code, name, fixed asset code, vehicle number, serial number, manufacturer, model or type (not case sensitive).
+Response 200 OK:
+  {
+    "items": [ <Equipment object>, ... ],
+    "page": 1,
+    "pageSize": 25,
+    "totalCount": 540,
+    "totalPages": 22
+  }
+
+-----------------------------------------------------------------------------------------------------
+2.2  Get one equipment record
+-----------------------------------------------------------------------------------------------------
+Endpoint : GET /v1/pm/dynamics-equipment-masters/{id}
+Purpose  : Returns one equipment record by its record identifier.
+Path parameter: id (number).
+Response 200 OK: <Equipment object>
+Response 404 Not Found.
+
+-----------------------------------------------------------------------------------------------------
+2.3  Create equipment
+-----------------------------------------------------------------------------------------------------
+Endpoint : POST /v1/pm/dynamics-equipment-masters
+Purpose  : Adds a new equipment record.
+Request body (minimum):
+  {
+    "dataAreaId": "ispl",
+    "objectid": "EQ-0001",
+    "name": "Excavator 200"
+  }
+  Any other field from the Equipment object may be added.
+Response 201 Created: <Equipment object>
+Response 400: dataAreaId, objectid or name is empty.
+Response 409: equipment with the same dataAreaId and objectid already exists.
+
+-----------------------------------------------------------------------------------------------------
+2.4  Update equipment
+-----------------------------------------------------------------------------------------------------
+Endpoint : PUT /v1/pm/dynamics-equipment-masters/{id}
+Purpose  : Replaces all editable fields of an existing equipment record. Send the complete body: any field left out is cleared.
+Path parameter: id (number).
+Request body: same as 2.3.
+Response 200 OK: <Equipment object> (updated)
+Response 400 / 404 / 409 as described in the general notes.
+
+-----------------------------------------------------------------------------------------------------
+2.5  Delete equipment
+-----------------------------------------------------------------------------------------------------
+Endpoint : DELETE /v1/pm/dynamics-equipment-masters/{id}
+Purpose  : Deletes an equipment record. (Note: at present this only records who touched the record last; full deletion will be enabled in a later release.)
+Path parameter: id (number).
+Response 200 OK: empty body.
+Response 404 Not Found.
+
+
+=====================================================================================================
+3. DYNAMICS INTEGRATION  (DynamicsIntegrationController)
+=====================================================================================================
+Base path: /v1/dynamics/integration
+Purpose  : Brings equipment categories (called "Asset Types" in Dynamics 365) and equipment records (called "Asset Master") from Microsoft Dynamics 365 into HiMapp. None of these endpoints take parameters or a request body.
+
+Terms:
+  Add sync     - fetches records from Dynamics that are not yet synced and adds them to HiMapp.
+  Update sync  - fetches records from Dynamics that are marked as updated and updates them in HiMapp.
+  Reset        - sets the "synced" and "updated" flags back to No in Dynamics for every record, so that the next sync will fetch everything again. Use with care.
+
+Sync result object (returned by the sync endpoints):
+  {
+    "success": true,
+    "message": "AssetType sync completed. Inserted: 5, Updated: 0",
+    "inserted": 5,
+    "updated": 0
+  }
+  When there is nothing to sync, success is true and the message says so. If the sync fails inside the server, the endpoint still answers 200 OK but with success = false and the reason in message, so please check the success field.
+
+-----------------------------------------------------------------------------------------------------
+3.1  Run asset type add sync now (waits for the result)
+-----------------------------------------------------------------------------------------------------
+Endpoint : POST /v1/dynamics/integration/SyncDynamicsAssetType
+Purpose  : Adds new equipment categories from Dynamics and returns when finished.
+Response 200 OK: <Sync result object>
+Response 400 Bad Request: { "success": false, "message": "Failed to sync Asset Type", "error": "<reason>" }
+
+-----------------------------------------------------------------------------------------------------
+3.2  Run asset type update sync now (waits for the result)
+-----------------------------------------------------------------------------------------------------
+Endpoint : GET /v1/dynamics/integration/UpdateDynamicsAssetTypes
+Purpose  : Updates existing equipment categories from Dynamics and returns when finished.
+Response 200 OK: <Sync result object>
+Response 500 Internal Server Error: { "success": false, "message": "Failed to fetch updated Asset Type." }
+
+-----------------------------------------------------------------------------------------------------
+3.3  Reset asset type flags in Dynamics
+-----------------------------------------------------------------------------------------------------
+Endpoint : GET /v1/dynamics/integration/ResetDynamicsAssetTypes
+Purpose  : Resets the sync flags of every equipment category in Dynamics.
+Response 200 OK: list of all equipment category records that were reset (same fields as the Category object in section 1, without the audit-only wrapper).
+Response 500 Internal Server Error: { "success": false, "message": "Failed to reset Asset Type in dynamics." }
+
+-----------------------------------------------------------------------------------------------------
+3.4  Background jobs (start a sync and return immediately)
+-----------------------------------------------------------------------------------------------------
+All six endpoints below use the POST method, take no parameters, and respond straight away with 202 Accepted while the work continues on the server:
+  {
+    "jobId": "<job identifier>",
+    "message": "<which job was queued>"
+  }
+
+  POST /v1/dynamics/integration/run-job/assettype-add       Queues the asset type add sync.
+  POST /v1/dynamics/integration/run-job/assettype-update    Queues the asset type update sync.
+  POST /v1/dynamics/integration/run-job/assettype-reset     Queues the asset type reset.
+  POST /v1/dynamics/integration/run-job/assetmaster-add     Queues the equipment (asset master) add sync.
+  POST /v1/dynamics/integration/run-job/assetmaster-update  Queues the equipment (asset master) update sync.
+  POST /v1/dynamics/integration/run-job/assetmaster-reset   Queues the equipment (asset master) reset.
+
+Note: a 202 response only confirms that the job was queued, not that it succeeded. After a job finishes, reload the lists from sections 1 and 2 to see the new data.

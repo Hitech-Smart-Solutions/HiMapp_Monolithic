@@ -39,6 +39,10 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    [HttpGet("lookup")]
+    public async Task<IActionResult> Lookup(CancellationToken ct) =>
+    Ok(await _mediator.Send(new GetPreventiveMaintenancePointLookupQuery(), ct));
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] PreventiveMaintenancePointRequest request, CancellationToken cancellationToken)
     {
@@ -50,7 +54,7 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
         try
         {
             var result = await _mediator.Send(
-                new CreatePreventiveMaintenancePointCommand(request.MaintenancePointName, request.StatusID, request.CreateBy, request.LastModifiedBy),
+                new CreatePreventiveMaintenancePointCommand(request.MaintenancePointName.Trim(), request.StatusID, request.CreateBy, request.LastModifiedBy),
                 cancellationToken);
 
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
@@ -72,7 +76,7 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
         try
         {
             var result = await _mediator.Send(
-                new UpdatePreventiveMaintenancePointCommand(id, request.MaintenancePointName, request.StatusID, request.LastModifiedBy),
+                new UpdatePreventiveMaintenancePointCommand(id, request.MaintenancePointName.Trim(), request.StatusID, request.LastModifiedBy),
                 cancellationToken);
 
             return result is null ? NotFound() : Ok(result);
