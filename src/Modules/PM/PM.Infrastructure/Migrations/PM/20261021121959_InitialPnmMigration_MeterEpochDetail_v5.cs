@@ -85,7 +85,7 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
                     ID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     EquipmentID = table.Column<int>(type: "integer", nullable: true),
-                    OpenningDate = table.Column<DateTime>(type: "datetime", nullable: true),
+                    OpenningDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     MeterReadingID = table.Column<int>(type: "integer", nullable: true),
                     ResetReadingAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: true),
                     OpeningReadingAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: true),
