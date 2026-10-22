@@ -19,6 +19,7 @@ public static class DependencyInjection
         services.AddSingleton<IEquipmentLookup, InMemoryEquipmentLookup>();
         services.AddScoped<DynamicsAssetTypeJobs>();
         services.AddScoped<IDynamicsSyncLogService, DynamicsSyncLogService>();
+        services.AddScoped<IEquipmentCategoryLinkService, EquipmentCategoryLinkService>();
         services.AddHttpClient();
         services.AddHttpClient<IDynamicsIntegrationService, DynamicsIntegrationService>();
         return services;

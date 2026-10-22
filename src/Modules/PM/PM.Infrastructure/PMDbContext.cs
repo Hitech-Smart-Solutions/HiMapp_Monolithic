@@ -29,10 +29,55 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
     public DbSet<SparePartCatalogue> SparePartCatalogue { get; set; } = null!;
 
+    // Equipment category <-> master link tables (manual mapping; Remarks + IsActive on each)
+    public DbSet<EquipmentCategorySubPart> EquipmentCategorySubParts { get; set; } = null!;
+    public DbSet<EquipmentCategoryWorkDescription> EquipmentCategoryWorkDescriptions { get; set; } = null!;
+    public DbSet<EquipmentCategoryBreakdownReason> EquipmentCategoryBreakdownReasons { get; set; } = null!;
+    public DbSet<EquipmentCategoryPMPoint> EquipmentCategoryPMPoints { get; set; } = null!;
+    public DbSet<EquipmentCategoryChecklistPoint> EquipmentCategoryChecklistPoints { get; set; } = null!;
+    public DbSet<EquipmentCategorySpecification> EquipmentCategorySpecifications { get; set; } = null!;
+
+    /// <summary>Shared mapping of one category-to-master link table: keys, foreign keys, one row per (category, master).</summary>
+    private static void ConfigureCategoryLink<TLink, TMaster>(ModelBuilder modelBuilder, string tableName, string masterIdProperty)
+        where TLink : EquipmentCategoryLinkBase
+        where TMaster : class
+    {
+        modelBuilder.Entity<TLink>(entity =>
+        {
+            entity.ToTable(tableName);
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ID).ValueGeneratedOnAdd();
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.IsDeleted).IsRequired();
+
+            entity.HasOne<DynamicsEquipmentCategory>()
+                  .WithMany()
+                  .HasForeignKey(e => e.EquipmentCategoryId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne<TMaster>()
+                  .WithMany()
+                  .HasForeignKey(masterIdProperty)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            // A master can be linked to a category only once; removing a link only sets IsDeleted.
+            entity.HasIndex(nameof(EquipmentCategoryLinkBase.EquipmentCategoryId), masterIdProperty).IsUnique();
+            entity.HasIndex(masterIdProperty);
+        });
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("PAndM"); // your schema name
         base.OnModelCreating(modelBuilder);
+
+        ConfigureCategoryLink<EquipmentCategorySubPart, EquipmentSubPart>(modelBuilder, "EquipmentCategorySubParts", nameof(EquipmentCategorySubPart.EquipmentSubPartId));
+        ConfigureCategoryLink<EquipmentCategoryWorkDescription, WorkDescription>(modelBuilder, "EquipmentCategoryWorkDescriptions", nameof(EquipmentCategoryWorkDescription.WorkDescriptionId));
+        ConfigureCategoryLink<EquipmentCategoryBreakdownReason, EquipmentBreakdownReasons>(modelBuilder, "EquipmentCategoryBreakdownReasons", nameof(EquipmentCategoryBreakdownReason.EquipmentBreakdownReasonId));
+        ConfigureCategoryLink<EquipmentCategoryPMPoint, PreventiveMaintenancePoint>(modelBuilder, "EquipmentCategoryPMPoints", nameof(EquipmentCategoryPMPoint.PreventiveMaintenancePointId));
+        ConfigureCategoryLink<EquipmentCategoryChecklistPoint, EquipmentChecklistPoint>(modelBuilder, "EquipmentCategoryChecklistPoints", nameof(EquipmentCategoryChecklistPoint.EquipmentChecklistPointId));
+        ConfigureCategoryLink<EquipmentCategorySpecification, SpecificationMaster>(modelBuilder, "EquipmentCategorySpecifications", nameof(EquipmentCategorySpecification.SpecificationMasterId));
 
         // ============================================================
         // DynamicsSyncLog (one row per Dynamics sync / reset run)
