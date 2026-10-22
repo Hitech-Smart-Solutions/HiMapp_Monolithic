@@ -11,6 +11,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     }
     public DbSet<DynamicsEquipmentCategory> DynamicsEquipmentCategory { get; set; } = null!;
     public DbSet<DynamicsEquipmentMaster> DynamicsEquipmentMaster { get; set; } = null!;
+    public DbSet<DynamicsSyncLog> DynamicsSyncLog { get; set; } = null!;
 
     // DbSets for PM domain entities
     public DbSet<DocumentType> DocumentTypes { get; set; } = null!;
@@ -18,6 +19,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     public DbSet<EquipmentSubPart> EquipmentSubParts { get; set; } = null!;
     public DbSet<EquipmentChecklistPoint> EquipmentChecklistPoints { get; set; } = null!;
     public DbSet<EquipmentBreakdownReasons> EquipmentBreakdownReasons { get; set; } = null!;
+    public DbSet<SpecificationMaster> SpecificationMasters { get; set; } = null!;
     public DbSet<PreventiveMaintenancePoint> PreventiveMaintenancePoints { get; set; } = null!;
     public DbSet<MeterReadingType> MeterReadingTypes { get; set; } = null!;
     public DbSet<EquipmentPreventiveMaintenancePoints> EquipmentPreventiveMaintenancePoints { get; set; } = null!;
@@ -27,10 +29,78 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
     public DbSet<SparePartCatalogue> SparePartCatalogue { get; set; } = null!;
 
+    // Equipment category <-> master link tables (manual mapping; Remarks + IsActive on each)
+    public DbSet<EquipmentCategorySubPart> EquipmentCategorySubParts { get; set; } = null!;
+    public DbSet<EquipmentCategoryWorkDescription> EquipmentCategoryWorkDescriptions { get; set; } = null!;
+    public DbSet<EquipmentCategoryBreakdownReason> EquipmentCategoryBreakdownReasons { get; set; } = null!;
+    public DbSet<EquipmentCategoryPMPoint> EquipmentCategoryPMPoints { get; set; } = null!;
+    public DbSet<EquipmentCategoryChecklistPoint> EquipmentCategoryChecklistPoints { get; set; } = null!;
+    public DbSet<EquipmentCategorySpecification> EquipmentCategorySpecifications { get; set; } = null!;
+
+    /// <summary>Shared mapping of one category-to-master link table: keys, foreign keys, one row per (category, master).</summary>
+    private static void ConfigureCategoryLink<TLink, TMaster>(ModelBuilder modelBuilder, string tableName, string masterIdProperty)
+        where TLink : EquipmentCategoryLinkBase
+        where TMaster : class
+    {
+        modelBuilder.Entity<TLink>(entity =>
+        {
+            entity.ToTable(tableName);
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ID).ValueGeneratedOnAdd();
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.IsDeleted).IsRequired();
+
+            entity.HasOne<DynamicsEquipmentCategory>()
+                  .WithMany()
+                  .HasForeignKey(e => e.EquipmentCategoryId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne<TMaster>()
+                  .WithMany()
+                  .HasForeignKey(masterIdProperty)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            // A master can be linked to a category only once; removing a link only sets IsDeleted.
+            entity.HasIndex(nameof(EquipmentCategoryLinkBase.EquipmentCategoryId), masterIdProperty).IsUnique();
+            entity.HasIndex(masterIdProperty);
+        });
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("PAndM"); // your schema name
         base.OnModelCreating(modelBuilder);
+
+        ConfigureCategoryLink<EquipmentCategorySubPart, EquipmentSubPart>(modelBuilder, "EquipmentCategorySubParts", nameof(EquipmentCategorySubPart.EquipmentSubPartId));
+        ConfigureCategoryLink<EquipmentCategoryWorkDescription, WorkDescription>(modelBuilder, "EquipmentCategoryWorkDescriptions", nameof(EquipmentCategoryWorkDescription.WorkDescriptionId));
+        ConfigureCategoryLink<EquipmentCategoryBreakdownReason, EquipmentBreakdownReasons>(modelBuilder, "EquipmentCategoryBreakdownReasons", nameof(EquipmentCategoryBreakdownReason.EquipmentBreakdownReasonId));
+        ConfigureCategoryLink<EquipmentCategoryPMPoint, PreventiveMaintenancePoint>(modelBuilder, "EquipmentCategoryPMPoints", nameof(EquipmentCategoryPMPoint.PreventiveMaintenancePointId));
+        ConfigureCategoryLink<EquipmentCategoryChecklistPoint, EquipmentChecklistPoint>(modelBuilder, "EquipmentCategoryChecklistPoints", nameof(EquipmentCategoryChecklistPoint.EquipmentChecklistPointId));
+        ConfigureCategoryLink<EquipmentCategorySpecification, SpecificationMaster>(modelBuilder, "EquipmentCategorySpecifications", nameof(EquipmentCategorySpecification.SpecificationMasterId));
+
+        // ============================================================
+        // DynamicsSyncLog (one row per Dynamics sync / reset run)
+        // ============================================================
+        modelBuilder.Entity<DynamicsSyncLog>(entity =>
+        {
+            entity.ToTable("DynamicsSyncLog");
+
+            entity.HasKey(x => x.ID);
+
+            entity.Property(x => x.ID)
+                .HasColumnName("ID")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.EntityName).HasMaxLength(50).IsRequired();
+            entity.Property(x => x.SyncMode).HasMaxLength(20).IsRequired();
+            entity.Property(x => x.TriggerSource).HasMaxLength(20).IsRequired();
+            entity.Property(x => x.JobId).HasMaxLength(100);
+            entity.Property(x => x.Status).HasMaxLength(20).IsRequired();
+
+            // Used by the "is a sync already running?" check.
+            entity.HasIndex(x => new { x.EntityName, x.Status });
+        });
 
         // ============================================================
         // PreventiveMaintenancePoint
@@ -185,6 +255,25 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                   .ValueGeneratedOnAdd();
 
             entity.Property(e => e.WorkDescriptionName)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<SpecificationMaster>(entity =>
+        {
+            entity.ToTable("SpecificationMaster");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.SpecificationName)
+                  .IsRequired();
+
+            entity.Property(e => e.Type)
                   .IsRequired();
 
             entity.Property(e => e.IsActive)

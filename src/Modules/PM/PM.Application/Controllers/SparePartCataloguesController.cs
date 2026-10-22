@@ -21,6 +21,22 @@ public sealed class SparePartCataloguesController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllSparePartCataloguesQuery(), cancellationToken));
 
+    [HttpGet("list")]
+    public async Task<IActionResult> GetList(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? filterColumn = null,
+        [FromQuery] string? filterValue = null,
+        [FromQuery] string? sortColumn = "ID ASC",
+        [FromQuery] string? isActive = "all",
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(
+            new GetSparepartListQuery(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
+            cancellationToken);
+        return Ok(result);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
