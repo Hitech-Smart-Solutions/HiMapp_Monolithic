@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Himapp.PM.Domain.Constants.Enums;
 using Himapp.PM.Application.DTOs;
 using Himapp.PM.Application.Interfaces;
+using Himapp.PM.Domain.Constants;
 namespace Himapp.PM.Application.Services;
 
 public class DynamicsIntegrationService : IDynamicsIntegrationService
@@ -17,18 +18,41 @@ public class DynamicsIntegrationService : IDynamicsIntegrationService
     private readonly ILogger<DynamicsIntegrationService> _logger;
     private readonly IPMDbContext _db;
     private readonly ID365SyncService _d365SyncService;
+    private readonly IDynamicsSyncLogService _syncLog;
 
-    public DynamicsIntegrationService(HttpClient httpClient, ILogger<DynamicsIntegrationService> logger, IPMDbContext db, ID365SyncService d365SyncService)
+    public DynamicsIntegrationService(HttpClient httpClient, ILogger<DynamicsIntegrationService> logger, IPMDbContext db, ID365SyncService d365SyncService, IDynamicsSyncLogService syncLog)
     {
         _httpClient = httpClient;
         _logger = logger;
         _db = db;
         _d365SyncService = d365SyncService;
+        _syncLog = syncLog;
     }
     
     #region Sync AssetTypes
 
-    public async Task<SyncResultDTO> SyncAssetTypes(bool isUpdateSync)
+    public async Task<SyncResultDTO> SyncAssetTypes(bool isUpdateSync, int? logId = null)
+    {
+        var run = await _syncLog.BeginAsync(DynamicsSyncEntity.AssetType, isUpdateSync ? DynamicsSyncMode.Update : DynamicsSyncMode.Add, logId);
+        if (run is null)
+            return new SyncResultDTO { Success = true, Message = "This run was already completed." };
+
+        SyncResultDTO result;
+        try
+        {
+            result = await SyncAssetTypesCore(isUpdateSync, run.UserId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error syncing asset types");
+            result = new SyncResultDTO { Success = false, Message = $"Error occurred: {ex.Message}" };
+        }
+
+        await _syncLog.CompleteAsync(run.LogId, result);
+        return result;
+    }
+
+    private async Task<SyncResultDTO> SyncAssetTypesCore(bool isUpdateSync, int userId)
     {
         try
         {
@@ -74,7 +98,9 @@ public class DynamicsIntegrationService : IDynamicsIntegrationService
                         ISLOGBOOKREQUIRED_ISPL = logbookRequired,
                         ISPLISUPDATED = ISPLISUpdated.No,
                         ISPLISSYNC = ISPLISSync.Yes,
+                        CreatedBy = userId,
                         CreatedDate = now,
+                        LastModifiedBy = userId,
                         LastModifiedDate = now
                     });
                     inserted++;
@@ -88,6 +114,7 @@ public class DynamicsIntegrationService : IDynamicsIntegrationService
                     existing.ISLOGBOOKREQUIRED_ISPL = logbookRequired;
                     existing.ISPLISUPDATED = ISPLISUpdated.No;
                     existing.ISPLISSYNC = ISPLISSync.Yes;
+                    existing.LastModifiedBy = userId;
                     existing.LastModifiedDate = now;
                     updated++;
                 }
@@ -106,6 +133,7 @@ public class DynamicsIntegrationService : IDynamicsIntegrationService
             return new SyncResultDTO
             {
                 Success = true,
+                Fetched = dynamicsAssetTypes.Count(),
                 Inserted = inserted,
                 Updated = updated,
                 Message = $"AssetType sync completed. Inserted: {inserted}, Updated: {updated}"
@@ -119,7 +147,26 @@ public class DynamicsIntegrationService : IDynamicsIntegrationService
     }
 
 
-    public async Task<List<DynamicsEquipmentCategory>> ResetAssetTypesInDynamics()
+    public async Task<List<DynamicsEquipmentCategory>> ResetAssetTypesInDynamics(int? logId = null)
+    {
+        var run = await _syncLog.BeginAsync(DynamicsSyncEntity.AssetType, DynamicsSyncMode.Reset, logId);
+        if (run is null)
+            return new List<DynamicsEquipmentCategory>();
+
+        try
+        {
+            var reset = await ResetAssetTypesInDynamicsCore();
+            await _syncLog.CompleteAsync(run.LogId, DynamicsSyncStatus.Success, reset.Count, $"Asset type reset completed. Records reset: {reset.Count}");
+            return reset;
+        }
+        catch (Exception ex)
+        {
+            await _syncLog.CompleteAsync(run.LogId, DynamicsSyncStatus.Failed, 0, $"Error occurred: {ex.Message}", ex.ToString());
+            throw;
+        }
+    }
+
+    private async Task<List<DynamicsEquipmentCategory>> ResetAssetTypesInDynamicsCore()
     {
         var token = await _d365SyncService.GetDynamicsToken();
 
@@ -147,7 +194,28 @@ public class DynamicsIntegrationService : IDynamicsIntegrationService
     
         #region Sync Asset Integration
 
-        public async Task<SyncResultDTO> SyncAssetMasterIntegration(bool isUpdateSync)
+        public async Task<SyncResultDTO> SyncAssetMasterIntegration(bool isUpdateSync, int? logId = null)
+        {
+            var run = await _syncLog.BeginAsync(DynamicsSyncEntity.AssetMaster, isUpdateSync ? DynamicsSyncMode.Update : DynamicsSyncMode.Add, logId);
+            if (run is null)
+                return new SyncResultDTO { Success = true, Message = "This run was already completed." };
+
+            SyncResultDTO result;
+            try
+            {
+                result = await SyncAssetMasterIntegrationCore(isUpdateSync, run.UserId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error syncing asset master integration");
+                result = new SyncResultDTO { Success = false, Message = $"Error occurred: {ex.Message}" };
+            }
+
+            await _syncLog.CompleteAsync(run.LogId, result);
+            return result;
+        }
+
+        private async Task<SyncResultDTO> SyncAssetMasterIntegrationCore(bool isUpdateSync, int userId)
         {
             try
             {
@@ -183,6 +251,11 @@ public class DynamicsIntegrationService : IDynamicsIntegrationService
                     {
                         _db.DynamicsEquipmentMaster.Add(new DynamicsEquipmentMaster
                         {
+                            UniqueID = Guid.NewGuid(),
+                            CreatedBy = userId,
+                            CreatedDate = (DateTime)now,
+                            LastModifiedBy = userId,
+                            LastModifiedDate = (DateTime)now,
                             OBJECTID = dto.OBJECTID,
                             DataAreaId = dto.DataAreaId,
                             ACQUISITIONCOST = dto.ACQUISITIONCOST,
@@ -253,6 +326,7 @@ public class DynamicsIntegrationService : IDynamicsIntegrationService
                         entity.NAME = dto.NAME;
                         entity.ISPLISUPDATED = ISPLISUpdated.No;
                         entity.ISPLISSYNC = ISPLISSync.Yes;
+                        entity.LastModifiedBy = userId;
                         entity.LastModifiedDate = (DateTime)now;
                         updated++;
                     }
@@ -271,6 +345,7 @@ public class DynamicsIntegrationService : IDynamicsIntegrationService
                 return new SyncResultDTO
                 {
                     Success = true,
+                    Fetched = dynamicsAssetMasters.Count(),
                     Inserted = inserted,
                     Updated = updated,
                     Message = $"Asset master sync completed. Inserted: {inserted}, Updated: {updated}"
@@ -283,7 +358,26 @@ public class DynamicsIntegrationService : IDynamicsIntegrationService
             }
         }
 
-        public async Task<List<DynamicsEquipmentMaster>> ResetAssetMasterIntegrationInDynamics()
+        public async Task<List<DynamicsEquipmentMaster>> ResetAssetMasterIntegrationInDynamics(int? logId = null)
+        {
+            var run = await _syncLog.BeginAsync(DynamicsSyncEntity.AssetMaster, DynamicsSyncMode.Reset, logId);
+            if (run is null)
+                return new List<DynamicsEquipmentMaster>();
+
+            try
+            {
+                var reset = await ResetAssetMasterIntegrationInDynamicsCore();
+                await _syncLog.CompleteAsync(run.LogId, DynamicsSyncStatus.Success, reset.Count, $"Asset master reset completed. Records reset: {reset.Count}");
+                return reset;
+            }
+            catch (Exception ex)
+            {
+                await _syncLog.CompleteAsync(run.LogId, DynamicsSyncStatus.Failed, 0, $"Error occurred: {ex.Message}", ex.ToString());
+                throw;
+            }
+        }
+
+        private async Task<List<DynamicsEquipmentMaster>> ResetAssetMasterIntegrationInDynamicsCore()
         {
             var token = await _d365SyncService.GetDynamicsToken();
 

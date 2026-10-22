@@ -11,6 +11,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     }
     public DbSet<DynamicsEquipmentCategory> DynamicsEquipmentCategory { get; set; } = null!;
     public DbSet<DynamicsEquipmentMaster> DynamicsEquipmentMaster { get; set; } = null!;
+    public DbSet<DynamicsSyncLog> DynamicsSyncLog { get; set; } = null!;
 
     // DbSets for PM domain entities
     public DbSet<DocumentType> DocumentTypes { get; set; } = null!;
@@ -32,6 +33,29 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     {
         modelBuilder.HasDefaultSchema("PAndM"); // your schema name
         base.OnModelCreating(modelBuilder);
+
+        // ============================================================
+        // DynamicsSyncLog (one row per Dynamics sync / reset run)
+        // ============================================================
+        modelBuilder.Entity<DynamicsSyncLog>(entity =>
+        {
+            entity.ToTable("DynamicsSyncLog");
+
+            entity.HasKey(x => x.ID);
+
+            entity.Property(x => x.ID)
+                .HasColumnName("ID")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.EntityName).HasMaxLength(50).IsRequired();
+            entity.Property(x => x.SyncMode).HasMaxLength(20).IsRequired();
+            entity.Property(x => x.TriggerSource).HasMaxLength(20).IsRequired();
+            entity.Property(x => x.JobId).HasMaxLength(100);
+            entity.Property(x => x.Status).HasMaxLength(20).IsRequired();
+
+            // Used by the "is a sync already running?" check.
+            entity.HasIndex(x => new { x.EntityName, x.Status });
+        });
 
         // ============================================================
         // PreventiveMaintenancePoint
@@ -284,8 +308,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
             entity.Property(x => x.ReasonID).HasColumnName("ReasonID");
 
             entity.Property(x => x.OpenningDate)
-                .HasColumnName("OpenningDate")
-                .HasColumnType("datetime");
+                .HasColumnName("OpenningDate");
 
             entity.Property(x => x.ResetReadingAmount)
                 .HasColumnName("ResetReadingAmount")

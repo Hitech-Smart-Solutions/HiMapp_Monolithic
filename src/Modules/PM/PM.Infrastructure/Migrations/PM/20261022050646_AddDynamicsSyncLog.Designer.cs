@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Himapp.PM.Infrastructure.Migrations.PM
 {
     [DbContext(typeof(PMDbContext))]
-    [Migration("20261021121959_InitialPnmMigration_MeterEpochDetail_v5")]
-    partial class InitialPnmMigration_MeterEpochDetail_v5
+    [Migration("20261022050646_AddDynamicsSyncLog")]
+    partial class AddDynamicsSyncLog
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -290,6 +290,85 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
                     b.ToTable("DynamicsEquipmentMaster", "PAndM");
                 });
 
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.DynamicsSyncLog", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ID");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ErrorDetails")
+                        .HasColumnType("text");
+
+                    b.Property<string>("JobId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("text");
+
+                    b.Property<int>("RecordsFetched")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecordsInserted")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecordsReset")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecordsUpdated")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("SyncMode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TriggerSource")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("EntityName", "Status");
+
+                    b.ToTable("DynamicsSyncLog", "PAndM");
+                });
+
             modelBuilder.Entity("Himapp.PM.Domain.Entities.EquipmentBreakdownReasons", b =>
                 {
                     b.Property<int>("ID")
@@ -464,7 +543,7 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
                         .HasColumnName("OpeningReadingAmount");
 
                     b.Property<DateTime?>("OpenningDate")
-                        .HasColumnType("datetime")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("OpenningDate");
 
                     b.Property<int?>("ReasonID")
@@ -758,6 +837,46 @@ namespace Himapp.PM.Infrastructure.Migrations.PM
                     b.HasKey("ID");
 
                     b.ToTable("SparePartCatalogue", "PAndM");
+                });
+
+            modelBuilder.Entity("Himapp.PM.Domain.Entities.SpecificationMaster", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SpecificationName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UniqueID")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("SpecificationMaster", "PAndM");
                 });
 
             modelBuilder.Entity("Himapp.PM.Domain.Entities.WorkDescription", b =>
