@@ -353,7 +353,8 @@ public sealed class PMDbContext : DbContext, IPMDbContext
             entity.Property(x => x.ReasonID).HasColumnName("ReasonID");
 
             entity.Property(x => x.OpenningDate)
-                .HasColumnName("OpenningDate");
+                .HasColumnName("OpenningDate")
+                .HasColumnType("timestamp with time zone");
 
             entity.Property(x => x.ResetReadingAmount)
                 .HasColumnName("ResetReadingAmount")
