@@ -1,4 +1,5 @@
 using Himapp.PM.Application.Features.EquipmentChecklistPoints.Commands;
+using Himapp.PM.Application.Features.Common;
 using Himapp.PM.Application.Features.EquipmentChecklistPoints.Models;
 using Himapp.PM.Application.Features.EquipmentChecklistPoints.Queries;
 using Himapp.PM.Domain.Entities;
@@ -39,7 +40,7 @@ internal sealed class CreateEquipmentChecklistPointCommandHandler : IRequestHand
     }
 }
 
-internal sealed class UpdateEquipmentChecklistPointCommandHandler : IRequestHandler<UpdateEquipmentChecklistPointCommand, EquipmentChecklistPointDto?>
+internal sealed class UpdateEquipmentChecklistPointCommandHandler
 {
     private readonly IPMDbContext _db;
 
@@ -115,6 +116,20 @@ internal sealed class GetEquipmentChecklistPointByIdQueryHandler : IRequestHandl
             .FirstOrDefaultAsync(p => p.ID == request.Id && p.IsActive, cancellationToken);
         return entity?.ToDto();
     }
+}
+
+internal sealed class GetEquipmentChecklistPointListHandler : IRequestHandler<GetEquipmentChecklistPointList, PagedResult<EquipmentChecklistPointListItemDto>>
+{
+    private readonly IPMDbContext _db;
+
+    public GetEquipmentChecklistPointListHandler(IPMDbContext db) => _db = db;
+
+    public Task<PagedResult<EquipmentChecklistPointListItemDto>> Handle(GetEquipmentChecklistPointList request, CancellationToken cancellationToken) =>
+        PagedStoredProcedureQueryExecutor.ExecuteAsync(_db, "uspgetequipmentchecklistpoints", "uspgetequipmentchecklistpointscount", request.Page, request.PageSize, request.FilterColumn, request.FilterValue, request.SortColumn, request.IsActive,
+            reader => new EquipmentChecklistPointListItemDto(
+                reader.GetInt32(reader.GetOrdinal("ID")), reader.GetString(reader.GetOrdinal("Description")), reader.GetBoolean(reader.GetOrdinal("IsActive")),
+                (EquipmentChecklistPointType)reader.GetInt32(reader.GetOrdinal("Type")), reader.GetGuid(reader.GetOrdinal("UniqueID")), reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                reader.GetInt32(reader.GetOrdinal("CreatedBy")), reader.GetDateTime(reader.GetOrdinal("LastModifiedDate")), reader.GetInt32(reader.GetOrdinal("LastModifiedBy"))), cancellationToken);
 }
 
 file static class EquipmentChecklistPointMappings

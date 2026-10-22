@@ -1,4 +1,5 @@
 using Himapp.PM.Application.Features.PreventiveMaintenancePoints.Commands;
+using Himapp.PM.Application.Features.Common;
 using Himapp.PM.Application.Features.PreventiveMaintenancePoints.Models;
 using Himapp.PM.Application.Features.PreventiveMaintenancePoints.Queries;
 using Himapp.PM.Domain.Entities;
@@ -126,6 +127,48 @@ internal sealed class GetPreventiveMaintenancePointByIdQueryHandler : IRequestHa
             .FirstOrDefaultAsync(p => p.ID == request.Id && p.IsActive, cancellationToken);
 
         return point is null ? null : PreventiveMaintenancePointMappings.ToDto(point);
+    }
+}
+
+internal sealed class GetPreventiveMaintenancePointListHandler
+    : IRequestHandler<GetPreventiveMaintenancePointList, PagedResult<PreventiveMaintenancePointListItemDto>>
+{
+    private readonly IPMDbContext _db;
+
+    public GetPreventiveMaintenancePointListHandler(IPMDbContext db)
+    {
+        _db = db;
+    }
+
+    public Task<PagedResult<PreventiveMaintenancePointListItemDto>> Handle(
+        GetPreventiveMaintenancePointList request,
+        CancellationToken cancellationToken)
+    {
+        return PagedStoredProcedureQueryExecutor.ExecuteAsync(
+            _db,
+            "uspgetpreventivemaintenancepoints",
+            "uspgetpreventivemaintenancepointscount",
+            request.Page,
+            request.PageSize,
+            request.FilterColumn,
+            request.FilterValue,
+            request.SortColumn,
+            request.IsActive,
+            reader => new PreventiveMaintenancePointListItemDto(
+                reader.GetInt32(reader.GetOrdinal("ID")),
+                reader.IsDBNull(reader.GetOrdinal("MaintenancePointName"))
+                    ? null
+                    : reader.GetString(reader.GetOrdinal("MaintenancePointName")),
+                reader.GetInt32(reader.GetOrdinal("StatusID")),
+                reader.GetBoolean(reader.GetOrdinal("IsActive")),
+                reader.GetGuid(reader.GetOrdinal("UniqueID")),
+                reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                reader.GetInt32(reader.GetOrdinal("CreatedBy")),
+                reader.GetDateTime(reader.GetOrdinal("LastModifiedDate")),
+                reader.GetInt32(reader.GetOrdinal("LastModifiedBy"))
+            ),
+            cancellationToken
+        );
     }
 }
 
