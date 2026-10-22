@@ -2,6 +2,7 @@ using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Hangfire;
 using Himapp.Admin.Application;
 // Admin.Contracts moved to Admin.Application
 using Himapp.Admin.Infrastructure;
@@ -32,7 +33,12 @@ using Himapp.Workflow.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Microsoft.VisualBasic;
+using Shared.Integrations.D365.Extensions.HangfireExtensions;
+using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,6 +61,8 @@ builder.Services.AddControllers()
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
     );  // 🔥 Registers the global auto-log action filter for ALL controllers
 builder.Services.AddHealthChecks();
+builder.Services.AddSharedBackgroundJobs(
+    builder.Configuration);
 builder.Services.AddSignalR();
 builder.Configuration
     .SetBasePath(builder.Environment.ContentRootPath)
@@ -84,11 +92,47 @@ builder.Services.AddAuthentication(options =>
     });
 
 // Swagger (VERY IMPORTANT)
+// Swagger JWT configuration
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+
+
+builder.Services.AddSwaggerGen(c =>
 {
-    options.CustomSchemaIds(type => type.FullName);
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "HIMAPP 2.0 API",
+        Description = "HIMAPP Modular Monolith API"
+    });
+
+    // Fix duplicate DTO names across modules
+    c.CustomSchemaIds(type => type.FullName);
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
+    }
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT access token."
+    });
+
+    c.AddSecurityRequirement(document =>
+        new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        });
 });
+
 
 // Shared Services
 builder.Services
@@ -159,6 +203,61 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapGet("/dev/token", (IConfiguration configuration) =>
+    {
+        var jwt = configuration.GetSection("Jwt");
+        var key = jwt["Key"];
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return Results.Problem("JWT signing key is not configured.");
+        }
+
+        var issuer = jwt["Issuer"];
+        var audience = jwt["Audience"];
+
+        if (string.IsNullOrWhiteSpace(issuer) ||
+            string.IsNullOrWhiteSpace(audience))
+        {
+            return Results.Problem(
+                "JWT issuer or audience is not configured.");
+        }
+
+        var signingKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(key));
+
+        var credentials = new SigningCredentials(
+            signingKey,
+            SecurityAlgorithms.HmacSha256);
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, "swagger-test-user"),
+            new Claim(ClaimTypes.Name, "Swagger Test User")
+        };
+
+        var token = new JwtSecurityToken(
+            issuer: issuer,
+            audience: audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(15),
+            signingCredentials: credentials);
+
+        return Results.Ok(new
+        {
+            access_token = new JwtSecurityTokenHandler()
+                .WriteToken(token),
+            token_type = "Bearer",
+            expires_in = 900
+        });
+    })
+    .WithTags("Development");
+}
+
+
+
 // Add a logging scope for application-wide enrichment (module/application name)
 var _startupLogger = app.Services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>().CreateLogger("Himapp.Startup");
 app.Use(async (context, next) =>
@@ -190,6 +289,7 @@ app.MapHealthChecks("/health");
 
 // SignalR Hub
 app.MapHub<NotificationsHub>("/hubs/notifications");
+app.UseHangfireDashboard("/hangfire");
 app.MapControllers();
 
 // Root redirect
