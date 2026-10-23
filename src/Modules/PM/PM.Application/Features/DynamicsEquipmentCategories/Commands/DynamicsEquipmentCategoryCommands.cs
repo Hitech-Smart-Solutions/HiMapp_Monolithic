@@ -7,5 +7,5 @@ public sealed record CreateDynamicsEquipmentCategoryCommand(DynamicsEquipmentCat
 
 public sealed record UpdateDynamicsEquipmentCategoryCommand(int Id, DynamicsEquipmentCategoryRequest Request) : IRequest<DynamicsEquipmentCategoryDto?>;
 
-/// <summary>Delete (soft delete to be enabled once IsActive is migrated).</summary>
+/// <summary>Soft delete: sets IsActive = false, the row is kept.</summary>
 public sealed record DeleteDynamicsEquipmentCategoryCommand(int Id) : IRequest<bool>;

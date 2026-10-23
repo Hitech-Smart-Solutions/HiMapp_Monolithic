@@ -32,6 +32,7 @@ namespace Himapp.PM.Domain.Entities;
         public string NAME { get; set; }
         public string OBJECTLIFECYCLEMODELID { get; set; }
         public string SHORTNAME_ISPL { get; set; }
+        public bool IsActive { get; set; } = true;
         public DateTime? CreatedDate { get; set; }
         public DateTime? LastModifiedDate { get; set; }
 

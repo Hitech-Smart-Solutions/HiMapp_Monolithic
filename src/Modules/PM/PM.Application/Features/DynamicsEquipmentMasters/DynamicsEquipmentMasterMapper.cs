@@ -55,6 +55,7 @@ internal static class DynamicsEquipmentMasterMapper
             WARRANTYVEND = e.WARRANTYVEND,
             WRKCTRLDESCRIPTION = e.WRKCTRLDESCRIPTION,
             HimappProjectID = e.HimappProjectID,
+            IsActive = e.IsActive,
             CreatedDate = e.CreatedDate,
             CreatedBy = e.CreatedBy,
             LastModifiedDate = e.LastModifiedDate,
@@ -108,5 +109,6 @@ internal static class DynamicsEquipmentMasterMapper
         e.WARRANTYVEND = r.WARRANTYVEND;
         e.WRKCTRLDESCRIPTION = r.WRKCTRLDESCRIPTION;
         e.HimappProjectID = r.HimappProjectID;
+        if (r.IsActive.HasValue) e.IsActive = r.IsActive.Value;
     }
 }
