@@ -21,6 +21,10 @@ public sealed class EquipmentBreakdownReasonsController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllEquipmentBreakdownReasonsQuery(), cancellationToken));
 
+    [HttpGet("category-manufacturer-models")]
+    public async Task<IActionResult> GetCategoryManufacturerModels(CancellationToken cancellationToken) =>
+        Ok(await _mediator.Send(new GetEquipmentCategoryManufacturerModelsQuery(), cancellationToken));
+
     [HttpGet("list")]
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
