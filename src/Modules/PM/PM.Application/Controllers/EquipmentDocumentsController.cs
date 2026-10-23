@@ -24,14 +24,13 @@ public sealed class EquipmentDocumentsController : ControllerBase
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string? filterColumn = null,
         [FromQuery] string? filterValue = null,
         [FromQuery] string? sortColumn = "ID ASC",
         [FromQuery] string? isActive = "all",
         CancellationToken cancellationToken = default)
     {
         var result = await _mediator.Send(
-            new GetEquipmentDocumentList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
+            new GetEquipmentDocumentList(page, pageSize, filterValue, sortColumn, isActive),
             cancellationToken);
         return Ok(result);
     }

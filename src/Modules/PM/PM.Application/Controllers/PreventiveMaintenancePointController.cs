@@ -25,13 +25,12 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string? filterColumn = null,
         [FromQuery] string? filterValue = null,
         [FromQuery] string? sortColumn = "ID ASC",
         [FromQuery] string? isActive = "all",
         CancellationToken cancellationToken = default) =>
         Ok(await _mediator.Send(
-            new GetPreventiveMaintenancePointList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
+            new GetPreventiveMaintenancePointList(page, pageSize, filterValue, sortColumn, isActive),
             cancellationToken));
 
     /// <summary>Retrieves the preventive maintenance point with the specified identifier.</summary>

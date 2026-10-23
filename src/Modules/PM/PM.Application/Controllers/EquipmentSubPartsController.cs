@@ -26,13 +26,12 @@ public sealed class EquipmentSubPartsController : ControllerBase
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string? filterColumn = null,
         [FromQuery] string? filterValue = null,
         [FromQuery] string? sortColumn = "ID ASC",
         [FromQuery] string? isActive = "all",
         CancellationToken cancellationToken = default) =>
         Ok(await _mediator.Send(
-            new GetEquipmentSubPartList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
+            new GetEquipmentSubPartList(page, pageSize, filterValue, sortColumn, isActive),
             cancellationToken));
 
     /// <summary>Retrieves the equipment sub-part with the specified identifier.</summary>

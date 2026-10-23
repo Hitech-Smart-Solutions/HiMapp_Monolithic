@@ -151,7 +151,6 @@ internal sealed class GetPreventiveMaintenancePointListHandler
             "uspgetpreventivemaintenancepointscount",
             request.Page,
             request.PageSize,
-            request.FilterColumn,
             request.FilterValue,
             request.SortColumn,
             request.IsActive,

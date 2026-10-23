@@ -256,7 +256,6 @@ internal sealed class GetEquipmentDocumentListQueryHandler : IRequestHandler<Get
                 "uspgetequipmentdocumentscount",
                 request.Page,
                 request.PageSize,
-                request.FilterColumn,
                 request.FilterValue,
                 request.SortColumn,
                 request.IsActive,

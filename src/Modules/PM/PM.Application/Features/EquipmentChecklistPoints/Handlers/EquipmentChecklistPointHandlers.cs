@@ -126,7 +126,7 @@ internal sealed class GetEquipmentChecklistPointListHandler : IRequestHandler<Ge
     public GetEquipmentChecklistPointListHandler(IPMDbContext db) => _db = db;
 
     public Task<PagedResult<EquipmentChecklistPointListItemDto>> Handle(GetEquipmentChecklistPointList request, CancellationToken cancellationToken) =>
-        PagedStoredProcedureQueryExecutor.ExecuteAsync(_db, "uspgetequipmentchecklistpoints", "uspgetequipmentchecklistpointscount", request.Page, request.PageSize, request.FilterColumn, request.FilterValue, request.SortColumn, request.IsActive,
+        PagedStoredProcedureQueryExecutor.ExecuteAsync(_db, "uspgetequipmentchecklistpoints", "uspgetequipmentchecklistpointscount", request.Page, request.PageSize, request.FilterValue, request.SortColumn, request.IsActive,
             reader => new EquipmentChecklistPointListItemDto(
                 reader.GetInt32(reader.GetOrdinal("ID")), reader.GetString(reader.GetOrdinal("Description")), reader.GetBoolean(reader.GetOrdinal("IsActive")),
                 (EquipmentChecklistPointType)reader.GetInt32(reader.GetOrdinal("Type")), reader.GetGuid(reader.GetOrdinal("UniqueID")), reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
