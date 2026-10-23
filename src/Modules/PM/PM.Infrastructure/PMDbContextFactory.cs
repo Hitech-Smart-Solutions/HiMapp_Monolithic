@@ -1,4 +1,4 @@
-﻿using Himapp.PM.Infrastructure;
+using Himapp.PM.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;

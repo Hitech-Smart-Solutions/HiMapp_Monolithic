@@ -1,4 +1,5 @@
 using Himapp.PM.Application.Features.PreventiveMaintenancePoints.Commands;
+using Himapp.PM.Application.Features.Common;
 using Himapp.PM.Application.Features.PreventiveMaintenancePoints.Models;
 using Himapp.PM.Application.Features.PreventiveMaintenancePoints.Queries;
 using Himapp.PM.Domain.Entities;
@@ -16,6 +17,7 @@ internal sealed class CreatePreventiveMaintenancePointCommandHandler : IRequestH
     public async Task<PreventiveMaintenancePointDto> Handle(CreatePreventiveMaintenancePointCommand request, CancellationToken cancellationToken)
     {
         var exists = await _db.Set<PreventiveMaintenancePoint>().AsNoTracking()
+            .Where(p => p.IsActive)
             .AnyAsync(p => p.MaintenancePointName != null && p.MaintenancePointName.ToLower() == request.MaintenancePointName.ToLower(), cancellationToken);
 
         if (exists)
@@ -51,7 +53,7 @@ internal sealed class UpdatePreventiveMaintenancePointCommandHandler : IRequestH
     public async Task<PreventiveMaintenancePointDto?> Handle(UpdatePreventiveMaintenancePointCommand request, CancellationToken cancellationToken)
     {
         var entity = await _db.Set<PreventiveMaintenancePoint>()
-            .FirstOrDefaultAsync(p => p.ID == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(p => p.ID == request.Id && p.IsActive, cancellationToken);
 
         if (entity is null)
         {
@@ -59,7 +61,7 @@ internal sealed class UpdatePreventiveMaintenancePointCommandHandler : IRequestH
         }
 
         var duplicate = await _db.Set<PreventiveMaintenancePoint>().AsNoTracking()
-            .Where(p => p.ID != request.Id)
+            .Where(p => p.ID != request.Id && p.IsActive)
             .AnyAsync(p => p.MaintenancePointName != null && p.MaintenancePointName.ToLower() == request.MaintenancePointName.ToLower(), cancellationToken);
 
         if (duplicate)
@@ -125,6 +127,65 @@ internal sealed class GetPreventiveMaintenancePointByIdQueryHandler : IRequestHa
             .FirstOrDefaultAsync(p => p.ID == request.Id && p.IsActive, cancellationToken);
 
         return point is null ? null : PreventiveMaintenancePointMappings.ToDto(point);
+    }
+}
+
+internal sealed class GetPreventiveMaintenancePointListHandler
+    : IRequestHandler<GetPreventiveMaintenancePointList, PagedResult<PreventiveMaintenancePointListItemDto>>
+{
+    private readonly IPMDbContext _db;
+
+    public GetPreventiveMaintenancePointListHandler(IPMDbContext db)
+    {
+        _db = db;
+    }
+
+    public Task<PagedResult<PreventiveMaintenancePointListItemDto>> Handle(
+        GetPreventiveMaintenancePointList request,
+        CancellationToken cancellationToken)
+    {
+        return PagedStoredProcedureQueryExecutor.ExecuteAsync(
+            _db,
+            "uspgetpreventivemaintenancepoints",
+            "uspgetpreventivemaintenancepointscount",
+            request.Page,
+            request.PageSize,
+            request.FilterColumn,
+            request.FilterValue,
+            request.SortColumn,
+            request.IsActive,
+            reader => new PreventiveMaintenancePointListItemDto(
+                reader.GetInt32(reader.GetOrdinal("ID")),
+                reader.IsDBNull(reader.GetOrdinal("MaintenancePointName"))
+                    ? null
+                    : reader.GetString(reader.GetOrdinal("MaintenancePointName")),
+                reader.GetInt32(reader.GetOrdinal("StatusID")),
+                reader.GetBoolean(reader.GetOrdinal("IsActive")),
+                reader.GetGuid(reader.GetOrdinal("UniqueID")),
+                reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                reader.GetInt32(reader.GetOrdinal("CreatedBy")),
+                reader.GetDateTime(reader.GetOrdinal("LastModifiedDate")),
+                reader.GetInt32(reader.GetOrdinal("LastModifiedBy"))
+            ),
+            cancellationToken
+        );
+    }
+}
+
+internal sealed class GetPreventiveMaintenancePointLookupQueryHandler : IRequestHandler<GetPreventiveMaintenancePointLookupQuery, IReadOnlyList<PreventiveMaintenancePointLookupResponse>>
+{
+    private readonly IPMDbContext _db;
+    public GetPreventiveMaintenancePointLookupQueryHandler(IPMDbContext db) => _db = db;
+
+    public async Task<IReadOnlyList<PreventiveMaintenancePointLookupResponse>> Handle(
+        GetPreventiveMaintenancePointLookupQuery request, CancellationToken ct)
+    {
+        return await _db.Set<PreventiveMaintenancePoint>()
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.MaintenancePointName)
+            .Select(x => new PreventiveMaintenancePointLookupResponse(x.ID, x.MaintenancePointName))
+            .ToListAsync(ct);
     }
 }
 

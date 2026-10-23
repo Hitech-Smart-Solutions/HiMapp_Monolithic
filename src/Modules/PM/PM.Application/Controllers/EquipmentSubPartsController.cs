@@ -20,6 +20,19 @@ public sealed class EquipmentSubPartsController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllEquipmentSubPartsQuery(), cancellationToken));
 
+    [HttpGet("list")]
+    public async Task<IActionResult> GetList(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? filterColumn = null,
+        [FromQuery] string? filterValue = null,
+        [FromQuery] string? sortColumn = "ID ASC",
+        [FromQuery] string? isActive = "all",
+        CancellationToken cancellationToken = default) =>
+        Ok(await _mediator.Send(
+            new GetEquipmentSubPartList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
+            cancellationToken));
+
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
