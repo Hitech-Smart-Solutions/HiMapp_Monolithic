@@ -27,13 +27,12 @@ public sealed class EquipmentChecklistPointsController : ControllerBase
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string? filterColumn = null,
         [FromQuery] string? filterValue = null,
         [FromQuery] string? sortColumn = "ID ASC",
         [FromQuery] string? isActive = "all",
         CancellationToken cancellationToken = default) =>
         Ok(await _mediator.Send(
-            new GetEquipmentChecklistPointList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
+            new GetEquipmentChecklistPointList(page, pageSize, filterValue, sortColumn, isActive),
             cancellationToken));
 
     /// <summary>Retrieves the equipment checklist point with the specified identifier.</summary>

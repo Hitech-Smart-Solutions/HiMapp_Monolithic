@@ -15,7 +15,6 @@ internal static class PagedStoredProcedureQueryExecutor
         string countFunction,
         int page,
         int pageSize,
-        string? filterColumn,
         string? filterValue,
         string? sortColumn,
         string? isActive,
@@ -46,7 +45,6 @@ internal static class PagedStoredProcedureQueryExecutor
             countFunction,
             pageIndex,
             pageSize,
-            filterColumn,
             filterValue,
             sortColumn,
             isActive))
@@ -64,7 +62,6 @@ internal static class PagedStoredProcedureQueryExecutor
             dataFunction,
             pageIndex,
             pageSize,
-            filterColumn,
             filterValue,
             sortColumn,
             isActive))
@@ -89,7 +86,6 @@ internal static class PagedStoredProcedureQueryExecutor
         string functionName,
         int pageIndex,
         int pageSize,
-        string? filterColumn,
         string? filterValue,
         string? sortColumn,
         string? isActive)
@@ -102,7 +98,6 @@ internal static class PagedStoredProcedureQueryExecutor
         var sql = $"""
             SELECT {(isCountFunction ? "cnt" : "*")}
             FROM "PAndM".{functionName}(
-                CAST(@p_filtercolumn AS varchar),
                 CAST(@p_filtervalue AS varchar),
                 @p_pageindex,
                 @p_pagesize,
@@ -116,11 +111,6 @@ internal static class PagedStoredProcedureQueryExecutor
             CommandType = CommandType.Text,
             CommandTimeout = isCountFunction ? 10 : 30
         };
-
-        command.Parameters.AddWithValue(
-            "@p_filtercolumn",
-            NpgsqlDbType.Text,
-            ValueOrNull(filterColumn));
 
         command.Parameters.AddWithValue(
             "@p_filtervalue",

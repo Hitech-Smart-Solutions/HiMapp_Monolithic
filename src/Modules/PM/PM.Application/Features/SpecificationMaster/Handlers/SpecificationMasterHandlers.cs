@@ -126,7 +126,7 @@ internal sealed class GetSpecificationMasterListHandler : IRequestHandler<GetSpe
     public GetSpecificationMasterListHandler(IPMDbContext db) => _db = db;
 
     public Task<PagedResult<SpecificationMasterListItemDto>> Handle(GetSpecificationMasterList request, CancellationToken cancellationToken) =>
-        PagedStoredProcedureQueryExecutor.ExecuteAsync(_db, "uspgetspecificationmaster", "uspgetspecificationmastercount", request.Page, request.PageSize, request.FilterColumn, request.FilterValue, request.SortColumn, request.IsActive,
+        PagedStoredProcedureQueryExecutor.ExecuteAsync(_db, "uspgetspecificationmaster", "uspgetspecificationmastercount", request.Page, request.PageSize, request.FilterValue, request.SortColumn, request.IsActive,
             reader => new SpecificationMasterListItemDto(
                 reader.GetInt32(reader.GetOrdinal("ID")), reader.GetString(reader.GetOrdinal("SpecificationName")), reader.GetBoolean(reader.GetOrdinal("IsActive")),
                 (SpecificationType)reader.GetInt32(reader.GetOrdinal("Type")), reader.GetGuid(reader.GetOrdinal("UniqueID")), reader.GetDateTime(reader.GetOrdinal("CreatedDate")),

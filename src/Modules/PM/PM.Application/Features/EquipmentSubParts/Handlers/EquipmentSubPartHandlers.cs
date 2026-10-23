@@ -127,7 +127,6 @@ internal sealed class GetEquipmentSubPartListHandler : IRequestHandler<GetEquipm
             "uspgetequipmentsubpartcount",
             request.Page,
             request.PageSize,
-            request.FilterColumn,
             request.FilterValue,
             request.SortColumn,
             request.IsActive,
