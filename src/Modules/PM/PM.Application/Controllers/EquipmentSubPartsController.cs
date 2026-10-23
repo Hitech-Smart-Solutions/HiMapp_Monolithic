@@ -16,10 +16,12 @@ public sealed class EquipmentSubPartsController : ControllerBase
 
     public EquipmentSubPartsController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>Retrieves all equipment sub-parts.</summary>
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllEquipmentSubPartsQuery(), cancellationToken));
 
+    /// <summary>Retrieves a paginated equipment sub-part list with optional filtering, sorting, and active-status selection.</summary>
     [HttpGet("list")]
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
@@ -33,6 +35,7 @@ public sealed class EquipmentSubPartsController : ControllerBase
             new GetEquipmentSubPartList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
             cancellationToken));
 
+    /// <summary>Retrieves the equipment sub-part with the specified identifier.</summary>
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
@@ -40,6 +43,7 @@ public sealed class EquipmentSubPartsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Creates an equipment sub-part from the supplied request.</summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] EquipmentSubPartRequest request, CancellationToken cancellationToken)
     {
@@ -52,6 +56,7 @@ public sealed class EquipmentSubPartsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
+    /// <summary>Updates the equipment sub-part with the specified identifier using the supplied request.</summary>
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(int id, [FromBody] EquipmentSubPartRequest request, CancellationToken cancellationToken)
     {
@@ -64,6 +69,7 @@ public sealed class EquipmentSubPartsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Changes the active status of the equipment sub-part identified by the supplied action history.</summary>
     [HttpPut("SetActiveInActiveEquipmentSubParts")]
     public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {

@@ -15,10 +15,12 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
     private readonly IMediator _mediator;
     public PreventiveMaintenancePointController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>Retrieves all preventive maintenance points.</summary>
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllPreventiveMaintenancePointsQuery(), cancellationToken));
 
+    /// <summary>Retrieves a paginated preventive maintenance point list with optional filtering, sorting, and active-status selection.</summary>
     [HttpGet("list")]
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
@@ -32,6 +34,7 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
             new GetPreventiveMaintenancePointList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
             cancellationToken));
 
+    /// <summary>Retrieves the preventive maintenance point with the specified identifier.</summary>
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
     {
@@ -39,10 +42,12 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Retrieves the preventive maintenance point lookup data.</summary>
     [HttpGet("lookup")]
     public async Task<IActionResult> Lookup(CancellationToken ct) =>
     Ok(await _mediator.Send(new GetPreventiveMaintenancePointLookupQuery(), ct));
 
+    /// <summary>Creates a preventive maintenance point from the supplied request.</summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] PreventiveMaintenancePointRequest request, CancellationToken cancellationToken)
     {
@@ -65,6 +70,7 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
         }
     }
 
+    /// <summary>Updates the preventive maintenance point with the specified identifier using the supplied request.</summary>
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(long id, [FromBody] PreventiveMaintenancePointRequest request, CancellationToken cancellationToken)
     {
@@ -87,6 +93,7 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
         }
     }
 
+    /// <summary>Changes the active status of the preventive maintenance point identified by the supplied action history.</summary>
     [HttpPut("SetActiveInActivePreventiveMaintenancePoints")]
     public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
