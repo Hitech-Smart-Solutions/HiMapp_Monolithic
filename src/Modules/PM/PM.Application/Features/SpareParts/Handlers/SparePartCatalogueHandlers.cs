@@ -60,13 +60,8 @@ internal sealed class SparePartCatalogueHandlers :
     {
         var entity = await _db.Set<SparePartCatalogue>().FirstOrDefaultAsync(s => s.ID == request.Id, cancellationToken);
         if (entity is null) return null;
-
-        entity.EquipmentcategoryID = request.EquipmentcategoryID;
-        entity.BrandName = request.BrandName;
-        entity.ModelName = request.ModelName;
         entity.DocumentName = request.DocumentName;
         entity.DocumentPath = request.DocumentPath;
-        entity.StatusID = request.StatusID;
         entity.LastModifiedBy = request.LastModifiedBy;
         entity.LastModifiedDate = DateTime.UtcNow;
 
