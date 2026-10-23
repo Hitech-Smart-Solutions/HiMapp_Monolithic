@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Himapp.Execution.Application.Features
+namespace Himapp.SharedKernel.Features
 {
     public enum Actions
     {
@@ -17,6 +17,7 @@ namespace Himapp.Execution.Application.Features
         // Approval Workflow
         Viewed = 506
     }
+
     public enum CategoryType
     {
         Skilled = 1,
@@ -29,6 +30,7 @@ namespace Himapp.Execution.Application.Features
         Draft = 1,
         Submitted = 2
     }
+
     public enum ApprovalStatus
     {
         Draft = 1,
@@ -36,5 +38,4 @@ namespace Himapp.Execution.Application.Features
         Approved = 3,
         Rejected = 4
     }
-
 }

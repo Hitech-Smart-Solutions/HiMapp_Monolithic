@@ -77,11 +77,12 @@ internal sealed class DeleteSpecificationMasterCommandHandler : IRequestHandler<
 
     public async Task<bool> Handle(DeleteSpecificationMasterCommand request, CancellationToken cancellationToken)
     {
+        var actionHistory = request.addTransactionActionHistoryDTO;
         var entity = await _db.Set<SpecificationMasterEntity>()
-            .FirstOrDefaultAsync(p => p.ID == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(p => p.ID == actionHistory.ProgramRowId, cancellationToken);
         if (entity is null) return false;
 
-        entity.IsActive = false;
+        entity.IsActive = actionHistory.Actions == Actions.Activated;
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }

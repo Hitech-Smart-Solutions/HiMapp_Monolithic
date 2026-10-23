@@ -116,22 +116,29 @@ internal sealed class DeleteWorkDescriptionCommandHandler : IRequestHandler<Dele
 
     public async Task<bool> Handle(DeleteWorkDescriptionCommand request, CancellationToken cancellationToken)
     {
+        var actionHistory = request.addTransactionActionHistoryDTO;
+
         try
         {
-            var entity = await _db.Set<WorkDescription>().FirstOrDefaultAsync(d => d.ID == request.Id, cancellationToken);
+            var entity = await _db.Set<WorkDescription>()
+                .FirstOrDefaultAsync(d => d.ID == actionHistory.ProgramRowId, cancellationToken);
             if (entity is null) return false;
 
-            entity.IsActive = false;
+            entity.IsActive = actionHistory.Actions == Actions.Activated;
             await _db.SaveChangesAsync(cancellationToken);
             return true;
         }
         catch (DbUpdateException ex)
         {
-            throw new DbException($"Failed to delete work description with ID {request.Id}. Database error: {ex.GetBaseException().Message}", "WORK_DESCRIPTION_DELETE_DATABASE_ERROR");
+            throw new DbException($"Failed to update work description status with ID {actionHistory.ProgramRowId}. Database error: {ex.GetBaseException().Message}", "WORK_DESCRIPTION_DELETE_DATABASE_ERROR");
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
-            throw new AppException($"Failed to delete work description with ID {request.Id}. Error: {ex.Message}", 500, "WORK_DESCRIPTION_DELETE_ERROR");
+            throw new AppException($"Failed to update work description status with ID {actionHistory.ProgramRowId}. Error: {ex.Message}", 500, "WORK_DESCRIPTION_DELETE_ERROR");
         }
     }
 }

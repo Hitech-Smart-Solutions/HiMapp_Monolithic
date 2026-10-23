@@ -1,5 +1,7 @@
+using System.Data.Common;
 using Himapp.PM.Application.Features.Equipments;
 using Himapp.PM.Application.Features.Equipments.Commands;
+using Himapp.PM.Application.Features.Equipments.Models;
 using Himapp.PM.Application.Features.Equipments.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -50,6 +52,91 @@ public sealed class PlantMachineryController : ControllerBase
     {
         var result = await _mediator.Send(new GetEquipmentByIdQuery(id), cancellationToken);
         return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("{equipmentId:int}/meter-register")]
+    public async Task<IActionResult> GetMeterRegister(int equipmentId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new GetEquipmentMeterRegisterSummaryQuery(equipmentId),
+            cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpPost("{equipmentId:int}/initial-meter-reading")]
+    public async Task<IActionResult> RecordInitialMeterReading(
+        int equipmentId,
+        [FromBody] InitialMeterReadingRequestDto? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return BadRequest("An initial meter reading request is required.");
+
+        try
+        {
+            var meterEpochId = await _mediator.Send(
+                new RecordInitialMeterReadingCommand(equipmentId, request),
+                cancellationToken);
+
+            return meterEpochId is null
+                ? NotFound()
+                : CreatedAtAction(nameof(GetById), new { id = equipmentId }, new
+                {
+                    EquipmentID = equipmentId,
+                    MeterEpochID = meterEpochId.Value
+                });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        catch (Exception ex) when (HasSerializationFailure(ex))
+        {
+            return Conflict(new { message = "The meter epoch changed while the initial reading was being recorded. Reload the meter register and submit again." });
+        }
+    }
+
+    [HttpPost("{equipmentId:int}/meter-replacement")]
+    public async Task<IActionResult> ReplaceMeter(
+        int equipmentId,
+        [FromBody] MeterReplacementRequestDto? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return BadRequest("A meter replacement request is required.");
+
+        try
+        {
+            var result = await _mediator.Send(
+                new ReplaceEquipmentMeterCommand(equipmentId, request),
+                cancellationToken);
+
+            return result is null ? NotFound() : Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        catch (Exception ex) when (HasSerializationFailure(ex))
+        {
+            return Conflict(new { message = "The meter epoch changed during replacement. Reload the register and submit again." });
+        }
+    }
+
+    private static bool HasSerializationFailure(Exception exception)
+    {
+        for (var current = exception; current is not null; current = current.InnerException!)
+        {
+            if (current is DbException { SqlState: "40001" })
+                return true;
+        }
+
+        return false;
     }
 
     [HttpPost]

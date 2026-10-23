@@ -2,4 +2,4 @@ using MediatR;
 
 namespace Himapp.PM.Application.Features.PreventiveMaintenancePoints.Commands;
 
-public sealed record DeletePreventiveMaintenancePointCommand(long Id) : IRequest<bool>;
+public sealed record DeletePreventiveMaintenancePointCommand(AddTransactionActionHistoryDTO addTransactionActionHistoryDTO) : IRequest<bool>;

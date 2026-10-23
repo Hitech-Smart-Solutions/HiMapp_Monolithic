@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Himapp.Workflow.Application.Features
+namespace Himapp.SharedKernel.Features
 {
     public class AddTransactionActionHistoryDTO
     {
