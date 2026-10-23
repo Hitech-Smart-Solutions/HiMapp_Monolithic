@@ -163,7 +163,7 @@ internal sealed class SparePartCatalogueHandlers :
         await conn.OpenAsync(cancellationToken);
 
         // Get count from stored procedure
-        using (var cmd = new NpgsqlCommand("SELECT cnt FROM \"PAndM\".uspgetsparepartcataloguecount(@p_filtercolumn, @p_filtervalue, @p_pageindex, @p_pagesize, @p_sortcolumn, @p_isactive)", conn))
+        using (var cmd = new NpgsqlCommand("SELECT cnt FROM \"PAndM\".uspgetsparepartcataloguecount(@p_filtervalue, @p_pageindex, @p_pagesize, @p_sortcolumn, @p_isactive)", conn))
         {
             cmd.CommandType = CommandType.Text;
             cmd.CommandTimeout = 30;
@@ -178,7 +178,7 @@ internal sealed class SparePartCatalogueHandlers :
         }
 
         // Get data from stored procedure
-        using (var cmd2 = new NpgsqlCommand("SELECT * FROM \"PAndM\".uspgetsparepartcatalogue(@p_filtercolumn, @p_filtervalue, @p_pageindex, @p_pagesize, @p_sortcolumn, @p_isactive)", conn))
+        using (var cmd2 = new NpgsqlCommand("SELECT * FROM \"PAndM\".uspgetsparepartcatalogue(@p_filtervalue, @p_pageindex, @p_pagesize, @p_sortcolumn, @p_isactive)", conn))
         {
             cmd2.CommandType = CommandType.Text;
             cmd2.CommandTimeout = 30;
