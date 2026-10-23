@@ -7,7 +7,6 @@ namespace Himapp.PM.Application.Features.EquipmentChecklistPoints.Queries;
 public sealed record GetEquipmentChecklistPointList(
     int Page,
     int PageSize,
-    string? FilterColumn = null,
     string? FilterValue = null,
     string? SortColumn = "ID ASC",
     string? IsActive = "all")

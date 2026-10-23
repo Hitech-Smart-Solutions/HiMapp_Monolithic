@@ -127,7 +127,7 @@ internal sealed class UpdateEquipmentBreakdownReasonsCommandHandler
         public GetEquipmentBreakdownReasonsListHandler(IPMDbContext db) => _db = db;
 
         public Task<PagedResult<EquipmentBreakdownReasonsListItemDto>> Handle(GetEquipmentBreakdownReasonsList request, CancellationToken cancellationToken) =>
-            PagedStoredProcedureQueryExecutor.ExecuteAsync(_db, "uspgetequipmentbreakdownreasons", "uspgetequipmentbreakdownreasonscount", request.Page, request.PageSize, request.FilterColumn, request.FilterValue, request.SortColumn, request.IsActive,
+            PagedStoredProcedureQueryExecutor.ExecuteAsync(_db, "uspgetequipmentbreakdownreasons", "uspgetequipmentbreakdownreasonscount", request.Page, request.PageSize, request.FilterValue, request.SortColumn, request.IsActive,
                 reader => new EquipmentBreakdownReasonsListItemDto(
                     reader.GetInt32(reader.GetOrdinal("ID")), reader.GetString(reader.GetOrdinal("BreakdownReason")), reader.GetBoolean(reader.GetOrdinal("IsActive")),
                     (EquipmentBreakdownReasonType)reader.GetInt32(reader.GetOrdinal("Type")), reader.GetGuid(reader.GetOrdinal("UniqueID")), reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
