@@ -19,12 +19,29 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllPreventiveMaintenancePointsQuery(), cancellationToken));
 
+    [HttpGet("list")]
+    public async Task<IActionResult> GetList(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? filterColumn = null,
+        [FromQuery] string? filterValue = null,
+        [FromQuery] string? sortColumn = "ID ASC",
+        [FromQuery] string? isActive = "all",
+        CancellationToken cancellationToken = default) =>
+        Ok(await _mediator.Send(
+            new GetPreventiveMaintenancePointList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
+            cancellationToken));
+
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetPreventiveMaintenancePointByIdQuery(id), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
+
+    [HttpGet("lookup")]
+    public async Task<IActionResult> Lookup(CancellationToken ct) =>
+    Ok(await _mediator.Send(new GetPreventiveMaintenancePointLookupQuery(), ct));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] PreventiveMaintenancePointRequest request, CancellationToken cancellationToken)
@@ -37,7 +54,7 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
         try
         {
             var result = await _mediator.Send(
-                new CreatePreventiveMaintenancePointCommand(request.MaintenancePointName, request.StatusID, request.CreateBy, request.LastModifiedBy),
+                new CreatePreventiveMaintenancePointCommand(request.MaintenancePointName.Trim(), request.StatusID, request.CreateBy, request.LastModifiedBy),
                 cancellationToken);
 
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
@@ -59,7 +76,7 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
         try
         {
             var result = await _mediator.Send(
-                new UpdatePreventiveMaintenancePointCommand(id, request.MaintenancePointName, request.StatusID, request.LastModifiedBy),
+                new UpdatePreventiveMaintenancePointCommand(id, request.MaintenancePointName.Trim(), request.StatusID, request.LastModifiedBy),
                 cancellationToken);
 
             return result is null ? NotFound() : Ok(result);

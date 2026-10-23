@@ -15,6 +15,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
 
     // DbSets for PM domain entities
     public DbSet<DocumentType> DocumentTypes { get; set; } = null!;
+    public DbSet<EquipmentDocument> EquipmentDocuments { get; set; } = null!;
     public DbSet<WorkDescription> WorkDescriptions { get; set; } = null!;
     public DbSet<EquipmentSubPart> EquipmentSubParts { get; set; } = null!;
     public DbSet<EquipmentChecklistPoint> EquipmentChecklistPoints { get; set; } = null!;
@@ -335,6 +336,39 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                   .ValueGeneratedOnAdd();
         });
 
+        modelBuilder.Entity<EquipmentDocument>(entity =>
+        {
+            entity.ToTable("EquipmentDocuments");
+
+            entity.HasKey(e => e.ID);
+
+            entity.Property(e => e.ID)
+                  .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.DocumentTypeID)
+                  .IsRequired();
+
+            entity.Property(e => e.DocumentName)
+                  .IsRequired();
+
+            entity.Property(e => e.StartDate)
+                  .IsRequired();
+
+            entity.Property(e => e.EndDate)
+                  .IsRequired();
+
+            entity.Property(e => e.IsActive)
+                  .HasDefaultValue(true)
+                  .IsRequired(false);
+
+            entity.HasOne<DocumentType>()
+                  .WithMany()
+                  .HasForeignKey(e => e.DocumentTypeID)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.DocumentTypeID);
+        });
+
         modelBuilder.Entity<WorkDescription>(entity =>
         {
             entity.ToTable("WorkDescriptions");
@@ -443,7 +477,8 @@ public sealed class PMDbContext : DbContext, IPMDbContext
             entity.Property(x => x.ReasonID).HasColumnName("ReasonID");
 
             entity.Property(x => x.OpenningDate)
-                .HasColumnName("OpenningDate");
+                .HasColumnName("OpenningDate")
+                .HasColumnType("timestamp with time zone");
 
             entity.Property(x => x.ResetReadingAmount)
                 .HasColumnName("ResetReadingAmount")
