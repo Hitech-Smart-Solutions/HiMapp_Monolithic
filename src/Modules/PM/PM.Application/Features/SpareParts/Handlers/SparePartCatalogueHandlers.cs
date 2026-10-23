@@ -87,12 +87,17 @@ internal sealed class SparePartCatalogueHandlers :
 
     public async Task<bool> Handle(DeleteSparePartCatalogueCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _db.Set<SparePartCatalogue>().FirstOrDefaultAsync(s => s.ID == request.Id, cancellationToken);
-        if (entity is null) return false;
+        var actionHistory = request.addTransactionActionHistoryDTO;
+        var entity = await _db.Set<SparePartCatalogue>()
+            .FirstOrDefaultAsync(p => p.ID == actionHistory.ProgramRowId, cancellationToken);
 
-        entity.IsActive = false;
+        if (entity is null)
+        {
+            return false;
+        }
+
+        entity.IsActive = actionHistory.Actions == Actions.Activated;
         await _db.SaveChangesAsync(cancellationToken);
-
         return true;
     }
 
