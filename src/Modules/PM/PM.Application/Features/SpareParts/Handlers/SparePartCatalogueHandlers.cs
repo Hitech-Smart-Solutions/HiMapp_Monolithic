@@ -166,8 +166,7 @@ internal sealed class SparePartCatalogueHandlers :
         using (var cmd = new NpgsqlCommand("SELECT cnt FROM \"PAndM\".uspgetsparepartcataloguecount(@p_filtercolumn, @p_filtervalue, @p_pageindex, @p_pagesize, @p_sortcolumn, @p_isactive)", conn))
         {
             cmd.CommandType = CommandType.Text;
-            cmd.CommandTimeout = 10;
-            cmd.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(request.FilterColumn) ? (object)DBNull.Value : request.FilterColumn);
+            cmd.CommandTimeout = 30;
             cmd.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(request.FilterValue) ? (object)DBNull.Value : request.FilterValue);
             cmd.Parameters.AddWithValue("@p_pageindex", NpgsqlDbType.Integer, pageIndex);
             cmd.Parameters.AddWithValue("@p_pagesize", NpgsqlDbType.Integer, pageSize);
@@ -183,7 +182,6 @@ internal sealed class SparePartCatalogueHandlers :
         {
             cmd2.CommandType = CommandType.Text;
             cmd2.CommandTimeout = 30;
-            cmd2.Parameters.AddWithValue("@p_filtercolumn", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(request.FilterColumn) ? (object)DBNull.Value : request.FilterColumn);
             cmd2.Parameters.AddWithValue("@p_filtervalue", NpgsqlDbType.Text, string.IsNullOrWhiteSpace(request.FilterValue) ? (object)DBNull.Value : request.FilterValue);
             cmd2.Parameters.AddWithValue("@p_pageindex", NpgsqlDbType.Integer, pageIndex);
             cmd2.Parameters.AddWithValue("@p_pagesize", NpgsqlDbType.Integer, pageSize);
