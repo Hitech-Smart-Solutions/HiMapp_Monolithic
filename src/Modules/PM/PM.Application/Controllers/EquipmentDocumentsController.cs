@@ -75,10 +75,16 @@ public sealed class EquipmentDocumentsController : ControllerBase
         return Ok(result);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpPut("SetActiveInActiveEquipmentDocuments")]
+    public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
-        await _mediator.Send(new DeleteEquipmentDocumentCommand(id), cancellationToken);
-        return Ok();
+        if (dtoInactive is null)
+            return BadRequest("Delete request is required.");
+
+        if (dtoInactive.ProgramRowId <= 0)
+            return BadRequest("Equipment document ID is required.");
+
+        var deleted = await _mediator.Send(new DeleteEquipmentDocumentCommand(dtoInactive), cancellationToken);
+        return deleted ? Ok() : NotFound();
     }
 }

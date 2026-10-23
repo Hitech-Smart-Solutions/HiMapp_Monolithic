@@ -87,10 +87,16 @@ public sealed class PreventiveMaintenancePointController : ControllerBase
         }
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    [HttpPut("SetActiveInActivePreventiveMaintenancePoints")]
+    public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeletePreventiveMaintenancePointCommand(id), cancellationToken);
+        if (dtoInactive is null)
+            return BadRequest("Delete request is required.");
+
+        if (dtoInactive.ProgramRowId <= 0)
+            return BadRequest("Preventive maintenance point ID is required.");
+
+        var deleted = await _mediator.Send(new DeletePreventiveMaintenancePointCommand(dtoInactive), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 }

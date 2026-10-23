@@ -157,14 +157,16 @@ internal sealed class DeleteEquipmentDocumentCommandHandler : IRequestHandler<De
 
     public async Task<bool> Handle(DeleteEquipmentDocumentCommand request, CancellationToken cancellationToken)
     {
+        var actionHistory = request.addTransactionActionHistoryDTO;
+
         try
         {
             var entity = await _db.Set<EquipmentDocument>()
-                .FirstOrDefaultAsync(d => d.ID == request.Id, cancellationToken);
+                .FirstOrDefaultAsync(d => d.ID == actionHistory.ProgramRowId, cancellationToken);
             if (entity is null)
-                throw new NotFoundException($"Equipment document with ID {request.Id} was not found.", "EQUIPMENT_DOCUMENT_NOT_FOUND");
+                return false;
 
-            entity.IsActive = false;
+            entity.IsActive = actionHistory.Actions == Actions.Activated;
             entity.LastModifiedDate = DateTime.UtcNow;
             await _db.SaveChangesAsync(cancellationToken);
             return true;
@@ -179,11 +181,11 @@ internal sealed class DeleteEquipmentDocumentCommandHandler : IRequestHandler<De
         }
         catch (DbUpdateException ex)
         {
-            throw new DbException($"Failed to delete equipment document with ID {request.Id}. Database error: {ex.GetBaseException().Message}", "EQUIPMENT_DOCUMENT_DELETE_DATABASE_ERROR");
+            throw new DbException($"Failed to update equipment document status with ID {actionHistory.ProgramRowId}. Database error: {ex.GetBaseException().Message}", "EQUIPMENT_DOCUMENT_DELETE_DATABASE_ERROR");
         }
         catch (Exception ex)
         {
-            throw new AppException($"Failed to delete equipment document with ID {request.Id}. Error: {ex.Message}", 500, "EQUIPMENT_DOCUMENT_DELETE_ERROR");
+            throw new AppException($"Failed to update equipment document status with ID {actionHistory.ProgramRowId}. Error: {ex.Message}", 500, "EQUIPMENT_DOCUMENT_DELETE_ERROR");
         }
     }
 }
