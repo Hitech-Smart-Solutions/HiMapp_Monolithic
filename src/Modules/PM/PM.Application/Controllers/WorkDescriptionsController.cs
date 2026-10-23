@@ -67,10 +67,16 @@ public sealed class WorkDescriptionsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    [HttpPut("SetActiveInActiveWorkDescription")]
+    public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeleteWorkDescriptionCommand(id), cancellationToken);
+        if (dtoInactive is null)
+            return BadRequest("Delete request is required.");
+
+        if (dtoInactive.ProgramRowId <= 0)
+            return BadRequest("Work description ID is required.");
+
+        var deleted = await _mediator.Send(new DeleteWorkDescriptionCommand(dtoInactive), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 }

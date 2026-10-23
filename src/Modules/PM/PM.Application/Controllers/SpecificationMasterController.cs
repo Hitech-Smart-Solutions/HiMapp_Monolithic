@@ -81,10 +81,16 @@ public sealed class SpecificationMasterController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpPut("SetActiveInActiveSpecificationMasters")]
+    public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeleteSpecificationMasterCommand(id), cancellationToken);
+        if (dtoInactive is null)
+            return BadRequest("Delete request is required.");
+
+        if (dtoInactive.ProgramRowId <= 0)
+            return BadRequest("Specification master ID is required.");
+
+        var deleted = await _mediator.Send(new DeleteSpecificationMasterCommand(dtoInactive), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 }

@@ -88,15 +88,16 @@ internal sealed class DeletePreventiveMaintenancePointCommandHandler : IRequestH
 
     public async Task<bool> Handle(DeletePreventiveMaintenancePointCommand request, CancellationToken cancellationToken)
     {
+        var actionHistory = request.addTransactionActionHistoryDTO;
         var entity = await _db.Set<PreventiveMaintenancePoint>()
-            .FirstOrDefaultAsync(p => p.ID == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(p => p.ID == actionHistory.ProgramRowId, cancellationToken);
 
         if (entity is null)
         {
             return false;
         }
 
-        entity.IsActive = false;
+        entity.IsActive = actionHistory.Actions == Actions.Activated;
         await _db.SaveChangesAsync(cancellationToken);
         return true;
     }

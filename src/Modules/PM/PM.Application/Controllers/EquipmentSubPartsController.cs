@@ -64,10 +64,16 @@ public sealed class EquipmentSubPartsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpPut("SetActiveInActiveEquipmentSubParts")]
+    public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeleteEquipmentSubPartCommand(id), cancellationToken);
+        if (dtoInactive is null)
+            return BadRequest("Delete request is required.");
+
+        if (dtoInactive.ProgramRowId <= 0)
+            return BadRequest("Equipment sub-part ID is required.");
+
+        var deleted = await _mediator.Send(new DeleteEquipmentSubPartCommand(dtoInactive), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 }
