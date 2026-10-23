@@ -17,10 +17,12 @@ public sealed class SpecificationMasterController : ControllerBase
 
     public SpecificationMasterController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>Retrieves all specification master records.</summary>
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllSpecificationMastersQuery(), cancellationToken));
 
+    /// <summary>Retrieves a paginated specification master list with optional filtering, sorting, and active-status selection.</summary>
     [HttpGet("list")]
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
@@ -34,6 +36,7 @@ public sealed class SpecificationMasterController : ControllerBase
             new GetSpecificationMasterList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
             cancellationToken));
 
+    /// <summary>Retrieves the specification master record with the specified identifier.</summary>
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
@@ -41,6 +44,7 @@ public sealed class SpecificationMasterController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Creates a specification master record from the supplied request.</summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] SpecificationMasterRequest request, CancellationToken cancellationToken)
     {
@@ -61,6 +65,7 @@ public sealed class SpecificationMasterController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
+    /// <summary>Updates the specification master record with the specified identifier using the supplied request.</summary>
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(int id, [FromBody] SpecificationMasterRequest request, CancellationToken cancellationToken)
     {
@@ -81,6 +86,7 @@ public sealed class SpecificationMasterController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Changes the active status of the specification master record identified by the supplied action history.</summary>
     [HttpPut("SetActiveInActiveSpecificationMasters")]
     public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {

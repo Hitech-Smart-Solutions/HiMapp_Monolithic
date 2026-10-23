@@ -16,10 +16,12 @@ public sealed class WorkDescriptionsController : ControllerBase
 
     public WorkDescriptionsController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>Retrieves all work descriptions.</summary>
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllWorkDescriptionsQuery(), cancellationToken));
 
+    /// <summary>Retrieves a paginated work description list with optional filtering, sorting, and active-status selection.</summary>
     [HttpGet("list")]
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
@@ -36,6 +38,7 @@ public sealed class WorkDescriptionsController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>Retrieves the work description with the specified identifier.</summary>
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
     {
@@ -43,6 +46,7 @@ public sealed class WorkDescriptionsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Creates a work description from the supplied request.</summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] WorkDescriptionRequest request, CancellationToken cancellationToken)
     {
@@ -55,6 +59,7 @@ public sealed class WorkDescriptionsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
+    /// <summary>Updates the work description with the specified identifier using the supplied request.</summary>
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(long id, [FromBody] WorkDescriptionRequest request, CancellationToken cancellationToken)
     {
@@ -67,6 +72,7 @@ public sealed class WorkDescriptionsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Changes the active status of the work description identified by the supplied action history.</summary>
     [HttpPut("SetActiveInActiveWorkDescription")]
     public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {

@@ -88,12 +88,8 @@ public sealed class SparePartCataloguesController : ControllerBase
             var result = await _mediator.Send(
                 new UpdateSparePartCatalogueCommand(
                     id,
-                    request.EquipmentcategoryID,
-                    request.BrandName,
-                    request.ModelName,
                     request.DocumentName,
                     request.DocumentPath,
-                    request.StatusID,
                     request.LastModifiedBy),
                 cancellationToken);
 
