@@ -23,10 +23,10 @@ public sealed class EquipmentCategoryLinksController : ControllerBase
     public Task<IActionResult> GetConfiguration(int categoryId, CancellationToken ct) =>
         Run(async () => Ok(await _service.GetConfigurationAsync(categoryId, ct)));
 
-    /// <summary>Linked masters of one tab (removed links are not returned; each item carries its own isActive).</summary>
+    /// <summary>Linked masters of one tab. Inactive links are hidden unless includeInactive=true.</summary>
     [HttpGet("{kind}")]
-    public Task<IActionResult> Get(int categoryId, string kind, CancellationToken ct) =>
-        Run(async () => Ok(await _service.GetAsync(categoryId, kind, ct)));
+    public Task<IActionResult> Get(int categoryId, string kind, [FromQuery] bool includeInactive = false, CancellationToken ct = default) =>
+        Run(async () => Ok(await _service.GetAsync(categoryId, kind, includeInactive, ct)));
 
     /// <summary>Items for the "Select ..." drop-down: active masters that are not linked to this category yet.</summary>
     [HttpGet("{kind}/available")]
@@ -43,7 +43,7 @@ public sealed class EquipmentCategoryLinksController : ControllerBase
             return Ok(await _service.AddAsync(categoryId, kind, request, ct));
         });
 
-    /// <summary>Save button of a tab: the list sent becomes the linked list; any master missing from it is marked deleted.</summary>
+    /// <summary>Save button of a tab: the list sent becomes the active list; anything missing is switched off.</summary>
     [HttpPut("{kind}")]
     public Task<IActionResult> SaveAll(int categoryId, string kind, [FromBody] EquipmentCategoryLinkSaveRequest request, CancellationToken ct) =>
         Run(async () =>
@@ -67,7 +67,7 @@ public sealed class EquipmentCategoryLinksController : ControllerBase
             return result is null ? NotFound() : Ok(result);
         });
 
-    /// <summary>Soft delete: the link is marked IsDeleted = true (IsActive is not touched), the row is not removed.</summary>
+    /// <summary>Soft delete: the link is switched off (IsActive = false), not removed.</summary>
     [HttpDelete("{kind}/{linkId:int}")]
     public Task<IActionResult> Delete(int categoryId, string kind, int linkId, CancellationToken ct) =>
         Run(async () => await _service.DeleteAsync(categoryId, kind, linkId, ct) ? Ok() : NotFound());

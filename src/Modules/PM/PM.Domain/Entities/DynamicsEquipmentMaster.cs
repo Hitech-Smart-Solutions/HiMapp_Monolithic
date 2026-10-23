@@ -67,6 +67,7 @@ namespace Himapp.PM.Domain.Entities;
         public string? WARRANTYVEND { get; set; }
         public string? WRKCTRLDESCRIPTION { get; set; }
         public int? HimappProjectID { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public DynamicsEquipmentMaster()
         {

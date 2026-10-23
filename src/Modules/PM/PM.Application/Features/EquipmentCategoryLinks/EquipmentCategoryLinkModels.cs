@@ -10,7 +10,21 @@ public sealed record EquipmentCategoryLinkItemDto(
     int CreatedBy,
     DateTime CreatedDate,
     int LastModifiedBy,
-    DateTime LastModifiedDate);
+    DateTime LastModifiedDate,
+    EquipmentCategoryPmTrigger? PmTrigger = null);
+
+/// <summary>
+/// Default PM trigger of a PM point for equipment of the category (only used by the pm-points tab, null elsewhere):
+/// a meter trigger (reading type + interval + tolerance %) and a calendar trigger (months + tolerance %).
+/// </summary>
+public sealed class EquipmentCategoryPmTrigger
+{
+    public int? ReadingTypeId { get; set; }
+    public decimal? IntervalValue { get; set; }
+    public decimal? ToleranceValue { get; set; }
+    public int? Months { get; set; }
+    public decimal? MonthsTolerance { get; set; }
+}
 
 /// <summary>An active master that can still be picked in the "Select ..." drop-down of a tab.</summary>
 public sealed record EquipmentCategoryLinkOptionDto(int MasterId, string MasterName);
@@ -28,6 +42,8 @@ public sealed class EquipmentCategoryLinkRequest
 {
     public int MasterId { get; set; }
     public string? Remarks { get; set; }
+    /// <summary>pm-points tab only. Left out (null) = keep the current trigger of an existing link.</summary>
+    public EquipmentCategoryPmTrigger? PmTrigger { get; set; }
 }
 
 public sealed class EquipmentCategoryLinkUpdateRequest
@@ -35,6 +51,8 @@ public sealed class EquipmentCategoryLinkUpdateRequest
     public string? Remarks { get; set; }
     /// <summary>When omitted the current value is kept.</summary>
     public bool? IsActive { get; set; }
+    /// <summary>pm-points tab only. Left out (null) = keep the current trigger.</summary>
+    public EquipmentCategoryPmTrigger? PmTrigger { get; set; }
 }
 
 public sealed class EquipmentCategoryLinkSaveRequest

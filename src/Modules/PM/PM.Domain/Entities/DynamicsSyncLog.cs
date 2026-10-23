@@ -21,4 +21,5 @@ public sealed class DynamicsSyncLog : BaseEntity
     public int RecordsReset { get; set; }
     public string? Message { get; set; }
     public string? ErrorDetails { get; set; }
+    public bool IsActive { get; set; } = true;
 }

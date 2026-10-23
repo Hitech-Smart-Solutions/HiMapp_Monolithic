@@ -38,6 +38,82 @@ public sealed class PMDbContext : DbContext, IPMDbContext
     public DbSet<EquipmentCategoryChecklistPoint> EquipmentCategoryChecklistPoints { get; set; } = null!;
     public DbSet<EquipmentCategorySpecification> EquipmentCategorySpecifications { get; set; } = null!;
 
+    // Equipment setup wizard (equipment-side data; the category only suggests)
+    public DbSet<EquipmentSetup> EquipmentSetups { get; set; } = null!;
+    public DbSet<EquipmentSetupStep> EquipmentSetupSteps { get; set; } = null!;
+    public DbSet<EquipmentSetupPMPoint> EquipmentSetupPMPoints { get; set; } = null!;
+    public DbSet<EquipmentSetupSpecification> EquipmentSetupSpecifications { get; set; } = null!;
+    public DbSet<EquipmentSetupDocument> EquipmentSetupDocuments { get; set; } = null!;
+
+    /// <summary>Equipment setup wizard tables: one setup per equipment, equipment-side PM points, specifications and documents.</summary>
+    private static void ConfigureEquipmentSetup(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<EquipmentSetup>(entity =>
+        {
+            entity.ToTable("EquipmentSetups");
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ID).ValueGeneratedOnAdd();
+            entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.HasOne<DynamicsEquipmentMaster>().WithMany().HasForeignKey(e => e.EquipmentId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => e.EquipmentId).IsUnique();
+        });
+
+        modelBuilder.Entity<EquipmentSetupStep>(entity =>
+        {
+            entity.ToTable("EquipmentSetupSteps");
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ID).ValueGeneratedOnAdd();
+            entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.HasOne<DynamicsEquipmentMaster>().WithMany().HasForeignKey(e => e.EquipmentId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => new { e.EquipmentId, e.StepNo }).IsUnique();
+        });
+
+        modelBuilder.Entity<EquipmentSetupPMPoint>(entity =>
+        {
+            entity.ToTable("EquipmentSetupPMPoints");
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ID).ValueGeneratedOnAdd();
+            entity.Property(e => e.Source).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.IntervalValue).HasPrecision(18, 4);
+            entity.Property(e => e.ToleranceValue).HasPrecision(9, 4);
+            entity.Property(e => e.MonthsTolerance).HasPrecision(9, 4);
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.HasOne<DynamicsEquipmentMaster>().WithMany().HasForeignKey(e => e.EquipmentId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<PreventiveMaintenancePoint>().WithMany().HasForeignKey(e => e.PreventiveMaintenancePointId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<MeterReadingType>().WithMany().HasForeignKey(e => e.ReadingTypeId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => new { e.EquipmentId, e.PreventiveMaintenancePointId }).IsUnique();
+        });
+
+        modelBuilder.Entity<EquipmentSetupSpecification>(entity =>
+        {
+            entity.ToTable("EquipmentSetupSpecifications");
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ID).ValueGeneratedOnAdd();
+            entity.Property(e => e.Source).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Value).HasMaxLength(500);
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.HasOne<DynamicsEquipmentMaster>().WithMany().HasForeignKey(e => e.EquipmentId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<SpecificationMaster>().WithMany().HasForeignKey(e => e.SpecificationMasterId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => new { e.EquipmentId, e.SpecificationMasterId }).IsUnique();
+        });
+
+        modelBuilder.Entity<EquipmentSetupDocument>(entity =>
+        {
+            entity.ToTable("EquipmentSetupDocuments");
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ID).ValueGeneratedOnAdd();
+            entity.Property(e => e.DocumentName).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.StoredFileName).HasMaxLength(300);
+            entity.Property(e => e.OriginalFileName).HasMaxLength(300);
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.HasOne<DynamicsEquipmentMaster>().WithMany().HasForeignKey(e => e.EquipmentId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<DocumentType>().WithMany().HasForeignKey(e => e.DocumentTypeId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => e.EquipmentId);
+        });
+    }
+
     /// <summary>Shared mapping of one category-to-master link table: keys, foreign keys, one row per (category, master).</summary>
     private static void ConfigureCategoryLink<TLink, TMaster>(ModelBuilder modelBuilder, string tableName, string masterIdProperty)
         where TLink : EquipmentCategoryLinkBase
@@ -62,7 +138,7 @@ public sealed class PMDbContext : DbContext, IPMDbContext
                   .HasForeignKey(masterIdProperty)
                   .OnDelete(DeleteBehavior.Restrict);
 
-            // A master can be linked to a category only once; removing a link only sets IsDeleted.
+            // A master can be linked to a category only once; removing a link only switches IsActive off.
             entity.HasIndex(nameof(EquipmentCategoryLinkBase.EquipmentCategoryId), masterIdProperty).IsUnique();
             entity.HasIndex(masterIdProperty);
         });
@@ -79,6 +155,20 @@ public sealed class PMDbContext : DbContext, IPMDbContext
         ConfigureCategoryLink<EquipmentCategoryPMPoint, PreventiveMaintenancePoint>(modelBuilder, "EquipmentCategoryPMPoints", nameof(EquipmentCategoryPMPoint.PreventiveMaintenancePointId));
         ConfigureCategoryLink<EquipmentCategoryChecklistPoint, EquipmentChecklistPoint>(modelBuilder, "EquipmentCategoryChecklistPoints", nameof(EquipmentCategoryChecklistPoint.EquipmentChecklistPointId));
         ConfigureCategoryLink<EquipmentCategorySpecification, SpecificationMaster>(modelBuilder, "EquipmentCategorySpecifications", nameof(EquipmentCategorySpecification.SpecificationMasterId));
+
+        // Default PM trigger on the category link
+        modelBuilder.Entity<EquipmentCategoryPMPoint>(entity =>
+        {
+            entity.Property(e => e.IntervalValue).HasPrecision(18, 4);
+            entity.Property(e => e.ToleranceValue).HasPrecision(9, 4);
+            entity.Property(e => e.MonthsTolerance).HasPrecision(9, 4);
+            entity.HasOne<MeterReadingType>()
+                  .WithMany()
+                  .HasForeignKey(e => e.ReadingTypeId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        ConfigureEquipmentSetup(modelBuilder);
 
         // ============================================================
         // DynamicsSyncLog (one row per Dynamics sync / reset run)

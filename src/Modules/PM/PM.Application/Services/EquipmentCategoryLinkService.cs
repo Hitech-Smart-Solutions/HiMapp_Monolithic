@@ -15,7 +15,7 @@ public interface IEquipmentCategoryLinkService
 {
     bool IsKnownKind(string kind);
     Task<EquipmentCategoryConfigurationDto> GetConfigurationAsync(int categoryId, CancellationToken ct);
-    Task<IReadOnlyList<EquipmentCategoryLinkItemDto>> GetAsync(int categoryId, string kind, CancellationToken ct);
+    Task<IReadOnlyList<EquipmentCategoryLinkItemDto>> GetAsync(int categoryId, string kind, bool includeInactive, CancellationToken ct);
     Task<IReadOnlyList<EquipmentCategoryLinkOptionDto>> GetAvailableAsync(int categoryId, string kind, CancellationToken ct);
     Task<EquipmentCategoryLinkItemDto> AddAsync(int categoryId, string kind, EquipmentCategoryLinkRequest request, CancellationToken ct);
     Task<EquipmentCategoryLinkItemDto?> UpdateAsync(int categoryId, string kind, int linkId, EquipmentCategoryLinkUpdateRequest request, CancellationToken ct);
@@ -44,7 +44,41 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
             new LinkKind<EquipmentCategoryBreakdownReason, EquipmentBreakdownReasons>(db, "breakdown-reasons", "Breakdown Reasons", "breakdown reason",
                 l => l.EquipmentBreakdownReasonId, (l, id) => l.EquipmentBreakdownReasonId = id, m => m.BreakdownReason, m => m.IsActive),
             new LinkKind<EquipmentCategoryPMPoint, PreventiveMaintenancePoint>(db, "pm-points", "PM Points", "PM point",
-                l => l.PreventiveMaintenancePointId, (l, id) => l.PreventiveMaintenancePointId = id, m => m.MaintenancePointName ?? string.Empty, m => m.IsActive),
+                l => l.PreventiveMaintenancePointId, (l, id) => l.PreventiveMaintenancePointId = id, m => m.MaintenancePointName ?? string.Empty, m => m.IsActive,
+                readTrigger: l => new EquipmentCategoryPmTrigger
+                {
+                    ReadingTypeId = l.ReadingTypeId,
+                    IntervalValue = l.IntervalValue,
+                    ToleranceValue = l.ToleranceValue,
+                    Months = l.Months,
+                    MonthsTolerance = l.MonthsTolerance
+                },
+                writeTrigger: (l, t) =>
+                {
+                    l.ReadingTypeId = t.ReadingTypeId;
+                    l.IntervalValue = t.IntervalValue;
+                    l.ToleranceValue = t.ToleranceValue;
+                    l.Months = t.Months;
+                    l.MonthsTolerance = t.MonthsTolerance;
+                },
+                validateTrigger: async (t, ct) =>
+                {
+                    if (t.ReadingTypeId.HasValue != t.IntervalValue.HasValue)
+                        throw new ArgumentException("ReadingTypeId and IntervalValue must be given together.");
+                    if (t.IntervalValue.HasValue && t.IntervalValue.Value <= 0)
+                        throw new ArgumentException("IntervalValue must be greater than 0.");
+                    if (t.Months.HasValue && t.Months.Value <= 0)
+                        throw new ArgumentException("Months must be greater than 0.");
+                    if ((t.ToleranceValue.HasValue && (t.ToleranceValue.Value < 0 || t.ToleranceValue.Value > 100)) ||
+                        (t.MonthsTolerance.HasValue && (t.MonthsTolerance.Value < 0 || t.MonthsTolerance.Value > 100)))
+                        throw new ArgumentException("Tolerance must be between 0 and 100 (percent).");
+                    if (t.ReadingTypeId.HasValue)
+                    {
+                        var readingTypeId = t.ReadingTypeId.Value;
+                        var ok = await db.Set<MeterReadingType>().AsNoTracking().AnyAsync(r => r.ID == readingTypeId && r.IsActive, ct);
+                        if (!ok) throw new ArgumentException("The selected reading type was not found or is not active.");
+                    }
+                }),
             new LinkKind<EquipmentCategoryChecklistPoint, EquipmentChecklistPoint>(db, "checklist-points", "Equipment Checklist Points", "checklist point",
                 l => l.EquipmentChecklistPointId, (l, id) => l.EquipmentChecklistPointId = id, m => m.Description, m => m.IsActive),
             new LinkKind<EquipmentCategorySpecification, SpecificationMaster>(db, "specifications", "Specifications", "specification",
@@ -78,11 +112,11 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
         return new EquipmentCategoryConfigurationDto(categoryId, points.Count(p => p.IsConfigured), points.Count, points);
     }
 
-    public async Task<IReadOnlyList<EquipmentCategoryLinkItemDto>> GetAsync(int categoryId, string kind, CancellationToken ct)
+    public async Task<IReadOnlyList<EquipmentCategoryLinkItemDto>> GetAsync(int categoryId, string kind, bool includeInactive, CancellationToken ct)
     {
         var k = Kind(kind);
         await EnsureCategoryAsync(categoryId, ct);
-        return await k.ListAsync(categoryId, ct);
+        return await k.ListAsync(categoryId, includeInactive, ct);
     }
 
     public async Task<IReadOnlyList<EquipmentCategoryLinkOptionDto>> GetAvailableAsync(int categoryId, string kind, CancellationToken ct)
@@ -129,7 +163,7 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
         string Slug { get; }
         string Label { get; }
         Task<int> CountActiveAsync(int categoryId, CancellationToken ct);
-        Task<IReadOnlyList<EquipmentCategoryLinkItemDto>> ListAsync(int categoryId, CancellationToken ct);
+        Task<IReadOnlyList<EquipmentCategoryLinkItemDto>> ListAsync(int categoryId, bool includeInactive, CancellationToken ct);
         Task<IReadOnlyList<EquipmentCategoryLinkOptionDto>> AvailableAsync(int categoryId, CancellationToken ct);
         Task<EquipmentCategoryLinkItemDto> AddAsync(int categoryId, EquipmentCategoryLinkRequest request, int userId, CancellationToken ct);
         Task<EquipmentCategoryLinkItemDto?> UpdateAsync(int categoryId, int linkId, EquipmentCategoryLinkUpdateRequest request, int userId, CancellationToken ct);
@@ -148,24 +182,39 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
         private readonly Action<TLink, int> _setMasterId;
         private readonly Func<TMaster, string> _getName;
         private readonly Func<TMaster, bool> _isActive;
+        private readonly Func<TLink, EquipmentCategoryPmTrigger?>? _readTrigger;
+        private readonly Action<TLink, EquipmentCategoryPmTrigger>? _writeTrigger;
+        private readonly Func<EquipmentCategoryPmTrigger, CancellationToken, Task>? _validateTrigger;
 
         public string Slug { get; }
         public string Label { get; }
 
         public LinkKind(IPMDbContext db, string slug, string label, string noun,
-            Func<TLink, int> getMasterId, Action<TLink, int> setMasterId, Func<TMaster, string> getName, Func<TMaster, bool> isActive)
+            Func<TLink, int> getMasterId, Action<TLink, int> setMasterId, Func<TMaster, string> getName, Func<TMaster, bool> isActive,
+            Func<TLink, EquipmentCategoryPmTrigger?>? readTrigger = null,
+            Action<TLink, EquipmentCategoryPmTrigger>? writeTrigger = null,
+            Func<EquipmentCategoryPmTrigger, CancellationToken, Task>? validateTrigger = null)
         {
             _db = db; Slug = slug; Label = label; _noun = noun;
             _getMasterId = getMasterId; _setMasterId = setMasterId; _getName = getName; _isActive = isActive;
+            _readTrigger = readTrigger; _writeTrigger = writeTrigger; _validateTrigger = validateTrigger;
+        }
+
+        private Task ValidateTriggerAsync(EquipmentCategoryPmTrigger? trigger, CancellationToken ct) =>
+            trigger is not null && _validateTrigger is not null ? _validateTrigger(trigger, ct) : Task.CompletedTask;
+
+        private void ApplyTrigger(TLink link, EquipmentCategoryPmTrigger? trigger)
+        {
+            if (trigger is not null && _writeTrigger is not null) _writeTrigger(link, trigger);
         }
 
         public Task<int> CountActiveAsync(int categoryId, CancellationToken ct) =>
-            _db.Set<TLink>().AsNoTracking().CountAsync(l => l.EquipmentCategoryId == categoryId && !l.IsDeleted, ct);
+            _db.Set<TLink>().AsNoTracking().CountAsync(l => l.EquipmentCategoryId == categoryId && l.IsActive, ct);
 
-        public async Task<IReadOnlyList<EquipmentCategoryLinkItemDto>> ListAsync(int categoryId, CancellationToken ct)
+        public async Task<IReadOnlyList<EquipmentCategoryLinkItemDto>> ListAsync(int categoryId, bool includeInactive, CancellationToken ct)
         {
             var links = await _db.Set<TLink>().AsNoTracking()
-                .Where(l => l.EquipmentCategoryId == categoryId && !l.IsDeleted)
+                .Where(l => l.EquipmentCategoryId == categoryId && (includeInactive || l.IsActive))
                 .OrderBy(l => l.ID)
                 .ToListAsync(ct);
             return await ToDtosAsync(links, ct);
@@ -174,7 +223,7 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
         public async Task<IReadOnlyList<EquipmentCategoryLinkOptionDto>> AvailableAsync(int categoryId, CancellationToken ct)
         {
             var linkedIds = (await _db.Set<TLink>().AsNoTracking()
-                .Where(l => l.EquipmentCategoryId == categoryId && !l.IsDeleted)
+                .Where(l => l.EquipmentCategoryId == categoryId && l.IsActive)
                 .ToListAsync(ct)).Select(_getMasterId).ToHashSet();
 
             var masters = await _db.Set<TMaster>().AsNoTracking().OrderBy(m => m.ID).ToListAsync(ct);
@@ -190,6 +239,7 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
             var master = await _db.Set<TMaster>().AsNoTracking().FirstOrDefaultAsync(m => m.ID == request.MasterId, ct);
             if (master is null || !_isActive(master))
                 throw new ArgumentException($"The selected {_noun} was not found or is not active.");
+            await ValidateTriggerAsync(request.PmTrigger, ct);
 
             var links = await _db.Set<TLink>().Where(l => l.EquipmentCategoryId == categoryId).ToListAsync(ct);
             var link = links.FirstOrDefault(l => _getMasterId(l) == request.MasterId);
@@ -197,18 +247,18 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
 
             if (link is not null)
             {
-                if (!link.IsDeleted)
+                if (link.IsActive)
                     throw new InvalidOperationException($"This {_noun} is already linked to the equipment category.");
 
-                // Removed earlier: bring the same row back.
-                link.IsDeleted = false;
                 link.IsActive = true;
                 link.Remarks = Clean(request.Remarks);
+                ApplyTrigger(link, request.PmTrigger);
                 Touch(link, userId, now);
             }
             else
             {
                 link = NewLink(categoryId, request.MasterId, request.Remarks, userId, now);
+                ApplyTrigger(link, request.PmTrigger);
                 _db.Set<TLink>().Add(link);
             }
 
@@ -218,10 +268,12 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
 
         public async Task<EquipmentCategoryLinkItemDto?> UpdateAsync(int categoryId, int linkId, EquipmentCategoryLinkUpdateRequest request, int userId, CancellationToken ct)
         {
-            var link = await _db.Set<TLink>().FirstOrDefaultAsync(l => l.ID == linkId && l.EquipmentCategoryId == categoryId && !l.IsDeleted, ct);
+            var link = await _db.Set<TLink>().FirstOrDefaultAsync(l => l.ID == linkId && l.EquipmentCategoryId == categoryId, ct);
             if (link is null) return null;
 
+            await ValidateTriggerAsync(request.PmTrigger, ct);
             link.Remarks = Clean(request.Remarks);
+            ApplyTrigger(link, request.PmTrigger);
             if (request.IsActive.HasValue) link.IsActive = request.IsActive.Value;
             Touch(link, userId, DateTime.UtcNow);
             await _db.SaveChangesAsync(ct);
@@ -234,9 +286,9 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
             var link = await _db.Set<TLink>().FirstOrDefaultAsync(l => l.ID == linkId && l.EquipmentCategoryId == categoryId, ct);
             if (link is null) return false;
 
-            if (!link.IsDeleted)
+            if (link.IsActive)
             {
-                link.IsDeleted = true;
+                link.IsActive = false;
                 Touch(link, userId, DateTime.UtcNow);
                 await _db.SaveChangesAsync(ct);
             }
@@ -248,6 +300,8 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
             var duplicate = items.GroupBy(i => i.MasterId).FirstOrDefault(g => g.Count() > 1);
             if (duplicate is not null)
                 throw new ArgumentException($"The same {_noun} (id {duplicate.Key}) is listed more than once.");
+
+            foreach (var item in items) await ValidateTriggerAsync(item.PmTrigger, ct);
 
             var wantedIds = items.Select(i => i.MasterId).ToList();
             var masters = await _db.Set<TMaster>().AsNoTracking().Where(m => wantedIds.Contains(m.ID)).ToListAsync(ct);
@@ -265,12 +319,13 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
                 var remarks = Clean(item.Remarks);
                 if (linkByMaster.TryGetValue(item.MasterId, out var link))
                 {
-                    if (!link.IsDeleted)
+                    if (link.IsActive)
                     {
                         // Already linked: only remarks may change; a master switched off later does not block saving the tab.
-                        if (link.Remarks != remarks)
+                        if (link.Remarks != remarks || item.PmTrigger is not null)
                         {
                             link.Remarks = remarks;
+                            ApplyTrigger(link, item.PmTrigger);
                             Touch(link, userId, now);
                         }
                         continue;
@@ -278,29 +333,31 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
 
                     if (!_isActive(master))
                         throw new ArgumentException($"The selected {_noun} '{_getName(master)}' is not active.");
-                    link.IsDeleted = false;
                     link.IsActive = true;
                     link.Remarks = remarks;
+                    ApplyTrigger(link, item.PmTrigger);
                     Touch(link, userId, now);
                 }
                 else
                 {
                     if (!_isActive(master))
                         throw new ArgumentException($"The selected {_noun} '{_getName(master)}' is not active.");
-                    _db.Set<TLink>().Add(NewLink(categoryId, item.MasterId, remarks, userId, now));
+                    var created = NewLink(categoryId, item.MasterId, remarks, userId, now);
+                    ApplyTrigger(created, item.PmTrigger);
+                    _db.Set<TLink>().Add(created);
                 }
             }
 
-            // Anything that was linked before but is no longer in the list is marked deleted (row kept for history).
+            // Anything that was linked before but is no longer in the list is switched off (kept for history).
             var keep = wantedIds.ToHashSet();
-            foreach (var link in links.Where(l => !l.IsDeleted && !keep.Contains(_getMasterId(l))))
+            foreach (var link in links.Where(l => l.IsActive && !keep.Contains(_getMasterId(l))))
             {
-                link.IsDeleted = true;
+                link.IsActive = false;
                 Touch(link, userId, now);
             }
 
             await _db.SaveChangesAsync(ct);
-            return await ListAsync(categoryId, ct);
+            return await ListAsync(categoryId, false, ct);
         }
 
         // --------------------------------------------------------------------------------------------
@@ -313,7 +370,6 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
                 EquipmentCategoryId = categoryId,
                 Remarks = Clean(remarks),
                 IsActive = true,
-                IsDeleted = false,
                 CreatedBy = userId,
                 CreatedDate = now,
                 LastModifiedBy = userId,
@@ -340,6 +396,6 @@ public sealed class EquipmentCategoryLinkService : IEquipmentCategoryLinkService
         }
 
         private EquipmentCategoryLinkItemDto ToDto(TLink l, string masterName) =>
-            new(l.ID, _getMasterId(l), masterName, l.Remarks, l.IsActive, l.CreatedBy, l.CreatedDate, l.LastModifiedBy, l.LastModifiedDate);
+            new(l.ID, _getMasterId(l), masterName, l.Remarks, l.IsActive, l.CreatedBy, l.CreatedDate, l.LastModifiedBy, l.LastModifiedDate, _readTrigger?.Invoke(l));
     }
 }

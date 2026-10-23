@@ -19,6 +19,7 @@ internal static class DynamicsEquipmentCategoryMapper
             ISLOGBOOKREQUIRED_ISPL = e.ISLOGBOOKREQUIRED_ISPL,
             ISPLISSYNC = e.ISPLISSYNC,
             ISPLISUPDATED = e.ISPLISUPDATED,
+            IsActive = e.IsActive,
             CreatedDate = e.CreatedDate,
             CreatedBy = e.CreatedBy,
             LastModifiedDate = e.LastModifiedDate,
@@ -36,5 +37,6 @@ internal static class DynamicsEquipmentCategoryMapper
         e.ISLOGBOOKREQUIRED_ISPL = r.ISLOGBOOKREQUIRED_ISPL;
         e.ISPLISSYNC = r.ISPLISSYNC;
         e.ISPLISUPDATED = r.ISPLISUPDATED;
+        if (r.IsActive.HasValue) e.IsActive = r.IsActive.Value;
     }
 }

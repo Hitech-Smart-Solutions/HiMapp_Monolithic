@@ -14,6 +14,8 @@ public sealed class DynamicsEquipmentCategoryRequest
     public ISPLYesNo ISLOGBOOKREQUIRED_ISPL { get; set; } = ISPLYesNo.No;
     public ISPLISSync ISPLISSYNC { get; set; } = ISPLISSync.No;
     public ISPLISUpdated ISPLISUPDATED { get; set; } = ISPLISUpdated.No;
+    /// <summary>Optional. A new record is active by default; on update leave it out to keep the current value.</summary>
+    public bool? IsActive { get; set; }
 }
 
 public sealed class DynamicsEquipmentCategoryDto
@@ -29,7 +31,7 @@ public sealed class DynamicsEquipmentCategoryDto
     public ISPLYesNo ISLOGBOOKREQUIRED_ISPL { get; set; } = ISPLYesNo.No;
     public ISPLISSync ISPLISSYNC { get; set; } = ISPLISSync.No;
     public ISPLISUpdated ISPLISUPDATED { get; set; } = ISPLISUpdated.No;
-    // public bool IsActive { get; set; }
+    public bool IsActive { get; set; }
     public DateTime? CreatedDate { get; set; }
     public int CreatedBy { get; set; }
     public DateTime? LastModifiedDate { get; set; }

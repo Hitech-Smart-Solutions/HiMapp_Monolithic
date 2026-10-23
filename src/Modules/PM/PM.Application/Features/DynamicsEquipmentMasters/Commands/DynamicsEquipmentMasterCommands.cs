@@ -7,5 +7,5 @@ public sealed record CreateDynamicsEquipmentMasterCommand(DynamicsEquipmentMaste
 
 public sealed record UpdateDynamicsEquipmentMasterCommand(int Id, DynamicsEquipmentMasterRequest Request) : IRequest<DynamicsEquipmentMasterDto?>;
 
-/// <summary>Delete (soft delete to be enabled once IsActive is migrated).</summary>
+/// <summary>Soft delete: sets IsActive = false, the row is kept.</summary>
 public sealed record DeleteDynamicsEquipmentMasterCommand(int Id) : IRequest<bool>;
