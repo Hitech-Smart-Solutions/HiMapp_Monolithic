@@ -1,6 +1,7 @@
+using Himapp.PM.Application.Features.PreventiveMaintenancePoints.Commands;
 using Himapp.PM.Application.Features.SpareParts.Commands;
-using Himapp.PM.Application.Features.SpareParts.Queries;
 using Himapp.PM.Application.Features.SpareParts.Models;
+using Himapp.PM.Application.Features.SpareParts.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -104,10 +105,16 @@ public sealed class SparePartCataloguesController : ControllerBase
         }
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    [HttpPut("SetActiveInActiveSpartPartCatalogues")]
+    public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
-        var deleted = await _mediator.Send(new DeleteSparePartCatalogueCommand(id), cancellationToken);
+        if (dtoInactive is null)
+            return BadRequest("Delete request is required.");
+
+        if (dtoInactive.ProgramRowId <= 0)
+            return BadRequest("Spare part catalogue ID is required.");
+
+        var deleted = await _mediator.Send(new DeleteSparePartCatalogueCommand(dtoInactive), cancellationToken);
         return deleted ? Ok() : NotFound();
     }
 }
