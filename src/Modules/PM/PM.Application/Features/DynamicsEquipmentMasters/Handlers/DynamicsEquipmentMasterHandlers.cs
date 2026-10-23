@@ -84,7 +84,7 @@ internal sealed class DeleteDynamicsEquipmentMasterCommandHandler : IRequestHand
         var entity = await _db.Set<DynamicsEquipmentMaster>().FirstOrDefaultAsync(m => m.ID == command.Id, cancellationToken);
         if (entity is null) return false;
 
-        // TODO: soft delete (IsActive = false) once the IsActive column is migrated. For now this only stamps the audit fields.
+        entity.IsActive = false; // soft delete
         entity.LastModifiedBy = userId;
         entity.LastModifiedDate = DateTime.UtcNow;
         await _db.SaveChangesAsync(cancellationToken);

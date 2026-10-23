@@ -50,6 +50,8 @@ public sealed class DynamicsEquipmentMasterRequest
     public string? WARRANTYVEND { get; set; }
     public string? WRKCTRLDESCRIPTION { get; set; }
     public int? HimappProjectID { get; set; }
+    /// <summary>Optional. A new record is active by default; on update leave it out to keep the current value.</summary>
+    public bool? IsActive { get; set; }
 }
 
 public sealed class DynamicsEquipmentMasterDto
@@ -101,6 +103,7 @@ public sealed class DynamicsEquipmentMasterDto
     public string? WARRANTYVEND { get; set; }
     public string? WRKCTRLDESCRIPTION { get; set; }
     public int? HimappProjectID { get; set; }
+    public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
     public int CreatedBy { get; set; }
     public DateTime LastModifiedDate { get; set; }

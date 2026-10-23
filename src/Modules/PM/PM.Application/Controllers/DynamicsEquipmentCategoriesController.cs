@@ -78,7 +78,7 @@ public sealed class DynamicsEquipmentCategoriesController : ControllerBase
         }
     }
 
-    /// <summary>Delete (soft delete to be enabled once IsActive is migrated).</summary>
+    /// <summary>Soft delete: sets IsActive = false, the row is kept.</summary>
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {

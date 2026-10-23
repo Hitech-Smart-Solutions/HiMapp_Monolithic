@@ -20,6 +20,7 @@ public static class DependencyInjection
         services.AddScoped<DynamicsAssetTypeJobs>();
         services.AddScoped<IDynamicsSyncLogService, DynamicsSyncLogService>();
         services.AddScoped<IEquipmentCategoryLinkService, EquipmentCategoryLinkService>();
+        services.AddScoped<IEquipmentSetupService, EquipmentSetupService>();
         services.AddHttpClient();
         services.AddHttpClient<IDynamicsIntegrationService, DynamicsIntegrationService>();
         return services;
