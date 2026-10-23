@@ -4,20 +4,6 @@ using System.Text;
 
 namespace Himapp.Workflow.Application.Features
 {
-    public enum Actions
-    {
-        Inserted = 501,
-        Updated = 502,
-        Deleted = 503,
-
-        // Status
-        Activated = 504,
-        Inactivated = 505,
-
-        // Approval Workflow
-        Viewed = 506
-    }
-
     public enum ApprovalWorkflowStatus
     {
         Draft = 1,
