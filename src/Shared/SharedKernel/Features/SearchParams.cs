@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Himapp.Workflow.Application.Features
+namespace Himapp.SharedKernel.Features
 {
     public class SearchParams
     {
