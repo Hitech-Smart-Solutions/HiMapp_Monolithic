@@ -17,14 +17,17 @@ public sealed class EquipmentBreakdownReasonsController : ControllerBase
 
     public EquipmentBreakdownReasonsController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>Retrieves all equipment breakdown reasons.</summary>
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllEquipmentBreakdownReasonsQuery(), cancellationToken));
 
+    /// <summary>Retrieves the equipment category, manufacturer, and model lookup data.</summary>
     [HttpGet("category-manufacturer-models")]
     public async Task<IActionResult> GetCategoryManufacturerModels(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetEquipmentCategoryManufacturerModelsQuery(), cancellationToken));
 
+    /// <summary>Retrieves a paginated breakdown reason list with optional filtering, sorting, and active-status selection.</summary>
     [HttpGet("list")]
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
@@ -38,6 +41,7 @@ public sealed class EquipmentBreakdownReasonsController : ControllerBase
             new GetEquipmentBreakdownReasonsList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
             cancellationToken));
 
+    /// <summary>Retrieves the equipment breakdown reason with the specified identifier.</summary>
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
@@ -45,6 +49,7 @@ public sealed class EquipmentBreakdownReasonsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Creates an equipment breakdown reason from the supplied request.</summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] EquipmentBreakdownReasonsRequest request, CancellationToken cancellationToken)
     {
@@ -65,6 +70,7 @@ public sealed class EquipmentBreakdownReasonsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
+    /// <summary>Updates the equipment breakdown reason with the specified identifier using the supplied request.</summary>
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(int id, [FromBody] EquipmentBreakdownReasonsRequest request, CancellationToken cancellationToken)
     {
@@ -85,6 +91,7 @@ public sealed class EquipmentBreakdownReasonsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Changes the active status of the breakdown reason identified by the supplied action history.</summary>
     [HttpPut("SetActiveInActiveBreakdownReasons")]
     public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {

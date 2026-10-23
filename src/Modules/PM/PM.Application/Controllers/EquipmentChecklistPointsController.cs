@@ -17,10 +17,12 @@ public sealed class EquipmentChecklistPointsController : ControllerBase
 
     public EquipmentChecklistPointsController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>Retrieves all equipment checklist points.</summary>
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken) =>
         Ok(await _mediator.Send(new GetAllEquipmentChecklistPointsQuery(), cancellationToken));
 
+    /// <summary>Retrieves a paginated checklist point list with optional filtering, sorting, and active-status selection.</summary>
     [HttpGet("list")]
     public async Task<IActionResult> GetList(
         [FromQuery] int page = 1,
@@ -34,6 +36,7 @@ public sealed class EquipmentChecklistPointsController : ControllerBase
             new GetEquipmentChecklistPointList(page, pageSize, filterColumn, filterValue, sortColumn, isActive),
             cancellationToken));
 
+    /// <summary>Retrieves the equipment checklist point with the specified identifier.</summary>
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
@@ -41,6 +44,7 @@ public sealed class EquipmentChecklistPointsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Creates an equipment checklist point from the supplied request.</summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] EquipmentChecklistPointRequest request, CancellationToken cancellationToken)
     {
@@ -61,6 +65,7 @@ public sealed class EquipmentChecklistPointsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
+    /// <summary>Updates the equipment checklist point with the specified identifier using the supplied request.</summary>
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(int id, [FromBody] EquipmentChecklistPointRequest request, CancellationToken cancellationToken)
     {
@@ -81,6 +86,7 @@ public sealed class EquipmentChecklistPointsController : ControllerBase
         return result is null ? NotFound() : Ok(result);
     }
 
+    /// <summary>Changes the active status of the checklist point identified by the supplied action history.</summary>
     [HttpPut("SetActiveInActiveChecklistPoints")]
     public async Task<IActionResult> Delete([FromBody] AddTransactionActionHistoryDTO dtoInactive, CancellationToken cancellationToken)
     {
